@@ -1,4 +1,10 @@
 ---
+// Instagram MAIN FEED layout (not the earlier Reels-style overlay): a post
+// header (avatar/handle/location/verification), the video as its own
+// letterboxed block, an action/meta row, then a caption block — all on
+// plain black, never metadata burned over the footage. See
+// docs/design-spec.md §9 ("Why the feed card is changing shape, not just
+// colour") for the rationale.
 import type { VideoEntry } from "../lib/schema";
 import { MEDIA_BASE } from "../config";
 import VerificationBadge from "./VerificationBadge.astro";
@@ -19,6 +25,17 @@ const eventDate = new Date(video.date).toLocaleDateString("en-US", {
   month: "short",
   day: "numeric",
 });
+
+const archivedDate = new Date(video.archivedAt).toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+});
+
+// Deterministic monogram avatar: no avatar images exist in the data, and CSP
+// forbids fetching remote images anyway. First letter of the uploader handle
+// on a --color-surface circle with a --color-border ring.
+const avatarInitial = video.source.uploader.replace(/^@/, "").trim().charAt(0).toUpperCase() || "?";
 ---
 
 <article
@@ -30,73 +47,82 @@ const eventDate = new Date(video.date).toLocaleDateString("en-US", {
   aria-label={`${video.title}. Press Enter or Space to play or pause, up or down arrow to move between videos.`}
 >
   <div class="card-frame">
-    {
-      video.sample && (
-        <div class="sample-banner" role="status">
-          Sample &mdash; placeholder entry
-        </div>
-      )
-    }
+    <header class="card-header">
+      <div class="avatar" aria-hidden="true">{avatarInitial}</div>
+      <div class="header-text">
+        <span class="handle">{video.source.uploader}</span>
+        <span class="location">{video.location}</span>
+      </div>
+      <VerificationBadge status={video.verificationStatus} />
+    </header>
 
-    <video
-      playsinline
-      muted
-      loop
-      preload={isFirst ? "metadata" : "none"}
-      poster={thumbSrc}
-      fetchpriority={isFirst ? "high" : "auto"}
-      width={video.media.width}
-      height={video.media.height}
-      class="card-video"
-    >
-      <track kind="captions" />
-    </video>
+    <div class="video-wrap">
+      {
+        video.sample && (
+          <div class="sample-banner" role="status">
+            Sample &mdash; placeholder entry
+          </div>
+        )
+      }
 
-    <div class="play-glyph" aria-hidden="true" data-icon="play">
-      <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
-      <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"></path></svg>
-    </div>
+      <video
+        playsinline
+        muted
+        loop
+        preload={isFirst ? "metadata" : "none"}
+        poster={thumbSrc}
+        fetchpriority={isFirst ? "high" : "auto"}
+        width={video.media.width}
+        height={video.media.height}
+        class="card-video"
+      >
+        <track kind="captions" />
+      </video>
 
-    <button
-      type="button"
-      class="mute-btn"
-      aria-label="Mute video"
-      aria-pressed="true"
-      data-muted="true"
-    >
-      <svg class="icon-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M11 5 6 9H3v6h3l5 4z"></path>
-        <line x1="16" y1="9" x2="21" y2="15"></line>
-        <line x1="21" y1="9" x2="16" y2="15"></line>
-      </svg>
-      <svg class="icon-unmuted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M11 5 6 9H3v6h3l5 4z"></path>
-        <path d="M15.5 8.5a5 5 0 0 1 0 7"></path>
-        <path d="M18 6a9 9 0 0 1 0 12"></path>
-      </svg>
-    </button>
+      <div class="play-glyph" aria-hidden="true" data-icon="play">
+        <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
+        <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"></path></svg>
+      </div>
 
-    <div class="scrim">
-      <div class="scrim-meta">
-        <div class="scrim-row scrim-handle">
-          <span class="handle">@{video.source.uploader}</span>
-          <VerificationBadge status={video.verificationStatus} variant="scrim" />
-        </div>
-        <p class="caption line-clamp-2">
-          <span class="caption-title">{video.title}</span>{video.description}
-        </p>
-        <a href={`/video/${video.id}/`} class="more-link">more</a>
-        <div class="scrim-row scrim-sub">
-          <span>{video.source.platform}</span>
-          <span aria-hidden="true">&middot;</span>
-          <time datetime={video.date}>{eventDate}</time>
-          <a href={`/video/${video.id}/`} class="details-link">Details &rarr;</a>
-        </div>
+      <button
+        type="button"
+        class="mute-btn"
+        aria-label="Mute video"
+        aria-pressed="true"
+        data-muted="true"
+      >
+        <svg class="icon-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M11 5 6 9H3v6h3l5 4z"></path>
+          <line x1="16" y1="9" x2="21" y2="15"></line>
+          <line x1="21" y1="9" x2="16" y2="15"></line>
+        </svg>
+        <svg class="icon-unmuted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M11 5 6 9H3v6h3l5 4z"></path>
+          <path d="M15.5 8.5a5 5 0 0 1 0 7"></path>
+          <path d="M18 6a9 9 0 0 1 0 12"></path>
+        </svg>
+      </button>
+
+      <div class="progress-track" aria-hidden="true">
+        <div class="progress-fill"></div>
       </div>
     </div>
 
-    <div class="progress-track" aria-hidden="true">
-      <div class="progress-fill"></div>
+    <div class="meta-row">
+      <span class="meta-left">
+        <span>{video.source.platform}</span>
+        <span aria-hidden="true">&middot;</span>
+        <time datetime={video.date}>{eventDate}</time>
+      </span>
+      <a href={`/video/${video.id}/`} class="details-link">Details &rarr;</a>
+    </div>
+
+    <div class="caption-block">
+      <p class="caption line-clamp-2">
+        <span class="caption-handle">{video.source.uploader}</span> {video.description}
+      </p>
+      <a href={`/video/${video.id}/`} class="more-link">more</a>
+      <time class="archived-date" datetime={video.archivedAt}>Archived {archivedDate}</time>
     </div>
   </div>
 </article>
@@ -106,14 +132,29 @@ const eventDate = new Date(video.date).toLocaleDateString("en-US", {
     /* Sized to fill its scroll container (#feed), which is itself sized to
        100svh/100dvh minus the app header by Base.astro's fullBleed layout —
        NOT to the raw device viewport. Using 100dvh directly here would make
-       each card taller than the visible scrollport and break snap-locking. */
+       each card taller than the visible scrollport and break snap-locking.
+       On mobile the app shell's bottom tab bar is `position: fixed` and
+       floats translucently OVER full-bleed content (see Base.astro), so the
+       card reserves --app-nav-h at its own bottom edge — otherwise the
+       caption block could sit underneath the floating nav, unreadable. On
+       >=768px the nav is an in-flow top bar and no longer overlaps. */
     position: relative;
+    display: flex;
+    flex-direction: column;
     height: 100%;
+    box-sizing: border-box;
+    padding-bottom: calc(var(--app-nav-h) + env(safe-area-inset-bottom, 0px));
     scroll-snap-align: start;
     scroll-snap-stop: always;
     overflow: hidden;
-    background: var(--color-letterbox);
+    background: var(--color-bg);
     isolation: isolate;
+  }
+
+  @media (min-width: 768px) {
+    .feed-card {
+      padding-bottom: 0;
+    }
   }
 
   .feed-card:focus-visible {
@@ -122,10 +163,13 @@ const eventDate = new Date(video.date).toLocaleDateString("en-US", {
   }
 
   .card-frame {
-    position: relative;
+    display: flex;
+    flex-direction: column;
     width: 100%;
     height: 100%;
+    min-height: 0;
     margin-inline: auto;
+    overflow: hidden;
   }
 
   @media (min-width: 768px) {
@@ -134,9 +178,69 @@ const eventDate = new Date(video.date).toLocaleDateString("en-US", {
     }
   }
 
+  /* --- Post header: avatar, handle + location, verification badge --- */
+
+  .card-header {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .avatar {
+    flex: 0 0 auto;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .header-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    line-height: 1.3;
+  }
+
+  .handle {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .location {
+    font-size: 0.75rem;
+    color: var(--color-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* --- Video: the flexible element that absorbs leftover height --- */
+
+  .video-wrap {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    background: var(--color-letterbox);
+  }
+
   .sample-banner {
     position: absolute;
-    top: calc(env(safe-area-inset-top, 0px) + 0.75rem);
+    top: 0.75rem;
     left: 50%;
     transform: translateX(-50%);
     z-index: 30;
@@ -209,34 +313,25 @@ const eventDate = new Date(video.date).toLocaleDateString("en-US", {
     }
   }
 
+  /* Small translucent pill anchored to the video's own bottom-right corner
+     — no longer needs to dodge the floating bottom nav itself, since that
+     reserve now lives on .feed-card's padding-bottom, above. */
   .mute-btn {
-    /* On mobile the app shell's bottom tab bar is `position: fixed` and
-       floats translucently OVER full-bleed content (see Base.astro) — so
-       controls anchored to the card's true bottom edge would sit underneath
-       it, unreachable/mis-clickable. Reserve --app-nav-h there. On >=768px
-       the nav becomes an in-flow top bar and no longer overlaps, so the
-       reserve drops to zero (see media query below). */
     position: absolute;
-    right: 0.75rem;
-    bottom: calc(var(--app-nav-h) + 0.75rem + env(safe-area-inset-bottom, 0px));
+    right: 0.6rem;
+    bottom: 0.6rem;
     z-index: 25;
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 2.25rem;
+    height: 2.25rem;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 999px;
     border: none;
-    background: rgba(0, 0, 0, 0.45);
+    background: rgba(0, 0, 0, 0.5);
     color: #fff;
     cursor: pointer;
     transition: opacity 300ms ease;
-  }
-
-  @media (min-width: 768px) {
-    .mute-btn {
-      bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
-    }
   }
 
   @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
@@ -251,8 +346,8 @@ const eventDate = new Date(video.date).toLocaleDateString("en-US", {
   }
 
   .mute-btn svg {
-    width: 1.15rem;
-    height: 1.15rem;
+    width: 1.1rem;
+    height: 1.1rem;
     position: absolute;
     transition: opacity 200ms ease;
   }
@@ -265,82 +360,48 @@ const eventDate = new Date(video.date).toLocaleDateString("en-US", {
     opacity: 0;
   }
 
-  .scrim {
+  .progress-track {
     position: absolute;
-    inset-inline: 0;
+    left: 0;
+    right: 0;
     bottom: 0;
-    z-index: 15;
-    max-height: 42%;
-    overflow: hidden;
-    padding: 2.5rem 3.25rem 1rem 1rem;
-    /* Same floating-nav reserve as .mute-btn, above. */
-    padding-bottom: calc(var(--app-nav-h) + 1rem + env(safe-area-inset-bottom, 0px) + 6px);
-    background: linear-gradient(
-      to top,
-      rgba(0, 0, 0, 0.72) 0%,
-      rgba(0, 0, 0, 0.45) 55%,
-      rgba(0, 0, 0, 0) 100%
-    );
+    height: 3px;
+    z-index: 22;
+    background: rgba(255, 255, 255, 0.2);
   }
 
-  @media (min-width: 768px) {
-    .scrim {
-      padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px) + 6px);
-    }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: #fff;
   }
 
-  .scrim-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-    color: #fff;
-  }
+  /* --- Action/meta row: platform · date, Details link --- */
 
-  .scrim-row {
+  .meta-row {
+    flex: 0 0 auto;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 0.5rem;
-    flex-wrap: wrap;
-  }
-
-  .handle {
-    font-weight: 600;
-    font-size: 0.85rem;
-  }
-
-  .caption {
-    font-size: 0.8rem;
-    line-height: 1.35;
-    color: rgba(255, 255, 255, 0.92);
-    margin: 0;
-  }
-
-  .caption-title {
-    font-weight: 600;
-    margin-right: 0.3em;
-  }
-
-  .more-link {
-    align-self: flex-start;
+    padding: 0.45rem 0.75rem;
     font-size: 0.75rem;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.75);
-    text-decoration: none;
+    color: var(--color-muted);
   }
 
-  .more-link:hover {
-    text-decoration: underline;
-  }
-
-  .scrim-sub {
-    font-size: 0.72rem;
-    color: rgba(255, 255, 255, 0.75);
+  .meta-left {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .details-link {
-    margin-left: auto;
+    flex: 0 0 auto;
     font-weight: 600;
-    color: #fff;
+    color: var(--color-link);
     text-decoration: none;
     min-height: 24px;
     display: inline-flex;
@@ -351,27 +412,43 @@ const eventDate = new Date(video.date).toLocaleDateString("en-US", {
     text-decoration: underline;
   }
 
-  .progress-track {
-    /* Same floating-nav reserve as .mute-btn/.scrim, above. */
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: var(--app-nav-h);
-    height: 3px;
-    z-index: 26;
-    background: rgba(255, 255, 255, 0.25);
+  /* --- Caption block --- */
+
+  .caption-block {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0 0.75rem 0.6rem;
   }
 
-  @media (min-width: 768px) {
-    .progress-track {
-      bottom: 0;
-    }
+  .caption {
+    font-size: 0.8125rem;
+    line-height: 1.35;
+    color: var(--color-text);
+    margin: 0;
   }
 
-  .progress-fill {
-    height: 100%;
-    width: 0%;
-    background: #fff;
+  .caption-handle {
+    font-weight: 600;
+    margin-right: 0.3em;
+  }
+
+  .more-link {
+    align-self: flex-start;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-link);
+    text-decoration: none;
+  }
+
+  .more-link:hover {
+    text-decoration: underline;
+  }
+
+  .archived-date {
+    font-size: 0.6875rem;
+    color: var(--color-muted);
   }
 
   /* prefers-reduced-motion fallback: native controls take over, our custom
