@@ -111,6 +111,16 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
   </section>
 
   <div class="content-col storyline">
+    <!-- Memorial lede: the thesis line that opens the storyline, the first
+         text read after scrolling past the poster. Date-led and restrained
+         to match the archive's documentation-first voice — the epithet is the
+         site's own memorial framing, not a claim about any media item. -->
+    <section class="reveal lede" data-reveal>
+      <p class="lede-kicker">20 July 2026</p>
+      <h2 class="lede-title">The Day India Remembered</h2>
+      <p class="lede-sub">For many, the darkest day of India&rsquo;s democracy.</p>
+    </section>
+
     <section class="reveal story-block" data-reveal>
       <h2 class="text-lg font-semibold">What happened</h2>
       <p class="mt-2 text-sm leading-relaxed text-muted">
@@ -366,6 +376,40 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
   .story-block:first-child {
     padding-top: 0;
     border-top: none;
+  }
+
+  /* --- Memorial lede: opens the storyline (first text after the poster) -- */
+
+  .lede {
+    text-align: center;
+    padding-bottom: 1.5rem;
+  }
+
+  .lede-kicker {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .lede-title {
+    margin: 0.7rem 0 0;
+    font-size: clamp(1.5rem, 6vw, 2.05rem);
+    font-weight: 700;
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    color: var(--color-text);
+  }
+
+  .lede-sub {
+    margin: 0.85rem auto 0;
+    max-width: 26rem;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--color-muted);
   }
 
   .story-block--closing {
