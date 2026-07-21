@@ -1,5 +1,9 @@
 {
   "name": "blackdays",
   "compatibility_date": "2026-07-21",
-  "assets": { "directory": "./dist", "not_found_handling": "404-page" }
+  "assets": { "directory": "./dist", "not_found_handling": "404-page" },
+  // Served from an existing zone in the account, so no workers.dev subdomain is
+  // needed. Cloudflare creates and manages the DNS record for a custom_domain
+  // route automatically. Swap to blackdays.in once that zone is added.
+  "routes": [{ "pattern": "20072026.com", "custom_domain": true }]
 }
