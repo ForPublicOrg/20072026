@@ -8,7 +8,10 @@ import sitemap from '@astrojs/sitemap';
 // https://astro.build/config
 export default defineConfig({
   output: 'static',
-  site: 'https://blackdays.in',
+  // Must match the domain actually being served, or every absolute og:image and
+  // canonical URL points at a host that does not resolve — link previews break.
+  // Flip back to https://blackdays.in once that zone is live.
+  site: 'https://20072026.com',
 
   vite: {
     plugins: [tailwindcss()]
