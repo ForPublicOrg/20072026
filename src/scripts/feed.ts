@@ -159,6 +159,7 @@ function activate(card: HTMLElement, cards: HTMLElement[], index: number) {
 
   attachSrc(video, card);
   video.muted = globalMuted;
+  updateMuteUI(card, globalMuted);
   video.play().catch(() => {});
 
   const next = cards[index + 1];
