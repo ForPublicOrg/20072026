@@ -1,0 +1,192 @@
+---
+import Base from "../../layouts/Base.astro";
+import VerificationBadge from "../../components/VerificationBadge.astro";
+import { loadVideos } from "../../lib/schema";
+import { MEDIA_BASE, SITE_URL } from "../../config";
+import type { VideoEntry } from "../../lib/schema";
+
+export function getStaticPaths() {
+  const videos = loadVideos();
+  return videos.map((video) => ({
+    params: { id: video.id },
+    props: { video },
+  }));
+}
+
+interface Props {
+  video: VideoEntry;
+}
+
+const { video } = Astro.props;
+const allVideos = loadVideos();
+
+function relatedScore(other: VideoEntry): number {
+  if (other.id === video.id) return -1;
+  const sharedTags = other.tags.filter((tag) => video.tags.includes(tag)).length;
+  let score = sharedTags * 2;
+  if (other.date === video.date) score += 1;
+  if (other.location === video.location) score += 1;
+  return score;
+}
+
+const relatedVideos = allVideos
+  .map((other) => ({ video: other, score: relatedScore(other) }))
+  .filter((entry) => entry.score > 0)
+  .sort((a, b) => b.score - a.score)
+  .slice(0, 4)
+  .map((entry) => entry.video);
+
+const videoSrc = `${MEDIA_BASE}${video.media.video}`;
+const thumbSrc = `${MEDIA_BASE}${video.media.thumbnail}`;
+const absoluteThumbSrc = `${SITE_URL}${thumbSrc}`;
+
+const eventDate = new Date(video.date).toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+const archivedDate = new Date(video.archivedAt).toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+const publishedDate = new Date(video.source.publishedAt).toLocaleDateString(
+  "en-US",
+  { year: "numeric", month: "long", day: "numeric" },
+);
+
+const durationLabel = `${Math.floor(video.media.duration / 60)}:${String(
+  video.media.duration % 60,
+).padStart(2, "0")}`;
+
+const truncatedDescription =
+  video.description.length > 200
+    ? `${video.description.slice(0, 197)}...`
+    : video.description;
+---
+
+<Base
+  title={video.title}
+  description={truncatedDescription}
+  ogImage={absoluteThumbSrc}
+  ogType="video.other"
+>
+  <div class="content-col py-8">
+    {
+      video.sample && (
+        <div class="mb-4 inline-block rounded-full bg-accent px-3 py-1 text-xs font-semibold uppercase tracking-wide text-bg">
+          Sample — placeholder entry
+        </div>
+      )
+    }
+
+    <div
+      class="video-player-wrap mx-auto mb-6 flex w-full items-center justify-center bg-black"
+      style={`aspect-ratio: ${video.media.width} / ${video.media.height};`}
+    >
+      <video
+        controls
+        preload="metadata"
+        poster={thumbSrc}
+        src={videoSrc}
+        width={video.media.width}
+        height={video.media.height}
+        class="h-full max-h-[80svh] w-full object-contain"
+      >
+        <track kind="captions" />
+      </video>
+    </div>
+
+    <h1 class="text-2xl font-bold leading-snug">{video.title}</h1>
+
+    <div class="mt-3">
+      <VerificationBadge status={video.verificationStatus} />
+    </div>
+
+    <dl class="metadata mt-4 grid grid-cols-1 gap-x-4 gap-y-2 text-sm sm:grid-cols-2">
+      <div>
+        <dt class="text-muted">Event date</dt>
+        <dd>{eventDate}</dd>
+      </div>
+      <div>
+        <dt class="text-muted">Location</dt>
+        <dd>{video.location}</dd>
+      </div>
+      <div>
+        <dt class="text-muted">Platform</dt>
+        <dd>{video.source.platform}</dd>
+      </div>
+      <div>
+        <dt class="text-muted">Uploader</dt>
+        <dd>{video.source.uploader}</dd>
+      </div>
+      <div>
+        <dt class="text-muted">Published</dt>
+        <dd>{publishedDate}</dd>
+      </div>
+      <div>
+        <dt class="text-muted">Archived</dt>
+        <dd>{archivedDate}</dd>
+      </div>
+      <div>
+        <dt class="text-muted">Duration</dt>
+        <dd>{durationLabel}</dd>
+      </div>
+      <div>
+        <dt class="text-muted">Original source</dt>
+        <dd>
+          <a
+            href={video.source.url}
+            rel="noopener nofollow"
+            target="_blank"
+            class="text-accent no-underline hover:underline"
+          >
+            View original &rarr;
+          </a>
+        </dd>
+      </div>
+    </dl>
+
+    <p class="mt-6 whitespace-pre-line text-base leading-relaxed">
+      {video.description}
+    </p>
+
+    <div class="mt-4 flex flex-wrap gap-2">
+      {
+        video.tags.map((tag) => (
+          <span class="rounded-full bg-white/5 px-2.5 py-1 text-xs text-muted">
+            #{tag}
+          </span>
+        ))
+      }
+    </div>
+
+    {
+      relatedVideos.length > 0 && (
+        <section class="mt-12">
+          <h2 class="text-lg font-semibold">Related videos</h2>
+          <div class="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {relatedVideos.map((related) => (
+              <a
+                href={`/video/${related.id}/`}
+                class="group flex flex-col gap-1 no-underline"
+              >
+                <img
+                  src={`${MEDIA_BASE}${related.media.thumbnail}`}
+                  alt={related.title}
+                  width="180"
+                  height="320"
+                  loading="lazy"
+                  class="aspect-[9/16] w-full rounded-md object-cover"
+                />
+                <span class="line-clamp-2 text-xs text-muted group-hover:text-text">
+                  {related.title}
+                </span>
+              </a>
+            ))}
+          </div>
+        </section>
+      )
+    }
+  </div>
+</Base>

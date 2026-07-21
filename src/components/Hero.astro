@@ -1,0 +1,49 @@
+---
+import { SITE_NAME } from "../config";
+---
+
+<section
+  class="hero relative flex flex-col items-center justify-center gap-6 px-4 text-center"
+>
+  <div class="content-col flex flex-col items-center gap-6">
+    <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
+      {SITE_NAME}
+    </h1>
+    <p class="max-w-md text-balance text-base text-muted sm:text-lg">
+      An archive of publicly available video, photos, and reporting
+      documenting a specific protest event — preserved for the record,
+      clearly marked by verification status, never edited into a narrative.
+    </p>
+    <div class="flex flex-wrap items-center justify-center gap-4">
+      <a
+        href="/timeline/"
+        class="motion-fade inline-flex min-h-11 items-center rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-bg no-underline hover:opacity-90"
+      >
+        View timeline
+      </a>
+      <a
+        href="/about/"
+        class="motion-fade inline-flex min-h-11 items-center rounded-full border border-white/20 px-5 py-2.5 text-sm font-medium text-text no-underline hover:border-white/40"
+      >
+        About the archive
+      </a>
+    </div>
+  </div>
+
+  <div class="scroll-cue absolute bottom-6 text-muted" aria-hidden="true">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+</section>
+
+<style>
+  .hero {
+    min-height: 100svh;
+    background: radial-gradient(
+      circle at 50% 20%,
+      #1a1a1e 0%,
+      #0a0a0b 70%
+    );
+  }
+</style>

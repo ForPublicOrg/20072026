@@ -1,0 +1,40 @@
+---
+import Base from "../layouts/Base.astro";
+import TimelineEvent from "../components/TimelineEvent.astro";
+import { loadTimeline, loadVideos } from "../lib/schema";
+
+const events = [...loadTimeline()].sort((a, b) =>
+  a.time < b.time ? -1 : a.time > b.time ? 1 : 0,
+);
+const videos = loadVideos();
+const videosById = new Map(videos.map((video) => [video.id, video]));
+---
+
+<Base
+  title="Timeline"
+  description="Chronological timeline of events in the Black Days archive, each linked to the related video entries."
+>
+  <div class="content-col py-8">
+    <h1 class="text-2xl font-bold">Timeline</h1>
+    <p class="mt-2 text-sm text-muted">
+      Events are listed chronologically. Each entry links to the related
+      video(s) in the archive; every video follows the same{" "}
+      <a href="/about/#verification" class="text-accent no-underline hover:underline"
+        >verification policy</a
+      >.
+    </p>
+
+    <ol class="mt-8">
+      {
+        events.map((event) => (
+          <TimelineEvent
+            event={event}
+            videos={event.relatedVideoIds
+              .map((id) => videosById.get(id))
+              .filter((v): v is NonNullable<typeof v> => Boolean(v))}
+          />
+        ))
+      }
+    </ol>
+  </div>
+</Base>

@@ -1,17 +1,30 @@
 ---
+import Base from "../layouts/Base.astro";
+import Hero from "../components/Hero.astro";
+import VideoCard from "../components/VideoCard.astro";
+import { loadVideos } from "../lib/schema";
 
+const videos = [...loadVideos()].sort((a, b) => {
+  if (a.date !== b.date) return a.date < b.date ? 1 : -1;
+  return a.id < b.id ? 1 : -1;
+});
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Base
+  title="Home"
+  description="An archive of publicly available video, photos, and reporting documenting a specific protest event. Preservation, discoverability, and historical documentation — not commentary."
+>
+  <Hero />
+
+  <div id="feed" class="feed">
+    {videos.map((video, index) => <VideoCard video={video} index={index} />)}
+  </div>
+</Base>
+
+<style>
+  .feed {
+    scroll-snap-type: y proximity;
+  }
+</style>
+
+<script src="../scripts/feed.ts"></script>
