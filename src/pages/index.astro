@@ -166,11 +166,19 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
     left: 0;
     right: 0;
     bottom: 0;
-    height: 46%;
+    /* The poster carries its own values strip along its bottom edge
+       (DOCUMENT / REMEMBER / PRESERVE / HONOR). Our CTA and scroll cue sit in
+       exactly that band, so a light scrim leaves the two colliding — the
+       artwork's captions read through the button. Take the base to full black
+       and hold it opaque through the lower third so that strip is fully
+       suppressed and our overlay sits on clean ground. */
+    height: 52%;
     background: linear-gradient(
       to top,
-      rgba(0, 0, 0, 0.88) 0%,
-      rgba(0, 0, 0, 0.6) 40%,
+      rgba(0, 0, 0, 1) 0%,
+      rgba(0, 0, 0, 1) 26%,
+      rgba(0, 0, 0, 0.82) 48%,
+      rgba(0, 0, 0, 0.45) 72%,
       rgba(0, 0, 0, 0) 100%
     );
     pointer-events: none;
