@@ -32,7 +32,8 @@ const {
 const pageTitle = `${title} — ${SITE_NAME}`;
 
 const path = Astro.url.pathname;
-const isFeed = path === "/";
+const isHome = path === "/";
+const isFeed = path.startsWith("/feed");
 const isTimeline = path.startsWith("/timeline");
 const isAbout = path.startsWith("/about");
 ---
@@ -89,19 +90,25 @@ const isAbout = path.startsWith("/about");
 
     <!--
       Icon-only bottom tab bar (Instagram pattern): no text labels — the
-      single biggest "this is a website" tell was the "Feed"/"Timeline"/
-      "About" captions under each icon. Active state is a filled glyph vs an
-      outline glyph (also Instagram's own convention), not a colour pill.
-      Each icon is a uniform 24px box, ~1.75px stroke, one family. The
-      "filled" paths use a hardcoded #000 for negative-space details (the
-      door notch, clock hands, the "i" dot) — safe because the nav's
-      background is always solid #000, so the cutout always matches it
-      exactly, the same technique Instagram's own icon set uses.
-      `aria-label` keeps each link accessible without a visible caption.
+      single biggest "this is a website" tell was the "Home"/"Feed"/
+      "Timeline"/"About" captions under each icon. Active state is a filled
+      glyph vs an outline glyph (also Instagram's own convention), not a
+      colour pill. Each icon is a uniform 24px box, ~1.75px stroke, one
+      family. The "filled" paths use a hardcoded #000 for negative-space
+      details (the door notch, play triangle, clock hands, the "i" dot) —
+      safe because the nav's background is always solid #000, so the cutout
+      always matches it exactly, the same technique Instagram's own icon set
+      uses. `aria-label` keeps each link accessible without a visible
+      caption.
+
+      Home links to `/`, the landing page — previously this house glyph was
+      the "Feed" tab back when the feed itself was the landing page (see
+      docs/design-spec.md §7, "supersedes" note, 2026-07-21). Feed now gets
+      its own tab (a reels-style play glyph) pointing at `/feed`.
     -->
     <nav class="app-nav border-border" aria-label="Primary">
-      <a href="/" aria-current={isFeed ? "page" : undefined} aria-label="Feed">
-        {isFeed ? (
+      <a href="/" aria-current={isHome ? "page" : undefined} aria-label="Home">
+        {isHome ? (
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" fill="currentColor" stroke="none" />
             <rect x="10.25" y="14.25" width="3.5" height="5.75" fill="#000" rx="0.5" />
@@ -109,6 +116,19 @@ const isAbout = path.startsWith("/about");
         ) : (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" />
+          </svg>
+        )}
+      </a>
+      <a href="/feed" aria-current={isFeed ? "page" : undefined} aria-label="Feed">
+        {isFeed ? (
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="4" y="4" width="16" height="16" rx="5" fill="currentColor" stroke="none" />
+            <path d="M10.5 8.5v7l6-3.5z" fill="#000" stroke="none" />
+          </svg>
+        ) : (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="4" y="4" width="16" height="16" rx="5" />
+            <path d="M10.5 8.5v7l6-3.5z" fill="currentColor" stroke="none" />
           </svg>
         )}
       </a>

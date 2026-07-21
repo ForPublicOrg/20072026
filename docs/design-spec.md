@@ -93,17 +93,25 @@ Everything entering via the pipeline starts as `unverified`. Upgrades are manual
 
 ## 7. Pages
 
+**Supersedes the "feed-as-landing" decision below (same day, 2026-07-21):** landing a visitor straight into the scrolling feed was reconsidered — the owner's framing was that the point of the archive is to let people *relive the day so it isn't forgotten*, which a silent autoplaying feed with no framing doesn't achieve on first contact. `/` is now a minimal landing page (banner, one-line context, a "Relive the day" CTA) and the feed itself moved to `/feed`, unchanged in behaviour.
+
 | Route | Content |
 |---|---|
-| `/` | **Feed-as-landing** (decision recorded 2026-07-21, implemented alongside the feed-card rebuild): the full-viewport reels-style feed *is* the home page, not a hero section the visitor must scroll past. The feed is the app; the mission statement moves to `/about` so it doesn't block the first card. |
+| `/` | **Landing page.** A banner illustration (art-directed: wide crop on desktop, a wider-than-tall crop on mobile — see below), a short factual paragraph on the events of 20 July 2026 and what the archive is, build-time-computed archive counts, and a primary "Relive the day" CTA into `/feed`. Not full-bleed — it scrolls normally and keeps the bottom nav. |
+| ~~`/` — feed-as-landing~~ | **Superseded.** Decision recorded 2026-07-21, implemented alongside the feed-card rebuild: the full-viewport reels-style feed *was* the home page, no hero to scroll past. Reversed the same day (see above) once the owner decided a visitor needs context before the feed, not instead of it. |
+| `/feed` | The full-viewport, reels-style, scroll-snap video feed (formerly at `/`). See §8. |
 | `/video/[id]` | Video player, full metadata, verification badge, original-source link, uploader, archive date, related videos (shared tags/date), unique OG meta |
 | `/timeline` | Chronological event list; each event links to its related media |
 | `/about` | Mission, methodology, verification policy summary, contact/takedown note |
 | `404` | Real 404 (no SPA fallback) |
 
-Navigation is a persistent app shell, not a page-by-page header: a bottom tab bar (Feed · Timeline · About) on mobile, which becomes a slim top bar on desktop so wide viewports don't look like a stretched phone. As of the true-black pass (2026-07-21), the tab bar is **icon-only** — no text captions under the icons, Instagram's own pattern — with the active tab indicated by a filled glyph vs. an outline glyph rather than a colour pill; each link carries an `aria-label` so screen-reader users lose nothing the sighted UI had. Astro's `<ClientRouter />` (view transitions) morphs between the three routes instead of a full reload, respecting `prefers-reduced-motion`.
+The landing page's banner is an **AI-generated illustration, not documentary footage**, and is captioned as such directly beneath it ("Illustration — not documentary footage") — the same credibility line this spec draws everywhere else (§11, `verification-policy.md`): the site never lets illustrative material read as documentary material. Its `og:image` (used for WhatsApp/X/Telegram link previews) is this banner rather than the generic `og-default.png`, since the banner is the more effective, more accurate preview for how this archive actually spreads.
+
+Navigation is a persistent app shell, not a page-by-page header: a bottom tab bar (Home · Feed · Timeline · About) on mobile, which becomes a slim top bar on desktop so wide viewports don't look like a stretched phone. As of the true-black pass (2026-07-21), the tab bar is **icon-only** — no text captions under the icons, Instagram's own pattern — with the active tab indicated by a filled glyph vs. an outline glyph rather than a colour pill; each link carries an `aria-label` so screen-reader users lose nothing the sighted UI had. The Home tab was added when `/` stopped being the feed, so users dropped into `/feed` (or any other page) always have a one-tap way back to the landing page. Astro's `<ClientRouter />` (view transitions) morphs between routes instead of a full reload, respecting `prefers-reduced-motion`.
 
 ## 8. Feed behavior
+
+Lives at `/feed` (moved from `/` on 2026-07-21, see §7).
 
 - Each card ≈ full viewport: video, title, source + date, tags, verification badge, description.
 - **IntersectionObserver**: when a card is ≥60% visible → muted autoplay; when it leaves → pause and reset nothing (resume position kept).
