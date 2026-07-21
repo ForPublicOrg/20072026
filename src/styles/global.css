@@ -1,18 +1,46 @@
 @import "tailwindcss";
 
+/*
+ * Light, Instagram-like design tokens.
+ *
+ * Superseded on 2026-07-21: the dark palette originally specified in
+ * docs/design-spec.md §9 has been reversed to a light theme at the owner's
+ * direction, to read as a native mobile app rather than a "sober archive"
+ * site. See docs/design-spec.md §9 for the rationale.
+ *
+ * Contrast ratios (WCAG relative luminance formula) verified numerically —
+ * see the commit message / design-spec.md for the full table. Anything used
+ * for body-weight text targets >= 4.5:1 against #ffffff.
+ */
 @theme {
-  --color-bg: #0a0a0b;
-  --color-surface: #141416;
-  --color-text: #e7e7ea;
-  --color-muted: #9a9aa3;
-  --color-accent: #c9a227;
+  /* Surfaces */
+  --color-bg: #ffffff; /* page background */
+  --color-surface: #fafafa; /* elevated surface: cards, chips, sheets */
+  --color-border: #dbdbdb; /* hairline border, Instagram's signature 1px */
+  --color-letterbox: #000000; /* ALWAYS black behind portrait video, even in light mode */
+
+  /* Text */
+  --color-text: #262626; /* primary text — 15.1:1 vs #fff */
+  --color-muted: #737373; /* secondary text — 4.74:1 vs #fff (AA) */
+  --color-tertiary: #c7c7c7; /* decorative/disabled ONLY — 1.7:1, not for text a user must read */
+
+  /* Accent */
+  --color-accent: #262626; /* restrained near-black; active nav, primary buttons, links */
+  --color-link: #0095f6; /* reserved for genuinely interactive affordances only */
+
   --font-sans:
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
     sans-serif;
 }
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
+
+  /* App-shell geometry, exposed so pages (e.g. a full-bleed feed) can size
+     their own scroll containers around the header/nav chrome precisely. */
+  --app-header-h: 3.25rem;
+  --app-nav-h: 3.75rem;
+  --app-nav-h-desktop: 3rem;
 }
 
 html,
@@ -22,12 +50,36 @@ body {
   font-family: var(--font-sans);
 }
 
+body {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: contain;
+}
+
 * {
   box-sizing: border-box;
 }
 
-body {
-  margin: 0;
+img,
+video,
+button,
+input,
+textarea,
+select,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Sensible default: chrome (buttons, nav, controls) isn't selectable like
+   running text is. Actual copy still selects normally. */
+button,
+a,
+nav,
+.app-nav,
+.app-header {
+  user-select: none;
 }
 
 a {
@@ -73,5 +125,15 @@ a {
   }
   50% {
     transform: translateY(6px);
+  }
+}
+
+/* Astro View Transitions: degrade to an instant swap under reduced motion
+   rather than relying on browser default handling. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }

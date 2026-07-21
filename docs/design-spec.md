@@ -95,11 +95,13 @@ Everything entering via the pipeline starts as `unverified`. Upgrades are manual
 
 | Route | Content |
 |---|---|
-| `/` | Hero (title, one-paragraph intro, timeline link, scroll cue) + full-viewport reels-style feed |
+| `/` | **Feed-as-landing** (decision recorded 2026-07-21, implemented alongside the feed-card rebuild): the full-viewport reels-style feed *is* the home page, not a hero section the visitor must scroll past. The feed is the app; the mission statement moves to `/about` so it doesn't block the first card. |
 | `/video/[id]` | Video player, full metadata, verification badge, original-source link, uploader, archive date, related videos (shared tags/date), unique OG meta |
 | `/timeline` | Chronological event list; each event links to its related media |
 | `/about` | Mission, methodology, verification policy summary, contact/takedown note |
 | `404` | Real 404 (no SPA fallback) |
+
+Navigation is a persistent app shell, not a page-by-page header: a bottom tab bar (Feed · Timeline · About) on mobile, which becomes a slim top bar on desktop so wide viewports don't look like a stretched phone. Astro's `<ClientRouter />` (view transitions) morphs between the three routes instead of a full white-flash reload, respecting `prefers-reduced-motion`.
 
 ## 8. Feed behavior
 
@@ -108,10 +110,43 @@ Everything entering via the pipeline starts as `unverified`. Upgrades are manual
 - `preload="none"`, poster = thumbnail. Video `src` is attached only for the current and next card; detached beyond that. The archive can grow to thousands of entries without the homepage degrading.
 - Tap/click toggles sound. Keyboard: cards focusable, space/enter toggles play.
 - Mobile-first layout; desktop centers the column (~`max-w-xl`).
+- The feed is a full-bleed, fixed-height scroll container beneath the app shell (`Base.astro`'s `fullBleed` prop removes page padding and document scroll so the feed owns its own snap-scrolling), not a normal padded page.
 
 ## 9. Design language
 
-A modern digital archive, not a social platform. Dark, sober, high-contrast palette; system font stack; generous whitespace; no decorative animation, no autoplay audio, no clickbait patterns. Verification badge colors are muted, not alarmist. Lighthouse targets: 100 across the board; LCP < 2s (hero poster image, not video, is the LCP element).
+**Superseded 2026-07-21, at the site owner's explicit direction.** The dark, sober, "digital archive" palette below was the original approach and shipped in the first version of the site. The owner then asked for the opposite: the site should feel like a **native mobile app**, specifically evoking Instagram — sophisticated, minimal, and **light** (white). This is a full reversal of the palette, not a tweak, and it is intentional.
+
+**What changed:** background flips from near-black (`#0a0a0b`) to white (`#ffffff`); text flips from off-white to near-black (`#262626`); the amber accent (`#c9a227`) is replaced by a restrained near-black accent, with a blue (`#0095f6`) reserved only for genuinely interactive affordances if one is ever needed. Verification badge colors were re-derived from scratch for the light background — the original set was tuned for a dark surface and fails WCAG AA on white. Navigation moves from a simple header link row to a persistent bottom tab bar (mobile) / slim top bar (desktop) — see §7. View transitions were added so route changes feel like an app, not a document reload.
+
+**What didn't change, and why this is still credible:** this is an archive of protest documentation, not a social product, and the credibility argument in §11 does not rest on the aesthetic being sober or dark. It rests on persistent attribution (platform, uploader, original URL — always visible, §11), the verification badge being present on every item and never defaulted upward, and the explicit SAMPLE banner on placeholder content. A light, native-app-feeling shell does not weaken any of that; none of §11's rules changed. What a "serious" visual register buys you is a *prior*, not a proof — a reader still has to check the badge and the attribution either way. The bet here is that a familiar, low-friction, native-feeling surface gets more people to actually scroll the archive and read those attributions, which is the point of an archive that wants to be seen.
+
+Concrete tokens (see `src/styles/global.css` for the source of truth):
+
+| Token | Value | Use |
+|---|---|---|
+| `--color-bg` | `#ffffff` | page background |
+| `--color-surface` | `#fafafa` | elevated surface (cards, chips) |
+| `--color-border` | `#dbdbdb` | hairline border |
+| `--color-letterbox` | `#000000` | always black behind portrait video, even in light mode — portrait video on white looks broken, and Instagram itself letterboxes on black in light mode |
+| `--color-text` | `#262626` | primary text (15.1:1 vs white) |
+| `--color-muted` | `#737373` | secondary text (4.74:1 vs white, AA) |
+| `--color-tertiary` | `#c7c7c7` | decorative/disabled only — not for text a user must read (1.7:1) |
+| `--color-accent` | `#262626` | active nav, primary buttons, links |
+| `--color-link` | `#0095f6` | reserved, genuinely-interactive affordances only |
+
+Verification badge colors were re-derived in two variants — `light` (on-white, detail/timeline pages) and `scrim` (over a dark gradient on video, feed cards) — because the same color that reads fine on a dark scrim can fail contrast on white. See `src/components/VerificationBadge.astro`. Measured contrast ratios (WCAG relative-luminance formula):
+
+| Status | on-white text vs `#ffffff` | on-scrim text vs `#000000` |
+|---|---|---|
+| Verified | `#146c2e` — 6.53:1 | `#5fd88a` — 11.68:1 |
+| Likely verified | `#0d6b6b` — 6.30:1 | `#5eead4` — 14.20:1 |
+| Partially verified | `#7a5900` — 6.45:1 | `#fbbf24` — 12.58:1 |
+| Unverified | `#595959` — 7.00:1 | `#e5e5e5` — 16.67:1 |
+| Context unclear | `#9a4200` — 6.66:1 | `#fb923c` — 9.28:1 |
+
+All five clear WCAG AA (4.5:1) with margin, on both surfaces the badge actually appears on. They remain muted and informational, never alarmist, per `verification-policy.md`.
+
+System font stack; tight, app-like type scale (14px body, 13px secondary, generous line-height) applied to the app-shell chrome (header, nav). Generous whitespace; no decorative animation beyond opacity/transform ≤200ms, all wrapped in `prefers-reduced-motion: no-preference`; no autoplay audio; no clickbait patterns. Native-app details: `overscroll-behavior-y: contain`, `100svh`/`100dvh` instead of `100vh`, safe-area insets respected in the bottom nav, a web app manifest so "Add to Home Screen" behaves like an installed app. Lighthouse targets: 100 across the board; LCP < 2s (a poster image, not video, is the LCP element).
 
 ## 10. Accessibility
 
