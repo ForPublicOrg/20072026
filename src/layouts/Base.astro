@@ -314,69 +314,64 @@ const isAbout = path.startsWith("/about");
     overflow: hidden;
   }
 
-  /* >=768px: the bottom tab bar becomes a slim top bar so desktop doesn't
-     look like a stretched phone. It sits in-flow directly under the header
-     rather than fixed. */
+  /* >=768px: the bottom tab bar becomes a fixed left sidebar (Instagram's
+     own desktop pattern) instead of a stretched-phone bottom bar. It's a
+     permanent rail, not a floating overlay — main is given matching
+     margin-left below so page content sits inset from it, the same way
+     Instagram's feed column never renders underneath its sidebar. This
+     replaces the old "static in-flow top bar on content pages / fixed
+     floating bottom bar on the landing page" split entirely: on desktop
+     it's always a left rail, full stop. */
   @media (min-width: 768px) {
     .app-nav {
-      position: static;
-      justify-content: center;
-      gap: 2.5rem;
-      height: var(--app-nav-h-desktop);
+      position: fixed;
+      left: 0;
+      right: auto;
+      /* Sits below the sticky header by default; body.is-nav-overlay
+         (landing page only, which hides the header) overrides this to 0
+         so the rail runs the full viewport height. */
+      top: var(--app-header-h);
+      bottom: 0;
+      width: var(--app-nav-w-desktop);
+      height: auto;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 1.75rem;
+      padding: 2rem 0 1rem;
       border-top: none;
-      border-bottom: 1px solid var(--color-border);
-      padding-bottom: 0;
+      border-right: 1px solid var(--color-border);
     }
 
     .app-nav a {
       flex: none;
-      min-height: 40px;
-      min-width: 40px;
-      padding: 8px;
-    }
-
-    .app-nav svg {
-      width: 22px;
-      height: 22px;
+      min-height: 44px;
+      min-width: 44px;
+      padding: 10px;
     }
 
     body:not(.is-full-bleed) main {
       padding-bottom: 0;
+      margin-left: var(--app-nav-w-desktop);
     }
 
+    /* Full-bleed pages (e.g. /feed): the rail no longer claims any vertical
+       space (it's a fixed sidebar, not an in-flow bar), so height only
+       needs to clear the header. Horizontal clearance comes from
+       margin-left below, same as every other page. */
     body.is-full-bleed main {
-      height: calc(100svh - var(--app-header-h) - var(--app-nav-h-desktop));
-      height: calc(100dvh - var(--app-header-h) - var(--app-nav-h-desktop));
-    }
-
-    /* Landing page: the nav floats (fixed) here too (see .is-nav-overlay
-       above), so — unlike the general non-full-bleed desktop case, which
-       zeroes this out because the nav normally sits in-flow — trailing
-       page content still needs clearance so it isn't hidden underneath the
-       floating bar. Same specificity as the `padding-bottom: 0` rule
-       above; wins on source order. */
-    body.is-nav-overlay:not(.is-full-bleed) main {
-      padding-bottom: var(--app-nav-h-desktop);
+      height: calc(100svh - var(--app-header-h));
+      height: calc(100dvh - var(--app-header-h));
+      margin-left: var(--app-nav-w-desktop);
     }
   }
 
-  /* Landing page only: keep the tab bar floating (fixed, bottom) even on
-     desktop, where it would otherwise sit in-flow as a static top bar (see
-     the >=768px block above). Higher selector specificity than the
-     unqualified `.app-nav` rule above wins regardless of media query, no
-     !important needed. A full 100svh hero must never be shortened by an
-     in-flow nav claiming its own layout space. */
-  body.is-nav-overlay .app-nav {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    top: auto;
-    /* Undo the desktop static-top-bar treatment above: a floating bar at
-       the bottom needs a top border (separating it from the content it
-       sits over), not a bottom one, and its own safe-area padding. */
-    border-top: 1px solid var(--color-border);
-    border-bottom: none;
-    padding-bottom: env(safe-area-inset-bottom);
+  /* Landing page only: no header exists to sit below (hideHeader), so the
+     rail runs the full viewport height from the top instead of starting
+     at var(--app-header-h). */
+  @media (min-width: 768px) {
+    body.is-nav-overlay .app-nav {
+      top: 0;
+    }
   }
 </style>

@@ -28,7 +28,7 @@
 
   /* Accent */
   --color-accent: #ffffff; /* active nav, primary buttons — white on black */
-  --color-link: #0095f6; /* Instagram blue, reserved for genuinely interactive affordances only — 6.63:1 vs #000 */
+  --color-link: #3b82c4; /* muted blue (toned down from IG's #0095f6 — read as too attention-grabbing), reserved for genuinely interactive affordances only — 5.16:1 vs #000 */
 
   --font-sans:
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
@@ -42,7 +42,7 @@
      their own scroll containers around the header/nav chrome precisely. */
   --app-header-h: 3.25rem;
   --app-nav-h: 3.75rem;
-  --app-nav-h-desktop: 3rem;
+  --app-nav-w-desktop: 4.75rem;
 }
 
 html,

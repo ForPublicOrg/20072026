@@ -31,16 +31,16 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
 
   <section class="hero">
     <picture>
-      <!-- Desktop / wide viewports: native 1536x1024 (3:2), close match to
-           a ~1.6:1 viewport, minimal crop. 1536 is also this crop's ceiling
-           (nothing higher was ever committed) so widths stop there; both
-           candidates got the same mild-unsharp re-encode as the portrait
-           crop below, for consistency, even though a 1440x900 desktop at
-           DPR 1 doesn't actually need to upscale this source. -->
+      <!-- Desktop / wide viewports: re-rendered 2:1 artwork (source: a fresh
+           2x upscale of the newer poster generation, re-encoded here at
+           1280/1920/2560w with the same mild-unsharp treatment as the
+           portrait crop below). 2:1 is a much closer match to common
+           desktop viewport ratios than the old 3:2 crop was, so `cover`
+           below now only has to trim a sliver rather than pillarbox. -->
       <source
         media="(min-width: 768px)"
         type="image/webp"
-        srcset="/banner/students-wide-1080.webp 1080w, /banner/students-wide-1536.webp 1536w"
+        srcset="/banner/students-wide-1280.webp 1280w, /banner/students-wide-1920.webp 1920w, /banner/students-wide-2560.webp 2560w"
         sizes="100vw"
       />
       <source
@@ -180,8 +180,11 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
 
   @media (min-width: 768px) {
     .hero {
-      --hero-strip-h: 17%;
-      height: calc(100svh - var(--app-nav-h-desktop));
+      --hero-strip-h: 13%;
+      /* Desktop nav is a fixed left sidebar (no header on the landing
+         page either), so it claims no vertical space here — the hero can
+         take the full viewport height. */
+      height: 100svh;
     }
   }
 
@@ -210,14 +213,18 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
 
   @media (min-width: 768px) {
     .hero-img {
-      /* Anchor bottom, not center: at typical wide/short desktop aspect
-         ratios (e.g. 1440x900), object-fit: cover only has ~60px of vertical
-         overflow to crop for this image, but a *center* anchor was splitting
-         that crop evenly top and bottom — quietly shaving the poster's
-         bottom-edge values strip down to an ~8% sliver on screen, most of
-         which then sat behind the fixed bottom nav. Anchoring bottom takes
-         the entire crop off the top (where there's ample sky/margin above
-         the "REC" mark) so the strip renders at its full height instead. */
+      /* Desktop switches to `cover`: the mobile portrait crop still needs
+         `contain` (see above — no wider anchor rescues both ends there),
+         but the new 2:1 desktop artwork is close enough to real viewport
+         ratios that `cover` only trims a small sliver rather than
+         pillarboxing, and it's what actually fills the viewport edge to
+         edge (the previous unconditional `contain` was letterboxing every
+         desktop width, which is the "black bars on both sides" the owner
+         flagged). Anchor bottom, not center, for the same reason as before:
+         it puts the entire crop at the top (ample sky/margin above the
+         "REC" mark) so the bottom-edge values strip survives at full
+         height instead of being shaved down and half-hidden behind the nav. */
+      object-fit: cover;
       object-position: center bottom;
     }
   }
@@ -228,7 +235,11 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
      reviewed and approved that strip's artwork and wants it visible, so the
      scrim is anchored ABOVE it (bottom: var(--hero-strip-h), not 0) and
      lightened substantially: it now only has to support our own text, not
-     suppress the poster underneath it. */
+     suppress the poster underneath it. The bottom stop is near-opaque
+     (not the old flat 0.5) so it visually merges into the strip's own
+     near-black background instead of leaving a visible hard-edged seam
+     where a half-transparent scrim met lighter artwork right at the
+     boundary line. */
   .hero-scrim {
     position: absolute;
     left: 0;
@@ -237,8 +248,8 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
     height: 36%;
     background: linear-gradient(
       to top,
-      rgba(0, 0, 0, 0.5) 0%,
-      rgba(0, 0, 0, 0.22) 55%,
+      rgba(0, 0, 0, 0.92) 0%,
+      rgba(0, 0, 0, 0.3) 45%,
       rgba(0, 0, 0, 0) 100%
     );
     pointer-events: none;
@@ -250,10 +261,11 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
     right: 0;
     /* Anchored above the poster's own values strip (see --hero-strip-h on
        .hero) so the CTA/scroll-cue never sit on top of it — and, as a
-       floor, always clears the floating bottom nav (fixed on every
-       breakpoint on this page — see Base.astro's `overlayNav` prop) even on
-       a viewport short enough that the strip's measured height would
-       otherwise undercut the nav bar. */
+       floor, always clears the floating bottom nav (mobile only — fixed at
+       the bottom of the viewport there, see Base.astro) even on a viewport
+       short enough that the strip's measured height would otherwise
+       undercut the nav bar. Desktop overrides this below since its nav is
+       a left sidebar with no bottom footprint to clear. */
     bottom: max(
       var(--hero-strip-h),
       calc(var(--app-nav-h) + env(safe-area-inset-bottom) + 0.85rem)
@@ -268,7 +280,9 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
 
   @media (min-width: 768px) {
     .hero-overlay {
-      bottom: max(var(--hero-strip-h), calc(var(--app-nav-h-desktop) + 1rem));
+      /* No bottom bar to clear on desktop (left sidebar instead) — just
+         the strip, plus a small fixed floor for very short viewports. */
+      bottom: max(var(--hero-strip-h), 1rem);
     }
   }
 
