@@ -82,8 +82,13 @@ nav,
   user-select: none;
 }
 
-a {
-  color: inherit;
+/* Must live in @layer base: unlayered CSS beats every @layer, so an unlayered
+   `a { color: inherit }` silently overrides Tailwind's text-* utilities (which
+   are generated inside @layer utilities) on every anchor site-wide. */
+@layer base {
+  a {
+    color: inherit;
+  }
 }
 
 :focus-visible {
