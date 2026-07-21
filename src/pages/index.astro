@@ -1,9 +1,10 @@
 ---
-// Landing page. Until 2026-07-21 this route WAS the feed (see
-// docs/design-spec.md §7, "supersedes" note) — the owner decided a visitor
-// should land on an explanation of what this archive is and why it exists
-// before being dropped into the feed itself, not the other way around. The
-// feed now lives at /feed (src/pages/feed.astro), unchanged in behaviour.
+// Landing page. Apple-product-page style: the entire first viewport is the
+// poster illustration (no visible site title/header — the poster carries
+// its own titling), a CTA + scroll cue sit on it, and a short scroll
+// storyline reveals underneath. See docs/design-spec.md §7 for the history
+// of this route (it has flipped between "feed-as-landing" and "banner +
+// context page" more than once on 2026-07-21; this is the latest state).
 import Base from "../layouts/Base.astro";
 import { loadVideos, loadTimeline } from "../lib/schema";
 import { SITE_URL } from "../config";
@@ -13,120 +14,201 @@ const timeline = loadTimeline();
 const realVideos = videos.filter((v) => !v.sample);
 const sampleVideos = videos.filter((v) => v.sample);
 
-const ogImage = `${SITE_URL}/banner/hero-wide.jpg`;
+const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
 ---
 
 <Base
   title="Home"
   description="On 20 July 2026, more than 10,000 people marched towards Parliament in New Delhi. This is an archive of publicly available video from that day, with source attribution and a verification label on every entry."
   ogImage={ogImage}
+  hideHeader
+  overlayNav
+  hideFooter
 >
+  <!-- The poster already carries the date/title text; this heading exists
+       for SEO and screen readers only, never rendered visibly. -->
   <h1 class="sr-only">20 07 2026 — The Day India Remembered</h1>
 
-  <picture>
-    <source
-      media="(min-width: 768px)"
-      type="image/webp"
-      srcset="/banner/hero-wide-1280.webp 1280w, /banner/hero-wide-1920.webp 1920w"
-      sizes="100vw"
-    />
-    <!-- Portrait poster is natively 864x1821; do not offer widths above 864 —
-         upscaling only inflates bytes without adding detail. -->
-    <source
-      type="image/webp"
-      srcset="/banner/hero-portrait-640.webp 640w, /banner/hero-portrait-864.webp 864w"
-      sizes="100vw"
-    />
-    <img
-      src="/banner/hero-portrait.jpg"
-      alt="Illustration of a crowd behind police barricades facing a domed government building, with Indian flags and scattered examination papers, overlaid with the text 20·07·2026, The Day India Remembered."
-      width="864"
-      height="1821"
-      fetchpriority="high"
-      loading="eager"
-      decoding="async"
-      class="hero-banner"
-    />
-  </picture>
+  <section class="hero">
+    <picture>
+      <!-- Desktop / wide viewports: native 1536x1024 (3:2), close match to
+           a ~1.6:1 viewport, minimal crop. -->
+      <source
+        media="(min-width: 768px)"
+        type="image/webp"
+        srcset="/banner/students-wide-1080.webp 1080w, /banner/students-wide-1536.webp 1536w"
+        sizes="100vw"
+      />
+      <source
+        media="(min-width: 768px)"
+        type="image/jpeg"
+        srcset="/banner/students-wide.jpg"
+      />
+      <!-- Mobile / narrow viewports: native 864x1822 portrait (~1:2.11),
+           close match to a ~1:2.16 phone. Do not offer widths above 864 —
+           upscaling only inflates bytes for zero extra detail. -->
+      <source
+        type="image/webp"
+        srcset="/banner/students-portrait-640.webp 640w, /banner/students-portrait-864.webp 864w"
+        sizes="100vw"
+      />
+      <img
+        src="/banner/students-portrait.jpg"
+        alt="Illustration of riot police holding batons and Delhi Police riot shields standing over injured students on the ground, surrounded by scattered protest placards and Indian flags, with the event's date and title overlaid on the artwork."
+        width="800"
+        height="1686"
+        fetchpriority="high"
+        loading="eager"
+        decoding="async"
+        class="hero-img"
+      />
+    </picture>
 
-  <p class="hero-caption">Illustration — not documentary footage</p>
+    <div class="hero-scrim" aria-hidden="true"></div>
 
-  <div class="content-col pt-5 pb-8">
-    <!-- Lead line + CTA come first so both sit above the fold on a phone. The
-         fuller account follows underneath for anyone who wants it. -->
-    <p class="text-sm leading-relaxed text-muted">
-      An archive of publicly available video from 20 July 2026, kept with its
-      original sources and labelled by what has actually been verified.
-    </p>
+    <div class="hero-overlay">
+      <p class="illustration-label">
+        Illustration. Not documentary footage — see the archive for verified
+        material.
+      </p>
 
-    <div class="cta-row">
       <a href="/feed" class="cta-primary">Relive the day</a>
+
+      <div class="scroll-cue">
+        <span class="scroll-cue-chevron" aria-hidden="true"></span>
+        <span class="scroll-cue-label">Scroll</span>
+      </div>
     </div>
+  </section>
 
-    <p class="mt-8 text-sm leading-relaxed text-muted">
-      On 20 July 2026, more than 10,000 people marched towards Parliament in
-      New Delhi. Police cut mobile internet, closed metro stations and used
-      tear gas and batons.
-    </p>
-    <p class="mt-4 text-sm leading-relaxed text-muted">
-      This is an archive of publicly available video from that day and the
-      days around it. Every entry keeps its original source and uploader,
-      and carries a label saying how much of it has actually been verified.
-    </p>
+  <div class="content-col storyline">
+    <section class="reveal story-block" data-reveal>
+      <h2 class="text-lg font-semibold">What happened</h2>
+      <p class="mt-2 text-sm leading-relaxed text-muted">
+        On 20 July 2026, more than 10,000 people marched towards Parliament
+        in New Delhi. Police cut mobile internet, closed metro stations, and
+        used tear gas and batons.
+      </p>
+    </section>
 
-    <p class="counts">
-      {realVideos.length} video{realVideos.length === 1 ? "" : "s"} archived
-      &middot; {timeline.length} timeline event{timeline.length === 1 ? "" : "s"}
-      <span class="counts-note">
-        + {sampleVideos.length} sample placeholders in the archive, clearly
-        marked, not counted above
-      </span>
-    </p>
+    <section class="reveal story-block" data-reveal>
+      <h2 class="text-lg font-semibold">What this is</h2>
+      <p class="mt-2 text-sm leading-relaxed text-muted">
+        An archive of publicly available video from that day, kept with its
+        original sources and labelled by how much of it has actually been
+        verified.
+      </p>
+      <p class="counts">
+        {realVideos.length} video{realVideos.length === 1 ? "" : "s"} archived
+        &middot; {timeline.length} timeline event{
+          timeline.length === 1 ? "" : "s"
+        }
+        <span class="counts-note">
+          + {sampleVideos.length} sample placeholders in the archive, clearly
+          marked, not counted above
+        </span>
+      </p>
+    </section>
 
-    <nav class="secondary-links" aria-label="More about this archive">
-      <a href="/timeline/">Read the timeline</a>
-      <a href="/about/">About this archive</a>
-    </nav>
+    <section class="reveal story-block" data-reveal>
+      <h2 class="text-lg font-semibold">Verification</h2>
+      <p class="mt-2 text-sm leading-relaxed text-muted">
+        Every entry carries one of five verification labels, from verified
+        to unverified — see <a href="/about/">how they're assigned</a>.
+      </p>
+    </section>
+
+    <section class="reveal story-block story-block--closing" data-reveal>
+      <a href="/feed" class="cta-primary">Relive the day</a>
+      <nav class="secondary-links" aria-label="More about this archive">
+        <a href="/timeline/">Read the timeline</a>
+        <a href="/about/">About this archive</a>
+      </nav>
+    </section>
   </div>
 </Base>
 
 <style>
-  .hero-banner {
-    display: block;
+  .hero {
+    position: relative;
+    /* Never 100vh on mobile: that includes area the browser chrome can
+       cover/uncover, which would clip the CTA. 100svh is the guaranteed
+       visible minimum. */
+    height: 100svh;
     width: 100%;
-    height: auto;
-    /* Matches the portrait poster's native 864x1821 so nothing is distorted. */
-    aspect-ratio: 864 / 1821;
-    /* At full width on a phone this poster is ~2.1x the viewport width tall,
-       which would push the "Relive the day" CTA well below the fold. Cap it and
-       anchor to the top so the date/title block stays intact while the CTA
-       remains reachable without scrolling. */
-    max-height: 54svh;
-    object-fit: cover;
-    object-position: top center;
+    overflow: hidden;
     background: var(--color-bg);
   }
 
+  .hero-img {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Anchor top: keeps the poster's date/title block intact on a phone,
+       where the 1:2.11 poster is only slightly taller than the viewport. */
+    object-position: top center;
+  }
+
   @media (min-width: 768px) {
-    .hero-banner {
-      aspect-ratio: 2.5 / 1;
-      max-height: none;
+    .hero-img {
       object-position: center;
     }
   }
 
-  .hero-caption {
-    margin: 0;
-    padding: 0.5rem 1rem 0;
-    text-align: center;
-    font-size: 0.75rem;
-    color: var(--color-muted);
+  /* Bottom scrim so the CTA, scroll cue, and illustration label stay
+     legible over arbitrary artwork pixels, without darkening the whole
+     poster. */
+  .hero-scrim {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 46%;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.88) 0%,
+      rgba(0, 0, 0, 0.6) 40%,
+      rgba(0, 0, 0, 0) 100%
+    );
+    pointer-events: none;
   }
 
-  .cta-row {
-    margin-top: 1.75rem;
+  .hero-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0 1.25rem;
+    /* Clear the floating bottom nav (fixed on every breakpoint on this
+       page — see Base.astro's `overlayNav` prop) plus a little breathing
+       room. */
+    padding-bottom: calc(var(--app-nav-h) + env(safe-area-inset-bottom) + 0.85rem);
+    text-align: center;
+  }
+
+  @media (min-width: 768px) {
+    .hero-overlay {
+      padding-bottom: calc(var(--app-nav-h-desktop) + 1rem);
+    }
+  }
+
+  /* Non-negotiable credibility line: illustration vs. documentary footage
+     must never be ambiguous. Kept genuinely legible — not tertiary grey,
+     not below 12px — against the scrim's guaranteed-dark backdrop. */
+  .illustration-label {
+    margin: 0;
+    max-width: 32rem;
+    font-size: 0.8125rem; /* 13px */
+    line-height: 1.4;
+    color: var(--color-text);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
   }
 
   .cta-primary {
@@ -148,9 +230,72 @@ const ogImage = `${SITE_URL}/banner/hero-wide.jpg`;
     opacity: 0.9;
   }
 
-  .counts {
-    margin-top: 1.25rem;
+  .scroll-cue {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--color-muted);
+  }
+
+  .scroll-cue-chevron {
+    width: 10px;
+    height: 10px;
+    border-right: 1.5px solid var(--color-muted);
+    border-bottom: 1.5px solid var(--color-muted);
+    transform: rotate(45deg);
+  }
+
+  .scroll-cue-label {
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .scroll-cue {
+      animation: scroll-cue-bounce 1.6s ease-in-out infinite;
+    }
+  }
+
+  @keyframes scroll-cue-bounce {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(6px);
+    }
+  }
+
+  /* --- Scroll storyline ------------------------------------------------ */
+
+  .storyline {
+    padding-top: 4.5rem;
+    padding-bottom: 3rem;
+  }
+
+  .story-block {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .story-block:first-child {
+    padding-top: 0;
+    border-top: none;
+  }
+
+  .story-block--closing {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
     text-align: center;
+  }
+
+  .counts {
+    margin-top: 1rem;
     font-size: 0.8125rem;
     color: var(--color-muted);
   }
@@ -163,7 +308,6 @@ const ogImage = `${SITE_URL}/banner/hero-wide.jpg`;
   }
 
   .secondary-links {
-    margin-top: 1.75rem;
     display: flex;
     justify-content: center;
     gap: 1.5rem;
@@ -178,4 +322,32 @@ const ogImage = `${SITE_URL}/banner/hero-wide.jpg`;
   .secondary-links a:hover {
     text-decoration: underline;
   }
+
+  /* Progressive enhancement: sections are visible by default (this rule is
+     NOT inside a prefers-reduced-motion or JS-only gate). landing.ts only
+     ever ADDS a class that hides them again for the staged-reveal
+     animation, and only when JS runs AND the user has no reduced-motion
+     preference — see src/scripts/landing.ts. If JS never runs, or the
+     IntersectionObserver never fires, content simply stays visible. */
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal.js-enhanced {
+      opacity: 0;
+      transform: translateY(28px);
+      transition:
+        opacity 700ms ease,
+        transform 700ms ease;
+    }
+
+    .reveal.js-enhanced.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 </style>
+
+<script src="../scripts/landing.ts"></script>
