@@ -327,7 +327,27 @@ function activate(card: HTMLElement, cards: HTMLElement[], index: number) {
   });
 }
 
+// Randomizes discovery order on every visit. The feed is a static build (no
+// per-request server), so this has to happen client-side, and it has to run
+// before .feed-card is queried below: everything downstream — next/prev via
+// cards[index ± 1], the IntersectionObserver, attach/detach of `src` — keys
+// off DOM order, so reordering later would desync it from what's on screen.
+// Reassigns each card via appendChild, which *moves* an already-attached
+// node rather than cloning it, so listeners bound afterward in this same
+// pass are unaffected.
+function shuffleFeedOrder(container: HTMLElement) {
+  const cards = Array.from(container.children) as HTMLElement[];
+  for (let i = cards.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [cards[i], cards[j]] = [cards[j], cards[i]];
+  }
+  for (const card of cards) container.appendChild(card);
+}
+
 function initFeed() {
+  const feedEl = document.getElementById("feed");
+  if (feedEl) shuffleFeedOrder(feedEl);
+
   const cards = Array.from(
     document.querySelectorAll<HTMLElement>(".feed-card"),
   );
@@ -368,8 +388,12 @@ function initFeed() {
   cards.forEach((card) => observer.observe(card));
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initFeed);
-} else {
-  initFeed();
-}
+// astro:page-load (not DOMContentLoaded) because Base.astro renders
+// <ClientRouter />: navigating here from another in-app link swaps the
+// document without a full reload, so DOMContentLoaded won't fire again and
+// this setup — including the reshuffle above — would silently only ever run
+// once per browser session. astro:page-load fires both on a real first load
+// and after every subsequent view-transition navigation, so this single
+// listener covers both without double-running on the initial load the way
+// pairing it with an immediate call would.
+document.addEventListener("astro:page-load", initFeed);
