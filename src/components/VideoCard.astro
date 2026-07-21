@@ -1,0 +1,130 @@
+---
+import type { VideoEntry } from "../lib/schema";
+import { MEDIA_BASE } from "../config";
+import VerificationBadge from "./VerificationBadge.astro";
+
+export interface Props {
+  video: VideoEntry;
+  index: number;
+}
+
+const { video, index } = Astro.props;
+
+const videoSrc = `${MEDIA_BASE}${video.media.video}`;
+const thumbSrc = `${MEDIA_BASE}${video.media.thumbnail}`;
+const aspect = `${video.media.width} / ${video.media.height}`;
+
+const eventDate = new Date(video.date).toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+});
+---
+
+<article
+  class="feed-card relative flex flex-col border-b border-white/10"
+  data-video-src={videoSrc}
+  tabindex="0"
+  aria-label={`${video.title}. Press Enter or Space to play or pause.`}
+>
+  {
+    video.sample && (
+      <div class="absolute top-2 left-1/2 z-10 -translate-x-1/2 rounded-full bg-accent px-3 py-1 text-xs font-semibold uppercase tracking-wide text-bg">
+        Sample — placeholder entry
+      </div>
+    )
+  }
+
+  <div class="card-media relative flex w-full items-center justify-center bg-black" style={`--aspect: ${aspect}`}>
+    <video
+      playsinline
+      muted
+      loop
+      preload="none"
+      poster={thumbSrc}
+      width={video.media.width}
+      height={video.media.height}
+      style={`aspect-ratio: ${aspect};`}
+      class="h-full max-h-full w-full object-contain"
+    >
+      <track kind="captions" />
+    </video>
+    <button
+      type="button"
+      class="mute-indicator absolute right-3 bottom-3 flex h-11 w-11 items-center justify-center rounded-full bg-black/60 text-text"
+      aria-label="Toggle sound"
+      data-muted="true"
+      tabindex="-1"
+    >
+      <span aria-hidden="true">&#128263;</span>
+    </button>
+  </div>
+
+  <div class="card-info flex flex-col gap-2 bg-surface px-4 py-4">
+    <h2 class="text-lg font-semibold leading-snug">
+      <a href={`/video/${video.id}/`} class="no-underline hover:underline">
+        {video.title}
+      </a>
+    </h2>
+
+    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
+      <span>{video.source.platform}</span>
+      <span aria-hidden="true">&middot;</span>
+      <span>{video.source.uploader}</span>
+      <span aria-hidden="true">&middot;</span>
+      <time datetime={video.date}>{eventDate}</time>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2">
+      <VerificationBadge status={video.verificationStatus} />
+      {
+        video.tags.map((tag) => (
+          <span class="rounded-full bg-white/5 px-2.5 py-1 text-xs text-muted">
+            #{tag}
+          </span>
+        ))
+      }
+    </div>
+
+    <p class="line-clamp-2 text-sm text-muted">{video.description}</p>
+
+    <a
+      href={`/video/${video.id}/`}
+      class="mt-1 inline-flex min-h-11 w-fit items-center text-sm font-medium text-accent no-underline hover:underline"
+    >
+      Details &rarr;
+    </a>
+  </div>
+</article>
+
+<style>
+  .feed-card {
+    min-height: 100svh;
+    scroll-snap-align: start;
+  }
+
+  .card-media {
+    flex: 1 1 auto;
+  }
+
+  @media (min-width: 640px) {
+    .feed-card {
+      align-items: center;
+      justify-content: center;
+      padding-block: 2rem;
+    }
+
+    .card-info,
+    .card-media {
+      width: 100%;
+      max-width: 36rem;
+      margin-inline: auto;
+    }
+
+    .card-media {
+      flex: none;
+      aspect-ratio: var(--aspect);
+      max-height: 80svh;
+    }
+  }
+</style>

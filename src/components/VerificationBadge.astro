@@ -1,0 +1,57 @@
+---
+import type { VerificationStatus } from "../lib/schema";
+
+export interface Props {
+  status: VerificationStatus;
+}
+
+const { status } = Astro.props;
+
+const CONFIG: Record<
+  VerificationStatus,
+  { label: string; color: string; title: string }
+> = {
+  verified: {
+    label: "Verified",
+    color: "#3f6f4f",
+    title:
+      "Location, date, and source independently confirmed; no signs of manipulation.",
+  },
+  "likely-verified": {
+    label: "Likely verified",
+    color: "#3d6a6a",
+    title:
+      "Location and date each supported by a strong indicator; full corroboration incomplete.",
+  },
+  "partially-verified": {
+    label: "Partially verified",
+    color: "#7a6a35",
+    title: "Some claims are confirmed; see the description for which parts.",
+  },
+  unverified: {
+    label: "Unverified",
+    color: "#4a4a52",
+    title: "Nothing beyond the existence of the public post has been checked.",
+  },
+  "context-unclear": {
+    label: "Context unclear",
+    color: "#7a5a35",
+    title:
+      "Footage may be real but its claimed date, place, or framing is in question.",
+  },
+};
+
+const { label, color, title } = CONFIG[status];
+---
+
+<span
+  class="verification-badge inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-text"
+  style={`background-color: ${color}33; border: 1px solid ${color};`}
+  title={title}
+>
+  <span
+    class="inline-block h-1.5 w-1.5 rounded-full"
+    style={`background-color: ${color};`}
+    aria-hidden="true"></span>
+  {label}
+</span>
