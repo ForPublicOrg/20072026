@@ -1,67 +1,35 @@
 [
   {
-    "time": "2026-03-14T18:30:00+05:30",
-    "title": "[SAMPLE] Evening gathering begins on MG Road",
-    "description": "Placeholder timeline entry. Marks the sample gathering footage captured on MG Road, Bengaluru.",
+    "time": "2026-06-20",
+    "title": "Earlier CJP rally, New Delhi",
+    "description": "Footage from a June rally shows a stage banner reading \"PEACEFUL PROTEST\" naming Education Minister Dharmendra Pradhan alongside the word \"RESIGN\", a month before the march on Parliament.",
     "relatedVideoIds": [
-      "video-001"
+      "video-009"
     ]
   },
   {
-    "time": "2026-03-16T11:00:00+05:30",
-    "title": "[SAMPLE] March reaches Town Hall junction",
-    "description": "Placeholder timeline entry. Marks the sample march footage passing through the Town Hall junction.",
+    "time": "2026-07-18",
+    "title": "Sit-in at Jantar Mantar, hunger strike day 20",
+    "description": "Participants sit among books under tarpaulin shelters. A banner reads \"HUNGER STRIKE DAY 20\"; a placard references Bhagat Singh's 1929 jail protest.",
     "relatedVideoIds": [
-      "video-002"
+      "video-011"
     ]
   },
   {
-    "time": "2026-03-18T09:15:00+05:30",
-    "title": "[SAMPLE] Crowd assembles near Pune station",
-    "description": "Placeholder timeline entry. Marks the sample assembly footage near the railway station forecourt in Pune.",
+    "time": "2026-07-20",
+    "title": "March towards Parliament",
+    "description": "Crowds move along a divided road carrying Indian flags. Reporting placed the crowd at more than 10,000 marching towards Parliament after police declined permission.",
     "relatedVideoIds": [
-      "video-003"
+      "video-010"
     ]
   },
   {
-    "time": "2026-03-20T21:45:00+05:30",
-    "title": "[SAMPLE] Night footage recorded downtown",
-    "description": "Placeholder timeline entry. Marks the sample night footage from a downtown Mumbai intersection.",
+    "time": "2026-07-20",
+    "title": "Police use force at barricades",
+    "description": "Uniformed personnel take hold of individuals at a metal barricade and a cane is swung. Separately, men in civilian dress are filmed carrying lathis alongside uniformed officers; the framing of that footage is disputed.",
     "relatedVideoIds": [
-      "video-004"
-    ]
-  },
-  {
-    "time": "2026-03-22T16:00:00+05:30",
-    "title": "[SAMPLE] Drone pass over Ahmedabad market street",
-    "description": "Placeholder timeline entry. Marks the sample overhead drone footage of a market street in Ahmedabad.",
-    "relatedVideoIds": [
-      "video-005",
-      "video-007"
-    ]
-  },
-  {
-    "time": "2026-03-25T08:20:00+05:30",
-    "title": "[SAMPLE] Handheld clip recorded at campus gate",
-    "description": "Placeholder timeline entry. Marks the sample handheld footage recorded at a Delhi university campus gate.",
-    "relatedVideoIds": [
-      "video-006"
-    ]
-  },
-  {
-    "time": "2026-03-27T17:10:00+05:30",
-    "title": "[SAMPLE] Wide shot recorded along riverside promenade",
-    "description": "Placeholder timeline entry. Marks the sample wide-shot footage along the Ahmedabad riverside promenade.",
-    "relatedVideoIds": [
-      "video-007"
-    ]
-  },
-  {
-    "time": "2026-03-30T13:05:00+05:30",
-    "title": "[SAMPLE] Close-up pan recorded at Pune market entrance",
-    "description": "Placeholder timeline entry. Marks the sample close-up footage recorded at a Pune market entrance.",
-    "relatedVideoIds": [
-      "video-008"
+      "video-012",
+      "video-013"
     ]
   }
 ]
