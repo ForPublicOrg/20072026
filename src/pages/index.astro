@@ -134,7 +134,13 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
     /* Never 100vh on mobile: that includes area the browser chrome can
        cover/uncover, which would clip the CTA. 100svh is the guaranteed
        visible minimum. */
-    height: 100svh;
+    /* End the poster ABOVE the floating nav rather than behind it. The
+       artwork's own values strip runs along its bottom edge, so a full-100svh
+       hero puts the strip's second line ("THE TRUTH", "THEM", "THE EVIDENCE"…)
+       underneath the opaque nav bar and slices it in half. Reserving the nav's
+       height means the whole poster — strip included — is actually visible,
+       which is the point of showing it at all. */
+    height: calc(100svh - var(--app-nav-h) - env(safe-area-inset-bottom));
     width: 100%;
     overflow: hidden;
     background: var(--color-bg);
@@ -154,6 +160,7 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
   @media (min-width: 768px) {
     .hero {
       --hero-strip-h: 17%;
+      height: calc(100svh - var(--app-nav-h-desktop));
     }
   }
 
