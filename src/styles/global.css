@@ -1,32 +1,34 @@
 @import "tailwindcss";
 
 /*
- * Light, Instagram-like design tokens.
+ * True-black, Instagram-like design tokens.
  *
- * Superseded on 2026-07-21: the dark palette originally specified in
- * docs/design-spec.md §9 has been reversed to a light theme at the owner's
- * direction, to read as a native mobile app rather than a "sober archive"
- * site. See docs/design-spec.md §9 for the rationale.
+ * Superseded on 2026-07-21 (second reversal same day): the light theme
+ * adopted earlier today has been reversed again, this time to a TRUE BLACK
+ * theme after the owner compared it against a real Instagram screenshot —
+ * Instagram's mobile feed is pure black (#000), not the dark grey
+ * (#0a0a0b/#141416) the site's original dark attempt used, and not white.
+ * See docs/design-spec.md §9 for the full history and rationale.
  *
  * Contrast ratios (WCAG relative luminance formula) verified numerically —
- * see the commit message / design-spec.md for the full table. Anything used
- * for body-weight text targets >= 4.5:1 against #ffffff.
+ * see docs/design-spec.md §9 for the full table. Anything used for
+ * body-weight text targets >= 4.5:1 against #000000.
  */
 @theme {
   /* Surfaces */
-  --color-bg: #ffffff; /* page background */
-  --color-surface: #fafafa; /* elevated surface: cards, chips, sheets */
-  --color-border: #dbdbdb; /* hairline border, Instagram's signature 1px */
-  --color-letterbox: #000000; /* ALWAYS black behind portrait video, even in light mode */
+  --color-bg: #000000; /* page background — pure black, not dark grey */
+  --color-surface: #121212; /* elevated surface: cards, chips, sheets */
+  --color-border: #262626; /* hairline border/separator */
+  --color-letterbox: #000000; /* identical to page bg: video sits in one continuous black field */
 
   /* Text */
-  --color-text: #262626; /* primary text — 15.1:1 vs #fff */
-  --color-muted: #737373; /* secondary text — 4.74:1 vs #fff (AA) */
-  --color-tertiary: #c7c7c7; /* decorative/disabled ONLY — 1.7:1, not for text a user must read */
+  --color-text: #ffffff; /* primary text — 21.00:1 vs #000 */
+  --color-muted: #a8a8a8; /* secondary text — 8.83:1 vs #000 (AA) */
+  --color-tertiary: #737373; /* decorative/disabled ONLY — 4.43:1, not for text a user must read */
 
   /* Accent */
-  --color-accent: #262626; /* restrained near-black; active nav, primary buttons, links */
-  --color-link: #0095f6; /* reserved for genuinely interactive affordances only */
+  --color-accent: #ffffff; /* active nav, primary buttons — white on black */
+  --color-link: #0095f6; /* Instagram blue, reserved for genuinely interactive affordances only — 6.63:1 vs #000 */
 
   --font-sans:
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
@@ -34,7 +36,7 @@
 }
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 
   /* App-shell geometry, exposed so pages (e.g. a full-bleed feed) can size
      their own scroll containers around the header/nav chrome precisely. */
@@ -91,9 +93,13 @@ nav,
   }
 }
 
+/* Deliberate, designed focus ring — never the browser default blue outline.
+   A subtle translucent white ring reads clearly against true black without
+   the harshness of a solid 2px white outline. */
 :focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid rgba(255, 255, 255, 0.65);
   outline-offset: 2px;
+  border-radius: 2px;
 }
 
 .content-col {
