@@ -12,7 +12,7 @@ const { video, index } = Astro.props;
 
 const videoSrc = `${MEDIA_BASE}${video.media.video}`;
 const thumbSrc = `${MEDIA_BASE}${video.media.thumbnail}`;
-const aspect = `${video.media.width} / ${video.media.height}`;
+const isFirst = index === 0;
 
 const eventDate = new Date(video.date).toLocaleDateString("en-US", {
   year: "numeric",
@@ -22,109 +22,364 @@ const eventDate = new Date(video.date).toLocaleDateString("en-US", {
 ---
 
 <article
-  class="feed-card relative flex flex-col border-b border-white/10"
+  class="feed-card"
   data-video-src={videoSrc}
   tabindex="0"
-  aria-label={`${video.title}. Press Enter or Space to play or pause.`}
+  role="group"
+  aria-roledescription="slide"
+  aria-label={`${video.title}. Press Enter or Space to play or pause, up or down arrow to move between videos.`}
 >
-  {
-    video.sample && (
-      <div class="absolute top-2 left-1/2 z-10 -translate-x-1/2 rounded-full bg-accent px-3 py-1 text-xs font-semibold uppercase tracking-wide text-bg">
-        Sample — placeholder entry
-      </div>
-    )
-  }
+  <div class="card-frame">
+    {
+      video.sample && (
+        <div class="sample-banner" role="status">
+          Sample &mdash; placeholder entry
+        </div>
+      )
+    }
 
-  <div class="card-media relative flex w-full items-center justify-center bg-black" style={`--aspect: ${aspect}`}>
     <video
       playsinline
       muted
       loop
-      preload="none"
+      preload={isFirst ? "metadata" : "none"}
       poster={thumbSrc}
+      fetchpriority={isFirst ? "high" : "auto"}
       width={video.media.width}
       height={video.media.height}
-      style={`aspect-ratio: ${aspect};`}
-      class="h-full max-h-full w-full object-contain"
+      class="card-video"
     >
       <track kind="captions" />
     </video>
+
+    <div class="play-glyph" aria-hidden="true" data-icon="play">
+      <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
+      <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"></path></svg>
+    </div>
+
     <button
       type="button"
-      class="mute-indicator absolute right-3 bottom-3 flex h-11 w-11 items-center justify-center rounded-full bg-black/60 text-text"
-      aria-label="Toggle sound"
+      class="mute-btn"
+      aria-label="Mute video"
+      aria-pressed="true"
       data-muted="true"
-      tabindex="-1"
     >
-      <span aria-hidden="true">&#128263;</span>
+      <svg class="icon-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M11 5 6 9H3v6h3l5 4z"></path>
+        <line x1="16" y1="9" x2="21" y2="15"></line>
+        <line x1="21" y1="9" x2="16" y2="15"></line>
+      </svg>
+      <svg class="icon-unmuted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M11 5 6 9H3v6h3l5 4z"></path>
+        <path d="M15.5 8.5a5 5 0 0 1 0 7"></path>
+        <path d="M18 6a9 9 0 0 1 0 12"></path>
+      </svg>
     </button>
-  </div>
 
-  <div class="card-info flex flex-col gap-2 bg-surface px-4 py-4">
-    <h2 class="text-lg font-semibold leading-snug">
-      <a href={`/video/${video.id}/`} class="no-underline hover:underline">
-        {video.title}
-      </a>
-    </h2>
-
-    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
-      <span>{video.source.platform}</span>
-      <span aria-hidden="true">&middot;</span>
-      <span>{video.source.uploader}</span>
-      <span aria-hidden="true">&middot;</span>
-      <time datetime={video.date}>{eventDate}</time>
+    <div class="scrim">
+      <div class="scrim-meta">
+        <div class="scrim-row scrim-handle">
+          <span class="handle">@{video.source.uploader}</span>
+          <VerificationBadge status={video.verificationStatus} variant="scrim" />
+        </div>
+        <p class="caption line-clamp-2">
+          <span class="caption-title">{video.title}</span>{video.description}
+        </p>
+        <a href={`/video/${video.id}/`} class="more-link">more</a>
+        <div class="scrim-row scrim-sub">
+          <span>{video.source.platform}</span>
+          <span aria-hidden="true">&middot;</span>
+          <time datetime={video.date}>{eventDate}</time>
+          <a href={`/video/${video.id}/`} class="details-link">Details &rarr;</a>
+        </div>
+      </div>
     </div>
 
-    <div class="flex flex-wrap items-center gap-2">
-      <VerificationBadge status={video.verificationStatus} />
-      {
-        video.tags.map((tag) => (
-          <span class="rounded-full bg-white/5 px-2.5 py-1 text-xs text-muted">
-            #{tag}
-          </span>
-        ))
-      }
+    <div class="progress-track" aria-hidden="true">
+      <div class="progress-fill"></div>
     </div>
-
-    <p class="line-clamp-2 text-sm text-muted">{video.description}</p>
-
-    <a
-      href={`/video/${video.id}/`}
-      class="mt-1 inline-flex min-h-11 w-fit items-center text-sm font-medium text-accent no-underline hover:underline"
-    >
-      Details &rarr;
-    </a>
   </div>
 </article>
 
 <style>
   .feed-card {
-    min-height: 100svh;
+    /* Sized to fill its scroll container (#feed), which is itself sized to
+       100svh/100dvh minus the app header by Base.astro's fullBleed layout —
+       NOT to the raw device viewport. Using 100dvh directly here would make
+       each card taller than the visible scrollport and break snap-locking. */
+    position: relative;
+    height: 100%;
     scroll-snap-align: start;
+    scroll-snap-stop: always;
+    overflow: hidden;
+    background: var(--color-letterbox);
+    isolation: isolate;
   }
 
-  .card-media {
-    flex: 1 1 auto;
+  .feed-card:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: -3px;
   }
 
-  @media (min-width: 640px) {
-    .feed-card {
-      align-items: center;
-      justify-content: center;
-      padding-block: 2rem;
-    }
+  .card-frame {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    margin-inline: auto;
+  }
 
-    .card-info,
-    .card-media {
-      width: 100%;
-      max-width: 36rem;
-      margin-inline: auto;
+  @media (min-width: 768px) {
+    .card-frame {
+      max-width: 28rem;
     }
+  }
 
-    .card-media {
-      flex: none;
-      aspect-ratio: var(--aspect);
-      max-height: 80svh;
+  .sample-banner {
+    position: absolute;
+    top: calc(env(safe-area-inset-top, 0px) + 0.75rem);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 30;
+    border-radius: 999px;
+    background: var(--color-accent);
+    color: var(--color-bg);
+    padding: 0.35rem 0.9rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  }
+
+  .card-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: var(--color-letterbox);
+  }
+
+  .play-glyph {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 20;
+    opacity: 0;
+  }
+
+  .play-glyph.show {
+    animation: glyph-fade 650ms ease forwards;
+  }
+
+  .play-glyph svg {
+    width: 4.5rem;
+    height: 4.5rem;
+    color: #fff;
+    filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.5));
+    display: none;
+  }
+
+  .play-glyph[data-icon="play"] .icon-play {
+    display: block;
+  }
+
+  .play-glyph[data-icon="pause"] .icon-pause {
+    display: block;
+  }
+
+  @keyframes glyph-fade {
+    0% {
+      opacity: 0;
+      transform: scale(0.8);
     }
+    15% {
+      opacity: 0.9;
+      transform: scale(1);
+    }
+    75% {
+      opacity: 0.9;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .mute-btn {
+    /* On mobile the app shell's bottom tab bar is `position: fixed` and
+       floats translucently OVER full-bleed content (see Base.astro) — so
+       controls anchored to the card's true bottom edge would sit underneath
+       it, unreachable/mis-clickable. Reserve --app-nav-h there. On >=768px
+       the nav becomes an in-flow top bar and no longer overlaps, so the
+       reserve drops to zero (see media query below). */
+    position: absolute;
+    right: 0.75rem;
+    bottom: calc(var(--app-nav-h) + 0.75rem + env(safe-area-inset-bottom, 0px));
+    z-index: 25;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    border: none;
+    background: rgba(0, 0, 0, 0.45);
+    color: #fff;
+    cursor: pointer;
+    transition: opacity 300ms ease;
+  }
+
+  @media (min-width: 768px) {
+    .mute-btn {
+      bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+    }
+  }
+
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    .mute-btn {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+  }
+
+  .mute-btn.is-idle {
+    opacity: 0;
+  }
+
+  .mute-btn svg {
+    width: 1.15rem;
+    height: 1.15rem;
+    position: absolute;
+    transition: opacity 200ms ease;
+  }
+
+  .mute-btn[data-muted="true"] .icon-unmuted {
+    opacity: 0;
+  }
+
+  .mute-btn[data-muted="false"] .icon-muted {
+    opacity: 0;
+  }
+
+  .scrim {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 15;
+    max-height: 42%;
+    overflow: hidden;
+    padding: 2.5rem 3.25rem 1rem 1rem;
+    /* Same floating-nav reserve as .mute-btn, above. */
+    padding-bottom: calc(var(--app-nav-h) + 1rem + env(safe-area-inset-bottom, 0px) + 6px);
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.72) 0%,
+      rgba(0, 0, 0, 0.45) 55%,
+      rgba(0, 0, 0, 0) 100%
+    );
+  }
+
+  @media (min-width: 768px) {
+    .scrim {
+      padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px) + 6px);
+    }
+  }
+
+  .scrim-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    color: #fff;
+  }
+
+  .scrim-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .handle {
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  .caption {
+    font-size: 0.8rem;
+    line-height: 1.35;
+    color: rgba(255, 255, 255, 0.92);
+    margin: 0;
+  }
+
+  .caption-title {
+    font-weight: 600;
+    margin-right: 0.3em;
+  }
+
+  .more-link {
+    align-self: flex-start;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: none;
+  }
+
+  .more-link:hover {
+    text-decoration: underline;
+  }
+
+  .scrim-sub {
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .details-link {
+    margin-left: auto;
+    font-weight: 600;
+    color: #fff;
+    text-decoration: none;
+    min-height: 24px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .details-link:hover {
+    text-decoration: underline;
+  }
+
+  .progress-track {
+    /* Same floating-nav reserve as .mute-btn/.scrim, above. */
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: var(--app-nav-h);
+    height: 3px;
+    z-index: 26;
+    background: rgba(255, 255, 255, 0.25);
+  }
+
+  @media (min-width: 768px) {
+    .progress-track {
+      bottom: 0;
+    }
+  }
+
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: #fff;
+  }
+
+  /* prefers-reduced-motion fallback: native controls take over, our custom
+     chrome (which relies on autoplay + JS-managed state) gets out of the
+     way rather than presenting duplicate, non-functional controls. */
+  .feed-card.is-native-controls .mute-btn,
+  .feed-card.is-native-controls .play-glyph,
+  .feed-card.is-native-controls .progress-track {
+    display: none;
   }
 </style>
