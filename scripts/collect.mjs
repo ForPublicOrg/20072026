@@ -96,6 +96,7 @@ function probe(file) {
   ]);
   const data = JSON.parse(res.stdout);
   const videoStream = data.streams.find((s) => s.codec_type === "video");
+  const audioStream = data.streams.find((s) => s.codec_type === "audio");
   const duration = Math.round(
     Number(data.format?.duration ?? videoStream?.duration ?? 0),
   );
@@ -103,6 +104,9 @@ function probe(file) {
     duration,
     width: Number(videoStream.width),
     height: Number(videoStream.height),
+    vcodec: videoStream?.codec_name ?? null,
+    acodec: audioStream?.codec_name ?? null,
+    hasAudio: Boolean(audioStream),
   };
 }
 
@@ -147,7 +151,12 @@ const platform = meta.extractor_key || meta.extractor || "Unknown";
 console.log(`Downloading (up to 1080p) into ${path.relative(ROOT, tmpDir)}...`);
 run("yt-dlp", [
   "-f",
-  "bv*[height<=1080]+ba/b[height<=1080]",
+  // Prefer an H.264 (avc1) rendition so the web copy can be remuxed rather than
+  // transcoded. Instagram and X serve VP9 by default, which is ~2x more efficient
+  // than H.264 — converting it necessarily inflates the file (one 1.92MiB VP9 reel
+  // became 8.88MiB as H.264). Taking the platform's own H.264 rendition keeps the
+  // file small AND universally playable. Falls back to any format if none exists.
+  "bv*[height<=1080][vcodec^=avc1]+ba/b[height<=1080][vcodec^=avc1]/bv*[height<=1080]+ba/b[height<=1080]",
   "--no-playlist",
   "-o",
   path.join(tmpDir, "raw.%(ext)s"),
@@ -191,27 +200,77 @@ mkdirSync(THUMBS_DIR, { recursive: true });
 const videoFile = path.join(VIDEOS_DIR, `${id}.mp4`);
 const thumbFile = path.join(THUMBS_DIR, `${id}.jpg`);
 
-console.log("Compressing for web...");
-run("ffmpeg", [
-  "-y",
-  "-i",
-  rawFile,
-  "-c:v",
-  "libx264",
-  "-preset",
-  "slow",
-  "-crf",
-  "26",
-  "-vf",
-  "scale='min(720,iw)':-2",
-  "-c:a",
-  "aac",
-  "-b:a",
-  "96k",
-  "-movflags",
-  "+faststart",
-  videoFile,
-]);
+// Social platforms (Instagram, X) already serve hard-compressed H.264 sized for
+// mobile. Re-encoding those at crf 26 targets *higher* quality than the source,
+// which inflates the file without adding information — one 1.92MiB reel came out
+// at 8.88MiB. So remux when the source is already web-ready, and only re-encode
+// when it actually buys something. Re-encoded output that ends up larger than the
+// source is discarded in favour of a remux.
+
+const sourceProbe = probe(rawFile);
+const sourceSize = statSync(rawFile).size;
+const alreadyWebReady =
+  sourceProbe.vcodec === "h264" && sourceProbe.width <= 720;
+
+function remux() {
+  const audioArgs = !sourceProbe.hasAudio
+    ? ["-an"]
+    : sourceProbe.acodec === "aac"
+      ? ["-c:a", "copy"]
+      : ["-c:a", "aac", "-b:a", "96k"];
+  run("ffmpeg", [
+    "-y",
+    "-i",
+    rawFile,
+    "-c:v",
+    "copy",
+    ...audioArgs,
+    "-movflags",
+    "+faststart",
+    videoFile,
+  ]);
+}
+
+function reencode() {
+  run("ffmpeg", [
+    "-y",
+    "-i",
+    rawFile,
+    "-c:v",
+    "libx264",
+    "-preset",
+    "slow",
+    "-crf",
+    "26",
+    "-vf",
+    "scale='min(720,iw)':-2",
+    "-c:a",
+    "aac",
+    "-b:a",
+    "96k",
+    "-movflags",
+    "+faststart",
+    videoFile,
+  ]);
+}
+
+if (alreadyWebReady) {
+  console.log(
+    `Source is already web-ready (${sourceProbe.vcodec}, ${sourceProbe.width}px) — remuxing without re-encode...`,
+  );
+  remux();
+} else {
+  console.log("Compressing for web...");
+  reencode();
+  if (statSync(videoFile).size > sourceSize && sourceProbe.vcodec === "h264") {
+    console.log(
+      `Re-encode grew the file (${humanSize(sourceSize)} -> ${humanSize(
+        statSync(videoFile).size,
+      )}); keeping the original instead.`,
+    );
+    remux();
+  }
+}
 
 // ---------------------------------------------------------------------------
 // 5. Thumbnail
