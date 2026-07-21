@@ -4,10 +4,23 @@ import type { VerificationStatus } from "../lib/schema";
 export interface Props {
   status: VerificationStatus;
   /**
-   * "light"  — on-white surfaces (detail/timeline pages). Text color is
-   *            verified >= 4.5:1 against #ffffff (WCAG AA). Default.
-   * "scrim"  — over a dark gradient on video (feed cards). Light,
-   *            high-contrast text/dot against a near-black scrim.
+   * Both variants now render against Black Days' true-black (#000000) app
+   * surface — there is no more separate on-white context (that was the
+   * light-theme attempt earlier on 2026-07-21, since reversed; see
+   * docs/design-spec.md §9). They differ only in how the chip anchors
+   * itself against what's behind it:
+   *
+   * "light" — on a solid black surface (info panels, video detail pages).
+   *           Default. Kept as the prop value (rather than renamed) for
+   *           backward compatibility with existing call sites; it no
+   *           longer means "on-white."
+   * "scrim" — over a video's dark gradient overlay (feed cards), where the
+   *           pixels directly behind the badge aren't guaranteed to be pure
+   *           black. Keeps a stronger opaque chip so it stays legible over
+   *           any footage.
+   *
+   * Text/dot color is identical between variants — both are verified
+   * >= 4.5:1 against #000000 (WCAG AA).
    */
   variant?: "light" | "scrim";
 }
@@ -17,60 +30,52 @@ const { status, variant = "light" } = Astro.props;
 interface StatusConfig {
   label: string;
   title: string;
-  /** Solid color used for text + dot on "light" (on-white). >=4.5:1 vs #fff. */
-  light: string;
-  /** Solid color used for text + dot on "scrim" (on dark video overlay). */
-  scrim: string;
+  /** Text + dot color. Verified >= 4.5:1 against #000000 (WCAG AA). */
+  color: string;
 }
 
-// Colors re-derived for the light Instagram-style theme on 2026-07-21
-// (previous values were tuned for a dark background and fail AA on white).
-// Verified numerically against #ffffff (light) and #000000 (scrim) — see
-// docs/design-spec.md §9 for the full contrast table. Muted/informational
-// hues throughout — never alarmist, per verification-policy.md.
+// Re-derived for the true-black theme adopted 2026-07-21 (superseding the
+// light-theme set adopted earlier the same day). Contrast ratios computed
+// with the WCAG relative-luminance formula against #000000 — see
+// docs/design-spec.md §9 for the full table. Muted/informational hues
+// throughout — never alarmist, per verification-policy.md.
 const CONFIG: Record<VerificationStatus, StatusConfig> = {
   verified: {
     label: "Verified",
     title:
       "Location, date, and source independently confirmed; no signs of manipulation.",
-    light: "#146c2e", // 6.53:1 vs #fff
-    scrim: "#5fd88a", // 11.68:1 vs #000
+    color: "#5fd88a", // 11.68:1 vs #000
   },
   "likely-verified": {
     label: "Likely verified",
     title:
       "Location and date each supported by a strong indicator; full corroboration incomplete.",
-    light: "#0d6b6b", // 6.30:1 vs #fff
-    scrim: "#5eead4", // 14.20:1 vs #000
+    color: "#5eead4", // 14.20:1 vs #000
   },
   "partially-verified": {
     label: "Partially verified",
     title: "Some claims are confirmed; see the description for which parts.",
-    light: "#7a5900", // 6.45:1 vs #fff
-    scrim: "#fbbf24", // 12.58:1 vs #000
+    color: "#fbbf24", // 12.58:1 vs #000
   },
   unverified: {
     label: "Unverified",
     title: "Nothing beyond the existence of the public post has been checked.",
-    light: "#595959", // 7.00:1 vs #fff
-    scrim: "#e5e5e5", // 16.67:1 vs #000
+    color: "#e5e5e5", // 16.67:1 vs #000
   },
   "context-unclear": {
     label: "Context unclear",
     title:
       "Footage may be real but its claimed date, place, or framing is in question.",
-    light: "#9a4200", // 6.66:1 vs #fff
-    scrim: "#fb923c", // 9.28:1 vs #000
+    color: "#fb923c", // 9.28:1 vs #000
   },
 };
 
-const { label, title, light, scrim } = CONFIG[status];
-const color = variant === "scrim" ? scrim : light;
+const { label, title, color } = CONFIG[status];
 
 const chipStyle =
   variant === "scrim"
     ? `background-color: rgba(0,0,0,0.55); border: 1px solid ${color}66; color: ${color};`
-    : `background-color: ${color}14; border: 1px solid ${color}4d; color: ${color};`;
+    : `background-color: ${color}14; border: 1px solid ${color}33; color: ${color};`;
 ---
 
 <span

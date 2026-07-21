@@ -43,8 +43,8 @@ const isAbout = path.startsWith("/about");
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="color-scheme" content="light" />
-    <meta name="theme-color" content="#ffffff" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#000000" />
 
     <!-- "Add to Home Screen" / native-app affordances -->
     <link rel="manifest" href="/manifest.webmanifest" />
@@ -87,28 +87,58 @@ const isAbout = path.startsWith("/about");
       </div>
     </header>
 
+    <!--
+      Icon-only bottom tab bar (Instagram pattern): no text labels — the
+      single biggest "this is a website" tell was the "Feed"/"Timeline"/
+      "About" captions under each icon. Active state is a filled glyph vs an
+      outline glyph (also Instagram's own convention), not a colour pill.
+      Each icon is a uniform 24px box, ~1.75px stroke, one family. The
+      "filled" paths use a hardcoded #000 for negative-space details (the
+      door notch, clock hands, the "i" dot) — safe because the nav's
+      background is always solid #000, so the cutout always matches it
+      exactly, the same technique Instagram's own icon set uses.
+      `aria-label` keeps each link accessible without a visible caption.
+    -->
     <nav class="app-nav border-border" aria-label="Primary">
-      <a href="/" aria-current={isFeed ? "page" : undefined}>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width={isFeed ? 2.2 : 1.6} stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M3 11.5 12 4l9 7.5" />
-          <path d="M5.5 10v9a1 1 0 0 0 1 1H10v-6h4v6h3.5a1 1 0 0 0 1-1v-9" />
-        </svg>
-        <span>Feed</span>
+      <a href="/" aria-current={isFeed ? "page" : undefined} aria-label="Feed">
+        {isFeed ? (
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" fill="currentColor" stroke="none" />
+            <rect x="10.25" y="14.25" width="3.5" height="5.75" fill="#000" rx="0.5" />
+          </svg>
+        ) : (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" />
+          </svg>
+        )}
       </a>
-      <a href="/timeline/" aria-current={isTimeline ? "page" : undefined}>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width={isTimeline ? 2.2 : 1.6} stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="12" cy="12" r="8.5" />
-          <path d="M12 7.5V12l3 2" />
-        </svg>
-        <span>Timeline</span>
+      <a href="/timeline/" aria-current={isTimeline ? "page" : undefined} aria-label="Timeline">
+        {isTimeline ? (
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="8" fill="currentColor" stroke="none" />
+            <path d="M12 7.5V12l3 2" fill="none" stroke="#000" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        ) : (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="8" />
+            <path d="M12 7.5V12l3 2" />
+          </svg>
+        )}
       </a>
-      <a href="/about/" aria-current={isAbout ? "page" : undefined}>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width={isAbout ? 2.2 : 1.6} stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="12" cy="12" r="8.5" />
-          <path d="M12 11v5.5" />
-          <circle cx="12" cy="8" r="0.75" fill="currentColor" stroke="none" />
-        </svg>
-        <span>About</span>
+      <a href="/about/" aria-current={isAbout ? "page" : undefined} aria-label="About">
+        {isAbout ? (
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="8" fill="currentColor" stroke="none" />
+            <path d="M12 11v5" stroke="#000" stroke-width="1.75" stroke-linecap="round" />
+            <circle cx="12" cy="8" r="0.9" fill="#000" />
+          </svg>
+        ) : (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="8" />
+            <path d="M12 11v5" />
+            <circle cx="12" cy="8" r="0.9" fill="currentColor" stroke="none" />
+          </svg>
+        )}
       </a>
     </nav>
 
@@ -141,19 +171,15 @@ const isAbout = path.startsWith("/about");
 </html>
 
 <style>
+  /* Solid true black, not translucent: a blurred/translucent bar would let
+     whatever scrolls beneath it (video frames, etc.) show through as
+     non-black colour, breaking the "one continuous black surface" goal. */
   .app-header {
     position: sticky;
     top: 0;
     z-index: 40;
     height: var(--app-header-h);
-    background: rgba(255, 255, 255, 0.85);
-  }
-
-  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-    .app-header {
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-    }
+    background: var(--color-bg);
   }
 
   .app-nav {
@@ -166,37 +192,25 @@ const isAbout = path.startsWith("/about");
     justify-content: space-around;
     align-items: stretch;
     height: var(--app-nav-h);
-    background: rgba(255, 255, 255, 0.85);
+    background: var(--color-bg);
     border-top: 1px solid var(--color-border);
     padding-bottom: env(safe-area-inset-bottom);
-  }
-
-  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-    .app-nav {
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-    }
   }
 
   .app-nav a {
     display: flex;
     flex: 1;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2px;
     min-height: 44px;
     min-width: 44px;
-    padding: 6px 4px;
+    padding: 10px 4px;
     color: var(--color-muted);
     text-decoration: none;
-    font-size: 11px;
-    line-height: 1.2;
   }
 
   .app-nav a[aria-current="page"] {
     color: var(--color-text);
-    font-weight: 600;
   }
 
   .app-nav svg {
@@ -212,7 +226,7 @@ const isAbout = path.startsWith("/about");
 
   /* Full-bleed pages own their scroll: no document scroll, main fills the
      exact remaining viewport below the header. The fixed bottom nav floats
-     translucently over the content, so no extra padding is added here. */
+     (solid black) over the content, so no extra padding is added here. */
   body.is-full-bleed {
     height: 100svh;
     height: 100dvh;
@@ -241,15 +255,14 @@ const isAbout = path.startsWith("/about");
 
     .app-nav a {
       flex: none;
-      flex-direction: row;
       min-height: 40px;
-      gap: 6px;
-      font-size: 13px;
+      min-width: 40px;
+      padding: 8px;
     }
 
     .app-nav svg {
-      width: 18px;
-      height: 18px;
+      width: 22px;
+      height: 22px;
     }
 
     body:not(.is-full-bleed) main {
