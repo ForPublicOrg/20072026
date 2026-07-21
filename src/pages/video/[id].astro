@@ -24,7 +24,10 @@ function relatedScore(other: VideoEntry): number {
   const sharedTags = other.tags.filter((tag) => video.tags.includes(tag)).length;
   let score = sharedTags * 2;
   if (other.date === video.date) score += 1;
-  if (other.location === video.location) score += 1;
+  // Both having a location AND it matching is a real signal; both simply
+  // lacking a location is not — it would otherwise inflate the score for
+  // every pair of not-yet-geolocated entries with nothing in common.
+  if (video.location && other.location === video.location) score += 1;
   return score;
 }
 
@@ -103,10 +106,14 @@ const truncatedDescription =
         <dt class="text-xs text-muted">Event date</dt>
         <dd class="mt-0.5 font-medium">{eventDate}</dd>
       </div>
-      <div>
-        <dt class="text-xs text-muted">Location</dt>
-        <dd class="mt-0.5 font-medium">{video.location}</dd>
-      </div>
+      {
+        video.location && (
+          <div>
+            <dt class="text-xs text-muted">Location</dt>
+            <dd class="mt-0.5 font-medium">{video.location}</dd>
+          </div>
+        )
+      }
       <div>
         <dt class="text-xs text-muted">Platform</dt>
         <dd class="mt-0.5 font-medium">{video.source.platform}</dd>
@@ -146,15 +153,17 @@ const truncatedDescription =
       {video.description}
     </p>
 
-    <div class="mt-4 flex flex-wrap gap-2">
-      {
-        video.tags.map((tag) => (
-          <span class="rounded-full border border-border bg-surface px-2.5 py-1 text-xs text-muted">
-            #{tag}
-          </span>
-        ))
-      }
-    </div>
+    {
+      video.tags.length > 0 && (
+        <div class="mt-4 flex flex-wrap gap-2">
+          {video.tags.map((tag) => (
+            <span class="rounded-full border border-border bg-surface px-2.5 py-1 text-xs text-muted">
+              #{tag}
+            </span>
+          ))}
+        </div>
+      )
+    }
 
     {
       relatedVideos.length > 0 && (

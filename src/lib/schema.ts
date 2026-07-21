@@ -41,8 +41,8 @@ export interface VideoEntry {
   title: string;
   description: string; // factual, no editorializing
   date: string; // date of the event depicted (ISO)
-  location: string;
-  tags: string[];
+  location?: string; // omitted when not yet verified — never a guessed placeholder
+  tags: string[]; // defaults to [] when not yet tagged
   verificationStatus: VerificationStatus;
   sample?: boolean; // present + true ONLY for placeholder entries
   source: VideoSource;
@@ -107,6 +107,25 @@ function requireStringArray(value: unknown, entryLabel: string, field: string): 
   return value as string[];
 }
 
+// location: genuinely optional. Unlike the other string fields, this
+// archive will not fabricate a location, so an entry that hasn't been
+// geo-verified yet has no value here at all — not an empty string, not a
+// placeholder. Presence is still type-checked when the field IS given.
+function optionalString(value: unknown, entryLabel: string, field: string): string | undefined {
+  if (value === undefined) return undefined;
+  if (typeof value !== "string") {
+    fail(entryLabel, `field "${field}" must be a string when present (got ${typeof value})`);
+  }
+  return value;
+}
+
+// tags: genuinely optional, defaulting to an empty array rather than
+// undefined so callers can always .map()/.filter() without a null check.
+function optionalStringArray(value: unknown, entryLabel: string, field: string): string[] {
+  if (value === undefined) return [];
+  return requireStringArray(value, entryLabel, field);
+}
+
 // Recursively walk every string field in an already-built entry and reject
 // literal "TODO" placeholders, unless the entry is explicitly marked as a
 // sample/placeholder entry.
@@ -151,8 +170,8 @@ function validateVideoEntry(raw: unknown, index: number): VideoEntry {
   const title = requireString(obj.title, label, "title");
   const description = requireString(obj.description, label, "description");
   const date = requireString(obj.date, label, "date");
-  const location = requireString(obj.location, label, "location");
-  const tags = requireStringArray(obj.tags, label, "tags");
+  const location = optionalString(obj.location, label, "location");
+  const tags = optionalStringArray(obj.tags, label, "tags");
 
   const verificationStatus = requireString(obj.verificationStatus, label, "verificationStatus");
   if (!VERIFICATION_STATUSES.includes(verificationStatus as VerificationStatus)) {
@@ -194,7 +213,7 @@ function validateVideoEntry(raw: unknown, index: number): VideoEntry {
     title,
     description,
     date,
-    location,
+    ...(location !== undefined ? { location } : {}),
     tags,
     verificationStatus: verificationStatus as VerificationStatus,
     ...(sample !== undefined ? { sample } : {}),
