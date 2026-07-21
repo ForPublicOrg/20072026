@@ -138,6 +138,23 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
     width: 100%;
     overflow: hidden;
     background: var(--color-bg);
+    /* The poster's own designed values strip (DOCUMENT THE TRUTH / REMEMBER
+       THEM / PRESERVE THE EVIDENCE / HONOR THE COURAGE / THIS ARCHIVE) lives
+       along the bottom edge of the artwork. Measured directly off the
+       rendered images (not assumed): on the portrait crop the strip's solid
+       background starts ~81% down the image (~19% of the height, plus a
+       margin of safety); on the wide crop, after accounting for the
+       object-fit: cover crop at common desktop aspect ratios, the strip
+       occupies roughly the bottom ~15-17% of the viewport. These custom
+       properties are the single source of truth both the scrim and the
+       overlay anchor to, so neither one draws over the strip. */
+    --hero-strip-h: 20%;
+  }
+
+  @media (min-width: 768px) {
+    .hero {
+      --hero-strip-h: 17%;
+    }
   }
 
   .hero-img {
@@ -154,31 +171,35 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
 
   @media (min-width: 768px) {
     .hero-img {
-      object-position: center;
+      /* Anchor bottom, not center: at typical wide/short desktop aspect
+         ratios (e.g. 1440x900), object-fit: cover only has ~60px of vertical
+         overflow to crop for this image, but a *center* anchor was splitting
+         that crop evenly top and bottom — quietly shaving the poster's
+         bottom-edge values strip down to an ~8% sliver on screen, most of
+         which then sat behind the fixed bottom nav. Anchoring bottom takes
+         the entire crop off the top (where there's ample sky/margin above
+         the "REC" mark) so the strip renders at its full height instead. */
+      object-position: center bottom;
     }
   }
 
-  /* Bottom scrim so the CTA, scroll cue, and illustration label stay
-     legible over arbitrary artwork pixels, without darkening the whole
-     poster. */
+  /* Bottom scrim so the illustration label and scroll cue stay legible over
+     arbitrary artwork pixels, without darkening the whole poster — and,
+     critically, without touching the poster's own values strip. The owner
+     reviewed and approved that strip's artwork and wants it visible, so the
+     scrim is anchored ABOVE it (bottom: var(--hero-strip-h), not 0) and
+     lightened substantially: it now only has to support our own text, not
+     suppress the poster underneath it. */
   .hero-scrim {
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 0;
-    /* The poster carries its own values strip along its bottom edge
-       (DOCUMENT / REMEMBER / PRESERVE / HONOR). Our CTA and scroll cue sit in
-       exactly that band, so a light scrim leaves the two colliding — the
-       artwork's captions read through the button. Take the base to full black
-       and hold it opaque through the lower third so that strip is fully
-       suppressed and our overlay sits on clean ground. */
-    height: 52%;
+    bottom: var(--hero-strip-h);
+    height: 36%;
     background: linear-gradient(
       to top,
-      rgba(0, 0, 0, 1) 0%,
-      rgba(0, 0, 0, 1) 26%,
-      rgba(0, 0, 0, 0.82) 48%,
-      rgba(0, 0, 0, 0.45) 72%,
+      rgba(0, 0, 0, 0.5) 0%,
+      rgba(0, 0, 0, 0.22) 55%,
       rgba(0, 0, 0, 0) 100%
     );
     pointer-events: none;
@@ -188,22 +209,27 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 0;
+    /* Anchored above the poster's own values strip (see --hero-strip-h on
+       .hero) so our CTA/label/scroll-cue never sit on top of it — and, as a
+       floor, always clears the floating bottom nav (fixed on every
+       breakpoint on this page — see Base.astro's `overlayNav` prop) even on
+       a viewport short enough that the strip's measured height would
+       otherwise undercut the nav bar. */
+    bottom: max(
+      var(--hero-strip-h),
+      calc(var(--app-nav-h) + env(safe-area-inset-bottom) + 0.85rem)
+    );
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 0.85rem;
-    padding: 0 1.25rem;
-    /* Clear the floating bottom nav (fixed on every breakpoint on this
-       page — see Base.astro's `overlayNav` prop) plus a little breathing
-       room. */
-    padding-bottom: calc(var(--app-nav-h) + env(safe-area-inset-bottom) + 0.85rem);
+    padding: 0 1.25rem 0.5rem;
     text-align: center;
   }
 
   @media (min-width: 768px) {
     .hero-overlay {
-      padding-bottom: calc(var(--app-nav-h-desktop) + 1rem);
+      bottom: max(var(--hero-strip-h), calc(var(--app-nav-h-desktop) + 1rem));
     }
   }
 

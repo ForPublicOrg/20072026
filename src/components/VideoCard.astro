@@ -36,6 +36,19 @@ const archivedDate = new Date(video.archivedAt).toLocaleDateString("en-US", {
 // forbids fetching remote images anyway. First letter of the uploader handle
 // on a --color-surface circle with a --color-border ring.
 const avatarInitial = video.source.uploader.replace(/^@/, "").trim().charAt(0).toUpperCase() || "?";
+
+// Feed-only badge suppression. `unverified` is the default status every
+// entry starts with — with 4 of 5 real entries currently sitting on it, a
+// label identical on nearly every card conveys zero information and reads
+// as defensive. We suppress it here ONLY: the full status (including
+// `unverified`) always renders on the item's own /video/[id]/ page, and
+// `about.astro` still explains all five statuses. The other four statuses
+// (verified, likely-verified, partially-verified, context-unclear) either
+// add credibility or flag an actively disputed framing, so they stay. Also
+// suppressed on sample entries so the badge never competes with the
+// non-negotiable SAMPLE banner. See docs/verification-policy.md "Display
+// rules" and docs/design-spec.md for the record of this decision.
+const showBadge = video.verificationStatus !== "unverified" && !video.sample;
 ---
 
 <article
@@ -53,7 +66,7 @@ const avatarInitial = video.source.uploader.replace(/^@/, "").trim().charAt(0).t
         <span class="handle">{video.source.uploader}</span>
         <span class="location">{video.location}</span>
       </div>
-      <VerificationBadge status={video.verificationStatus} />
+      {showBadge && <VerificationBadge status={video.verificationStatus} />}
     </header>
 
     <div class="video-wrap">

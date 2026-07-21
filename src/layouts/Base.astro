@@ -33,10 +33,10 @@ export interface Props {
    */
   overlayNav?: boolean;
   /**
-   * Landing-page-only: omits the standard site footer, which spells out
-   * "Black Days" in its disclaimer copy. The landing page must render no
-   * visible "Black Days" text anywhere (the poster carries all titling);
-   * every other route keeps the footer as-is.
+   * Landing-page-only: omits the standard site footer, which spells out the
+   * site name in its disclaimer copy. The landing page must render no
+   * visible site-name text anywhere (the poster carries all titling); every
+   * other route keeps the footer as-is.
    */
   hideFooter?: boolean;
 }
@@ -111,11 +111,13 @@ const isAbout = path.startsWith("/about");
       !hideHeader && (
         <header class="app-header border-b border-border">
           <div class="content-col flex items-center justify-center py-3">
-            <a
-              href="/"
-              class="text-base font-semibold tracking-tight text-text no-underline"
-            >
-              {SITE_NAME}
+            {/* Dotted display mark, not the plain-text SITE_NAME used in
+                <title>/meta — the owner asked to drop the old "Black Days"
+                wordmark treatment in favour of the poster's own 20·07·2026
+                mark, kept small and restrained (not a leftover text label)
+                since a heavier header read poorly on content pages. */}
+            <a href="/" class="wordmark no-underline" aria-label="20.07.2026 — home">
+              20<span class="wordmark-dot" aria-hidden="true">&middot;</span>07<span class="wordmark-dot" aria-hidden="true">&middot;</span>2026
             </a>
           </div>
         </header>
@@ -205,8 +207,9 @@ const isAbout = path.startsWith("/about");
         <footer class="border-t border-border">
           <div class="content-col py-8 text-sm text-muted flex flex-col gap-2">
             <p>
-              Black Days is an archive of publicly available video and reporting.
-              Preservation, discoverability, documentation — not commentary.
+              20&middot;07&middot;2026 is an archive of publicly available video and
+              reporting. Preservation, discoverability, documentation — not
+              commentary.
             </p>
             <p>
               Corrections &amp; takedowns:{" "}
@@ -234,6 +237,25 @@ const isAbout = path.startsWith("/about");
     z-index: 40;
     height: var(--app-header-h);
     background: var(--color-bg);
+  }
+
+  /* Minimal display mark for the app header — deliberately restrained
+     (small, tight, no card/pill treatment) since the bottom/top nav already
+     provides orientation on every content page; this exists only as a home
+     link + a quiet brand touch, not a repeat of the poster's big numerals. */
+  .wordmark {
+    display: inline-flex;
+    align-items: baseline;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text);
+  }
+
+  .wordmark-dot {
+    margin: 0 0.05em;
+    color: var(--color-tertiary);
   }
 
   .app-nav {
