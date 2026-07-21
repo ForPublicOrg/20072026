@@ -1,4 +1,4 @@
-// Data model + build-time validation for Black Days content.
+// Data model + build-time validation for the 20.07.2026 archive's content.
 // Pages must get video/timeline data ONLY through loadVideos() / loadTimeline().
 // A malformed data file throws here, which fails `astro build` — the whole
 // point being that bad data never reaches the live site.

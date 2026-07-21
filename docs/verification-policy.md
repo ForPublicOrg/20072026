@@ -33,6 +33,7 @@ The footage is real but its framing is in question: it may be from a different e
 
 ## Display rules
 
-- The badge is always visible on cards and video pages — never hidden, never defaulted to a higher status by UI fallback.
+- The badge is always visible on the item's own `/video/[id]` page — never hidden, never defaulted to a higher status by UI fallback.
+- **Feed exception (added 2026-07-21):** on `/feed` cards only, the badge is suppressed when the status is `unverified`. `unverified` is the default every entry starts with; at the time this was written 4 of 5 real entries carried it, so a label present on nearly every card conveyed no information and made the feed read as defensive. The other four statuses (`verified`, `likely-verified`, `partially-verified`, `context-unclear`) still render on feed cards — they either add credibility or flag an actively disputed framing, which is information. The badge is also suppressed on `sample: true` cards so it never competes with the SAMPLE banner. This is a feed-only display choice: the underlying status is unchanged, every entry still has one, and the detail page always shows it, unabridged.
 - Badge colors are muted and informational, not alarmist: e.g. verified = muted green, likely = teal, partially = amber, unverified = neutral gray, context-unclear = orange.
-- The `/about` page links to this policy in plain language.
+- The `/about` page links to this policy in plain language and still explains all five statuses, including `unverified`.

@@ -85,11 +85,13 @@ Cloudflare Worker (static assets)  +  R2 (real media, later)
 
 ## 6. Verification levels
 
-Five levels, always displayed, never implied beyond what is known (full criteria in `verification-policy.md`):
+Five levels, always displayed on the item's own page, never implied beyond what is known (full criteria in `verification-policy.md`):
 
 `verified` · `likely-verified` · `partially-verified` · `unverified` · `context-unclear`
 
 Everything entering via the pipeline starts as `unverified`. Upgrades are manual, deliberate edits to `videos.json`.
+
+**Feed display exception (2026-07-21):** on `/feed` cards, the badge is suppressed when the status is `unverified` — the default nearly every entry starts on, and at the time of this change 4 of 5 real entries still carried it. A label identical on almost every card conveys no information and made the feed read as defensive rather than credible. The other four statuses still render on feed cards (three add credibility, `context-unclear` flags an actively disputed framing — that is information). Nothing about the data model or the `/video/[id]` page changed: every entry still has exactly one status, and the detail page always shows it, including `unverified`. See `docs/verification-policy.md` "Display rules" and `src/components/VideoCard.astro`.
 
 ## 7. Pages
 
