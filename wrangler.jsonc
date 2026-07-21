@@ -1,7 +1,25 @@
 {
   "name": "blackdays",
   "compatibility_date": "2026-07-21",
-  "assets": { "directory": "./dist", "not_found_handling": "404-page" },
+  // The site is still a static build. `main` exists only so POSTs to
+  // /api/takedown have somewhere to land — see src/worker.ts. With `assets`
+  // configured alongside `main`, Cloudflare serves matching static files
+  // WITHOUT invoking the Worker, so adding this costs nothing on page loads.
+  "main": "./src/worker.ts",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page"
+  },
+  "d1_databases": [
+    {
+      // Private inbox for correction/takedown requests. Nothing in this
+      // database is ever rendered back onto the public site.
+      "binding": "TAKEDOWNS",
+      "database_name": "blackdays-takedowns",
+      "database_id": "d3231055-fe3a-4a44-8c43-23238b3d1cae"
+    }
+  ],
   // Served from an existing zone in the account, so no workers.dev subdomain is
   // needed. Cloudflare creates and manages the DNS record for a custom_domain
   // route automatically. Swap to blackdays.in once that zone is added.

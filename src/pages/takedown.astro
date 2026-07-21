@@ -1,0 +1,191 @@
+---
+import Base from "../layouts/Base.astro";
+
+// Progressive enhancement: this is a real <form method="post"> that works with
+// JavaScript disabled (the Worker renders its own confirmation page in that
+// case). The inline script below upgrades it to a fetch submission so the
+// visitor keeps their place instead of navigating away.
+---
+
+<Base
+  title="Corrections & takedowns"
+  description="Request a correction, add context, or ask for material to be removed from the archive."
+>
+  <div class="content-col py-8">
+    <h1 class="text-2xl font-bold tracking-tight">Corrections &amp; takedowns</h1>
+
+    <p class="mt-3 text-sm leading-relaxed text-muted">
+      Everything here was published openly by the people who filmed it. If you
+      posted something held in this archive and you want it removed, you do not
+      need to justify that — say so and it will come down.
+    </p>
+    <p class="mt-3 text-sm leading-relaxed text-muted">
+      This form also takes corrections. If a description is wrong, a location is
+      misidentified, or a clip is being read as something it is not, that is
+      worth more to this archive than almost anything else you could send.
+    </p>
+
+    <form
+      id="takedown-form"
+      method="post"
+      action="/api/takedown"
+      class="mt-8 flex flex-col gap-5 border-t border-border pt-6"
+    >
+      <div class="flex flex-col gap-1.5">
+        <label for="kind" class="text-sm font-semibold">What is this about?</label>
+        <select
+          id="kind"
+          name="kind"
+          required
+          class="min-h-11 rounded-lg border border-border bg-surface px-3 text-sm text-text"
+        >
+          <option value="takedown">Remove material I posted</option>
+          <option value="correction">Correct a factual error</option>
+          <option value="context">Add missing context</option>
+          <option value="other">Something else</option>
+        </select>
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <label for="entry" class="text-sm font-semibold">
+          Which entry? <span class="font-normal text-muted">(optional)</span>
+        </label>
+        <input
+          id="entry"
+          name="entry"
+          type="text"
+          maxlength="300"
+          placeholder="A link, an entry id like video-012, or just describe it"
+          class="min-h-11 rounded-lg border border-border bg-surface px-3 text-sm text-text placeholder:text-tertiary"
+        />
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <label for="message" class="text-sm font-semibold">Your request</label>
+        <textarea
+          id="message"
+          name="message"
+          required
+          minlength="10"
+          maxlength="4000"
+          rows="6"
+          class="rounded-lg border border-border bg-surface px-3 py-2 text-sm leading-relaxed text-text placeholder:text-tertiary"
+        ></textarea>
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <label for="contact" class="text-sm font-semibold">
+          How to reach you <span class="font-normal text-muted">(optional)</span>
+        </label>
+        <input
+          id="contact"
+          name="contact"
+          type="text"
+          maxlength="300"
+          placeholder="Email or social handle"
+          class="min-h-11 rounded-lg border border-border bg-surface px-3 text-sm text-text placeholder:text-tertiary"
+        />
+        <p class="text-xs leading-relaxed text-muted">
+          Leave this blank if you would rather not say. A removal request is
+          acted on either way. Requests are stored privately and are never
+          published on this site.
+        </p>
+      </div>
+
+      {/* Honeypot. Hidden from people, filled in by bots — see src/worker.ts. */}
+      <div class="hp" aria-hidden="true">
+        <label for="website">Leave this field empty</label>
+        <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
+      </div>
+
+      <div class="flex flex-col gap-3">
+        <button
+          type="submit"
+          class="min-h-11 rounded-lg bg-accent px-4 text-sm font-semibold text-bg"
+        >
+          Send request
+        </button>
+        <p id="form-status" role="status" aria-live="polite" class="text-sm"></p>
+      </div>
+    </form>
+  </div>
+</Base>
+
+<style>
+  /* Off-screen rather than display:none — some bots skip inputs that are
+     display:none, but will happily fill one that is merely positioned away. */
+  .hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+</style>
+
+<script>
+  function initTakedownForm() {
+    const form = document.getElementById("takedown-form");
+    if (!(form instanceof HTMLFormElement)) return;
+    if (form.dataset.enhanced === "true") return;
+    form.dataset.enhanced = "true";
+
+    const status = document.getElementById("form-status");
+    const button = form.querySelector('button[type="submit"]');
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!form.reportValidity()) return;
+
+      const submit = button instanceof HTMLButtonElement ? button : null;
+      if (submit) {
+        submit.disabled = true;
+        submit.textContent = "Sending…";
+      }
+      if (status) {
+        status.textContent = "";
+        status.style.color = "";
+      }
+
+      try {
+        const response = await fetch("/api/takedown", {
+          method: "POST",
+          headers: { "content-type": "application/json", accept: "application/json" },
+          body: JSON.stringify(Object.fromEntries(new FormData(form).entries())),
+        });
+        const result = (await response.json()) as { ok?: boolean; error?: string };
+
+        if (response.ok && result.ok) {
+          form.reset();
+          if (status) {
+            status.style.color = "var(--color-text)";
+            status.textContent =
+              "Request received. Thank you — this will be reviewed.";
+          }
+          if (submit) submit.textContent = "Sent";
+          return;
+        }
+
+        if (status) {
+          status.style.color = "var(--color-text)";
+          status.textContent = result.error ?? "Something went wrong. Please try again.";
+        }
+      } catch {
+        if (status) {
+          status.style.color = "var(--color-text)";
+          status.textContent =
+            "Could not reach the server. Please check your connection and try again.";
+        }
+      } finally {
+        if (submit && submit.textContent !== "Sent") {
+          submit.disabled = false;
+          submit.textContent = "Send request";
+        }
+      }
+    });
+  }
+
+  initTakedownForm();
+  // Astro's ClientRouter swaps documents without a full reload.
+  document.addEventListener("astro:page-load", initTakedownForm);
+</script>
