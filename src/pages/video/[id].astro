@@ -81,7 +81,7 @@ const truncatedDescription =
     }
 
     <div
-      class="video-player-wrap mx-auto mb-6 flex w-full items-center justify-center bg-black"
+      class="video-player-wrap mx-auto mb-6 flex w-full items-center justify-center bg-letterbox"
       style={`aspect-ratio: ${video.media.width} / ${video.media.height};`}
     >
       <video
@@ -97,49 +97,49 @@ const truncatedDescription =
       </video>
     </div>
 
-    <h1 class="text-2xl font-bold leading-snug">{video.title}</h1>
+    <h1 class="text-2xl font-bold leading-snug tracking-tight">{video.title}</h1>
 
     <div class="mt-3">
-      <VerificationBadge status={video.verificationStatus} />
+      <VerificationBadge status={video.verificationStatus} variant="light" />
     </div>
 
-    <dl class="metadata mt-4 grid grid-cols-1 gap-x-4 gap-y-2 text-sm sm:grid-cols-2">
+    <dl class="metadata mt-5 grid grid-cols-1 gap-x-4 gap-y-3 border-t border-border pt-5 text-sm sm:grid-cols-2">
       <div>
-        <dt class="text-muted">Event date</dt>
-        <dd>{eventDate}</dd>
+        <dt class="text-xs text-muted">Event date</dt>
+        <dd class="mt-0.5 font-medium">{eventDate}</dd>
       </div>
       <div>
-        <dt class="text-muted">Location</dt>
-        <dd>{video.location}</dd>
+        <dt class="text-xs text-muted">Location</dt>
+        <dd class="mt-0.5 font-medium">{video.location}</dd>
       </div>
       <div>
-        <dt class="text-muted">Platform</dt>
-        <dd>{video.source.platform}</dd>
+        <dt class="text-xs text-muted">Platform</dt>
+        <dd class="mt-0.5 font-medium">{video.source.platform}</dd>
       </div>
       <div>
-        <dt class="text-muted">Uploader</dt>
-        <dd>{video.source.uploader}</dd>
+        <dt class="text-xs text-muted">Uploader</dt>
+        <dd class="mt-0.5 font-medium">{video.source.uploader}</dd>
       </div>
       <div>
-        <dt class="text-muted">Published</dt>
-        <dd>{publishedDate}</dd>
+        <dt class="text-xs text-muted">Published</dt>
+        <dd class="mt-0.5 font-medium">{publishedDate}</dd>
       </div>
       <div>
-        <dt class="text-muted">Archived</dt>
-        <dd>{archivedDate}</dd>
+        <dt class="text-xs text-muted">Archived</dt>
+        <dd class="mt-0.5 font-medium">{archivedDate}</dd>
       </div>
       <div>
-        <dt class="text-muted">Duration</dt>
-        <dd>{durationLabel}</dd>
+        <dt class="text-xs text-muted">Duration</dt>
+        <dd class="mt-0.5 font-medium">{durationLabel}</dd>
       </div>
       <div>
-        <dt class="text-muted">Original source</dt>
-        <dd>
+        <dt class="text-xs text-muted">Original source</dt>
+        <dd class="mt-0.5">
           <a
             href={video.source.url}
             rel="noopener nofollow"
             target="_blank"
-            class="text-accent no-underline hover:underline"
+            class="inline-flex min-h-11 items-center font-medium !text-accent no-underline hover:underline"
           >
             View original &rarr;
           </a>
@@ -154,7 +154,7 @@ const truncatedDescription =
     <div class="mt-4 flex flex-wrap gap-2">
       {
         video.tags.map((tag) => (
-          <span class="rounded-full bg-white/5 px-2.5 py-1 text-xs text-muted">
+          <span class="rounded-full border border-border bg-surface px-2.5 py-1 text-xs text-muted">
             #{tag}
           </span>
         ))
@@ -163,13 +163,13 @@ const truncatedDescription =
 
     {
       relatedVideos.length > 0 && (
-        <section class="mt-12">
+        <section class="mt-12 border-t border-border pt-6">
           <h2 class="text-lg font-semibold">Related videos</h2>
           <div class="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
             {relatedVideos.map((related) => (
               <a
                 href={`/video/${related.id}/`}
-                class="group flex flex-col gap-1 no-underline"
+                class="group flex flex-col gap-1.5 no-underline"
               >
                 <img
                   src={`${MEDIA_BASE}${related.media.thumbnail}`}
@@ -177,7 +177,7 @@ const truncatedDescription =
                   width="180"
                   height="320"
                   loading="lazy"
-                  class="aspect-[9/16] w-full rounded-md object-cover"
+                  class="aspect-[9/16] w-full rounded-md border border-border bg-surface object-cover"
                 />
                 <span class="line-clamp-2 text-xs text-muted group-hover:text-text">
                   {related.title}

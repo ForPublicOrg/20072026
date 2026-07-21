@@ -19,12 +19,12 @@ const eventTime = new Date(event.time).toLocaleString("en-US", {
 ---
 
 <li class="timeline-event relative pl-6 pb-10">
-  <div class="absolute left-0 top-1.5 h-2.5 w-2.5 -translate-x-1/2 rounded-full bg-accent"></div>
+  <div class="absolute left-0 top-1.5 h-2.5 w-2.5 -translate-x-1/2 rounded-full border-2 border-bg bg-accent"></div>
   <time datetime={event.time} class="block font-mono text-xs text-muted">
     {eventTime}
   </time>
-  <h3 class="mt-1 text-lg font-semibold">{event.title}</h3>
-  <p class="mt-1 text-sm text-muted">{event.description}</p>
+  <h3 class="mt-1 text-base font-semibold leading-snug">{event.title}</h3>
+  <p class="mt-1 text-sm leading-relaxed text-muted">{event.description}</p>
 
   {
     videos.length > 0 && (
@@ -32,7 +32,7 @@ const eventTime = new Date(event.time).toLocaleString("en-US", {
         {videos.map((video) => (
           <a
             href={`/video/${video.id}/`}
-            class="group flex w-28 flex-col gap-1 no-underline"
+            class="group flex w-28 flex-col gap-1.5 no-underline"
           >
             <img
               src={`${MEDIA_BASE}${video.media.thumbnail}`}
@@ -40,7 +40,7 @@ const eventTime = new Date(event.time).toLocaleString("en-US", {
               width="112"
               height="199"
               loading="lazy"
-              class="aspect-[9/16] w-full rounded-md object-cover"
+              class="aspect-[9/16] w-full rounded-md border border-border bg-surface object-cover"
             />
             <span class="line-clamp-2 text-xs text-muted group-hover:text-text">
               {video.title}
@@ -54,7 +54,7 @@ const eventTime = new Date(event.time).toLocaleString("en-US", {
 
 <style>
   .timeline-event {
-    border-left: 1px solid rgba(255, 255, 255, 0.15);
+    border-left: 1px solid var(--color-border);
   }
 
   .timeline-event:last-child {

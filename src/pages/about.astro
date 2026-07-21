@@ -1,6 +1,35 @@
 ---
 import Base from "../layouts/Base.astro";
+import VerificationBadge from "../components/VerificationBadge.astro";
 import { CONTACT_EMAIL, SITE_NAME } from "../config";
+import type { VerificationStatus } from "../lib/schema";
+
+const statuses: { status: VerificationStatus; description: string }[] = [
+  {
+    status: "verified",
+    description:
+      "Location, date, and source independently confirmed; no signs of manipulation.",
+  },
+  {
+    status: "likely-verified",
+    description:
+      "Location and date each supported by a strong indicator; full corroboration incomplete.",
+  },
+  {
+    status: "partially-verified",
+    description: "Some claims are confirmed; the description states which.",
+  },
+  {
+    status: "unverified",
+    description:
+      "The default; nothing beyond the existence of the public post has been checked.",
+  },
+  {
+    status: "context-unclear",
+    description:
+      "The footage may be real, but its claimed date, place, or framing is in question.",
+  },
+];
 ---
 
 <Base
@@ -8,9 +37,9 @@ import { CONTACT_EMAIL, SITE_NAME } from "../config";
   description="What Black Days is, what it is not, how verification works, and how to reach us about corrections or takedowns."
 >
   <div class="content-col py-8">
-    <h1 class="text-2xl font-bold">About</h1>
+    <h1 class="text-2xl font-bold tracking-tight">About</h1>
 
-    <section class="mt-8">
+    <section class="mt-8 border-t border-border pt-6">
       <h2 class="text-lg font-semibold">What this is</h2>
       <p class="mt-2 text-sm leading-relaxed text-muted">
         {SITE_NAME} is a static archive documenting publicly available
@@ -22,7 +51,7 @@ import { CONTACT_EMAIL, SITE_NAME } from "../config";
       </p>
     </section>
 
-    <section class="mt-8">
+    <section class="mt-8 border-t border-border pt-6">
       <h2 class="text-lg font-semibold">What this is not</h2>
       <p class="mt-2 text-sm leading-relaxed text-muted">
         This is not a social platform. There are no user accounts, no
@@ -32,7 +61,7 @@ import { CONTACT_EMAIL, SITE_NAME } from "../config";
       </p>
     </section>
 
-    <section id="verification" class="mt-8">
+    <section id="verification" class="mt-8 border-t border-border pt-6">
       <h2 class="text-lg font-semibold">How verification works</h2>
       <p class="mt-2 text-sm leading-relaxed text-muted">
         Every item displays exactly one verification status. When in doubt,
@@ -40,33 +69,21 @@ import { CONTACT_EMAIL, SITE_NAME } from "../config";
         criteria for each level, lives in{" "}
         <code>docs/verification-policy.md</code> in the project repository.
       </p>
-      <ul class="mt-3 flex flex-col gap-2 text-sm text-muted">
-        <li>
-          <strong class="text-text">Verified</strong> — location, date, and
-          source independently confirmed; no signs of manipulation.
-        </li>
-        <li>
-          <strong class="text-text">Likely verified</strong> — location and
-          date each supported by a strong indicator; full corroboration
-          incomplete.
-        </li>
-        <li>
-          <strong class="text-text">Partially verified</strong> — some claims
-          are confirmed; the description states which.
-        </li>
-        <li>
-          <strong class="text-text">Unverified</strong> — the default;
-          nothing beyond the existence of the public post has been checked.
-        </li>
-        <li>
-          <strong class="text-text">Context unclear</strong> — the footage
-          may be real, but its claimed date, place, or framing is in
-          question.
-        </li>
+      <ul class="mt-4 flex flex-col gap-3">
+        {
+          statuses.map(({ status, description }) => (
+            <li class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-3">
+              <VerificationBadge status={status} variant="light" />
+              <span class="text-sm leading-relaxed text-muted">
+                {description}
+              </span>
+            </li>
+          ))
+        }
       </ul>
     </section>
 
-    <section class="mt-8">
+    <section class="mt-8 border-t border-border pt-6">
       <h2 class="text-lg font-semibold">Sources &amp; attribution</h2>
       <p class="mt-2 text-sm leading-relaxed text-muted">
         Attribution — platform, uploader, and the original public URL — is
@@ -75,27 +92,29 @@ import { CONTACT_EMAIL, SITE_NAME } from "../config";
       </p>
     </section>
 
-    <section class="mt-8">
+    <section class="mt-8 border-t border-border pt-6">
       <h2 class="text-lg font-semibold">Corrections &amp; takedowns</h2>
       <p class="mt-2 text-sm leading-relaxed text-muted">
         If you see an error, want to provide corroborating information, or
         need to request a takedown, contact{" "}
         <a
           href={`mailto:${CONTACT_EMAIL}`}
-          class="text-accent no-underline hover:underline">{CONTACT_EMAIL}</a
+          class="inline-flex min-h-11 items-center font-medium !text-accent no-underline hover:underline"
+          >{CONTACT_EMAIL}</a
         >. Material entries are corrected, not deleted, wherever possible;
         if media must be removed, the metadata record is kept with a note so
         the record of the record survives.
       </p>
     </section>
 
-    <section class="mt-8">
+    <section class="mt-8 border-t border-border pt-6">
       <h2 class="text-lg font-semibold">Sample-content notice</h2>
       <p class="mt-2 text-sm leading-relaxed text-muted">
-        This site currently shows placeholder sample entries, each clearly
-        marked "SAMPLE — placeholder entry" and carrying{" "}
-        <code>"sample": true</code> in the underlying data. This notice
-        remains until real, reviewed content replaces the samples.
+        Some entries in this archive are placeholder sample entries, each
+        clearly marked "SAMPLE — placeholder entry" and carrying{" "}
+        <code>"sample": true</code> in the underlying data. They exist to
+        exercise the pipeline and layout and stand alongside reviewed,
+        real-content entries; they are never presented as verified fact.
       </p>
     </section>
   </div>
