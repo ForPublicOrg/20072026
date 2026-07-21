@@ -15,16 +15,16 @@ const videosById = new Map(videos.map((video) => [video.id, video]));
   description="Chronological timeline of events in the Black Days archive, each linked to the related video entries."
 >
   <div class="content-col py-8">
-    <h1 class="text-2xl font-bold">Timeline</h1>
-    <p class="mt-2 text-sm text-muted">
+    <h1 class="text-2xl font-bold tracking-tight">Timeline</h1>
+    <p class="mt-2 text-sm leading-relaxed text-muted">
       Events are listed chronologically. Each entry links to the related
       video(s) in the archive; every video follows the same{" "}
-      <a href="/about/#verification" class="text-accent no-underline hover:underline"
+      <a href="/about/#verification" class="!text-accent no-underline hover:underline"
         >verification policy</a
       >.
     </p>
 
-    <ol class="mt-8">
+    <ol class="mt-8 border-t border-border pt-2">
       {
         events.map((event) => (
           <TimelineEvent
