@@ -167,15 +167,18 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
     background: var(--color-bg);
     /* The poster's own designed values strip (DOCUMENT THE TRUTH / REMEMBER
        THEM / PRESERVE THE EVIDENCE / HONOR THE COURAGE / THIS ARCHIVE) lives
-       along the bottom edge of the artwork. Measured directly off the
-       rendered images (not assumed): on the portrait crop the strip's solid
-       background starts ~81% down the image (~19% of the height, plus a
-       margin of safety); on the wide crop, after accounting for the
-       object-fit: cover crop at common desktop aspect ratios, the strip
-       occupies roughly the bottom ~15-17% of the viewport. These custom
-       properties are the single source of truth both the scrim and the
-       overlay anchor to, so neither one draws over the strip. */
-    --hero-strip-h: 20%;
+       along the bottom edge of the artwork, occupying the bottom ~19% of the
+       full image height. Now that .hero-img uses a top-anchored `cover` on
+       mobile (see below — needed to kill the pillarboxing `contain` caused
+       on real phone viewports), that strip is exactly what gets cropped
+       first, and by a variable amount depending on how much taller the hero
+       box is than the poster's own aspect. 10% is a conservative estimate
+       of how much of the strip typically survives, not an exact fraction —
+       on short viewports the strip may crop away entirely, which is an
+       acceptable trade for losing the pillarboxing. The overlay's own
+       max(--hero-strip-h, nav-clearance) floor (below) still guarantees the
+       CTA never sits behind the bottom nav even where this estimate is off. */
+    --hero-strip-h: 10%;
   }
 
   @media (min-width: 768px) {
@@ -194,21 +197,23 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
     display: block;
     width: 100%;
     height: 100%;
-    /* `contain`, not `cover`, on phones. With cover and a top anchor the
-       poster's aspect (0.4732) against the hero box (0.4974) put ~4.9% of the
-       image height off the bottom edge — which is exactly where the values
-       strip's last row ("THIS ARCHIVE — THEIR STORY. OUR FUTURE.") lives, so
-       it was being sliced off. Anchoring bottom instead would have saved the
-       strip but cropped the date/title block at the top. There is no anchor
-       that keeps both, because cover must crop 4.9% from somewhere.
-       `contain` crops nothing: the poster renders whole, costing ~10px of
-       letterbox on each side. Those bars are --color-bg (#000) against the
-       poster's own dark edges, so they read as nothing at all — a far
-       cheaper price than losing either end of artwork the owner reviewed
-       and approved. Vertical fractions now map 1:1 onto the image, which is
-       also what makes --hero-strip-h below exact rather than estimated. */
-    object-fit: contain;
-    object-position: center;
+    /* `cover`, not `contain`, on phones. `contain` was tried first to avoid
+       cropping the poster at all, on the assumption (never checked against
+       a real phone, only a bare 390x844 box) that it would only cost ~10px
+       of letterbox per side. On an actual small viewport — address bar
+       visible, bottom nav reserved via --app-nav-h — the hero box ends up
+       noticeably wider-than-tall relative to the poster's own 0.4742 aspect,
+       and `contain` pillarboxed with real, visible black bars down both
+       sides (reported by the owner from a live phone screenshot, ~8% of
+       width per side). That's the same "black bars on both sides" bug
+       desktop had before it switched to `cover` (see the media query
+       below) — same fix applies here. Anchored top so the crop comes out of
+       the bottom values strip rather than the date/title block at the top,
+       which matters far more on the first screenful. --hero-strip-h below
+       is now a conservative estimate, not an exact fraction, since how much
+       of the strip survives depends on how much the crop takes. */
+    object-fit: cover;
+    object-position: center top;
   }
 
   @media (min-width: 768px) {
