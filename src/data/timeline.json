@@ -1,1 +1,67 @@
-[]
+[
+  {
+    "time": "2026-03-14T18:30:00+05:30",
+    "title": "[SAMPLE] Evening gathering begins on MG Road",
+    "description": "Placeholder timeline entry. Marks the sample gathering footage captured on MG Road, Bengaluru.",
+    "relatedVideoIds": [
+      "video-001"
+    ]
+  },
+  {
+    "time": "2026-03-16T11:00:00+05:30",
+    "title": "[SAMPLE] March reaches Town Hall junction",
+    "description": "Placeholder timeline entry. Marks the sample march footage passing through the Town Hall junction.",
+    "relatedVideoIds": [
+      "video-002"
+    ]
+  },
+  {
+    "time": "2026-03-18T09:15:00+05:30",
+    "title": "[SAMPLE] Crowd assembles near Pune station",
+    "description": "Placeholder timeline entry. Marks the sample assembly footage near the railway station forecourt in Pune.",
+    "relatedVideoIds": [
+      "video-003"
+    ]
+  },
+  {
+    "time": "2026-03-20T21:45:00+05:30",
+    "title": "[SAMPLE] Night footage recorded downtown",
+    "description": "Placeholder timeline entry. Marks the sample night footage from a downtown Mumbai intersection.",
+    "relatedVideoIds": [
+      "video-004"
+    ]
+  },
+  {
+    "time": "2026-03-22T16:00:00+05:30",
+    "title": "[SAMPLE] Drone pass over Ahmedabad market street",
+    "description": "Placeholder timeline entry. Marks the sample overhead drone footage of a market street in Ahmedabad.",
+    "relatedVideoIds": [
+      "video-005",
+      "video-007"
+    ]
+  },
+  {
+    "time": "2026-03-25T08:20:00+05:30",
+    "title": "[SAMPLE] Handheld clip recorded at campus gate",
+    "description": "Placeholder timeline entry. Marks the sample handheld footage recorded at a Delhi university campus gate.",
+    "relatedVideoIds": [
+      "video-006"
+    ]
+  },
+  {
+    "time": "2026-03-27T17:10:00+05:30",
+    "title": "[SAMPLE] Wide shot recorded along riverside promenade",
+    "description": "Placeholder timeline entry. Marks the sample wide-shot footage along the Ahmedabad riverside promenade.",
+    "relatedVideoIds": [
+      "video-007"
+    ]
+  },
+  {
+    "time": "2026-03-30T13:05:00+05:30",
+    "title": "[SAMPLE] Close-up pan recorded at Pune market entrance",
+    "description": "Placeholder timeline entry. Marks the sample close-up footage recorded at a Pune market entrance.",
+    "relatedVideoIds": [
+      "video-008"
+    ]
+  }
+]
