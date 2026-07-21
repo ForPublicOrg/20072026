@@ -1,6 +1,5 @@
 ---
 import Base from "../layouts/Base.astro";
-import Hero from "../components/Hero.astro";
 import VideoCard from "../components/VideoCard.astro";
 import { loadVideos } from "../lib/schema";
 
@@ -13,17 +12,20 @@ const videos = [...loadVideos()].sort((a, b) => {
 <Base
   title="Home"
   description="An archive of publicly available video, photos, and reporting documenting a specific protest event. Preservation, discoverability, and historical documentation — not commentary."
+  fullBleed
 >
-  <Hero />
-
-  <div id="feed" class="feed">
+  <div id="feed" class="feed" role="list" aria-label="Video feed">
     {videos.map((video, index) => <VideoCard video={video} index={index} />)}
   </div>
 </Base>
 
 <style>
   .feed {
-    scroll-snap-type: y proximity;
+    height: 100%;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    scroll-snap-type: y mandatory;
+    -webkit-overflow-scrolling: touch;
   }
 </style>
 
