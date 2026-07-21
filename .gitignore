@@ -6,3 +6,12 @@ archive-originals/
 
 # JetBrains IDE
 .idea/
+
+# R2 cutover (2026-07-21): media is served from the blackdays-media R2
+# bucket via MEDIA_BASE, not from disk. Kept at top-level /media/ (rather
+# than public/media/) because `astro build` copies the entire public/ dir
+# into dist/ unconditionally, ignoring .gitignore — leaving it under public/
+# would still balloon every build/deploy with 667MB of already-uploaded
+# media. Files stay on disk here as a local working copy; not committed.
+/media/
+.DS_Store

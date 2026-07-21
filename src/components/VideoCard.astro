@@ -51,7 +51,7 @@ const avatarInitial = video.source.uploader.replace(/^@/, "").trim().charAt(0).t
       <div class="avatar" aria-hidden="true">{avatarInitial}</div>
       <div class="header-text">
         <span class="handle">{video.source.uploader}</span>
-        <span class="location">{video.location}</span>
+        {video.location && <span class="location">{video.location}</span>}
       </div>
     </header>
 
@@ -502,7 +502,10 @@ const avatarInitial = video.source.uploader.replace(/^@/, "").trim().charAt(0).t
     align-self: flex-start;
     font-size: 0.75rem;
     font-weight: 600;
-    color: var(--color-link);
+    /* Grey, not var(--color-link): this toggles the caption in place, it
+       doesn't go anywhere — Instagram's own "... more" reads as muted text,
+       not a link, and reserves blue for things that actually navigate. */
+    color: var(--color-muted);
     text-decoration: none;
     background: none;
     border: none;
