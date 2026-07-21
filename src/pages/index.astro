@@ -30,16 +30,18 @@ const ogImage = `${SITE_URL}/banner/hero-wide.jpg`;
       srcset="/banner/hero-wide-1280.webp 1280w, /banner/hero-wide-1920.webp 1920w"
       sizes="100vw"
     />
+    <!-- Portrait poster is natively 864x1821; do not offer widths above 864 —
+         upscaling only inflates bytes without adding detail. -->
     <source
       type="image/webp"
-      srcset="/banner/hero-portrait-750.webp 750w, /banner/hero-portrait-1080.webp 1080w"
+      srcset="/banner/hero-portrait-640.webp 640w, /banner/hero-portrait-864.webp 864w"
       sizes="100vw"
     />
     <img
       src="/banner/hero-portrait.jpg"
-      alt="Illustration of a crowd at a barricade holding flags amid smoke, overlaid with the text 20·07·2026, The Day India Remembered."
-      width="1000"
-      height="666"
+      alt="Illustration of a crowd behind police barricades facing a domed government building, with Indian flags and scattered examination papers, overlaid with the text 20·07·2026, The Day India Remembered."
+      width="864"
+      height="1821"
       fetchpriority="high"
       loading="eager"
       decoding="async"
@@ -49,8 +51,19 @@ const ogImage = `${SITE_URL}/banner/hero-wide.jpg`;
 
   <p class="hero-caption">Illustration — not documentary footage</p>
 
-  <div class="content-col py-8">
+  <div class="content-col pt-5 pb-8">
+    <!-- Lead line + CTA come first so both sit above the fold on a phone. The
+         fuller account follows underneath for anyone who wants it. -->
     <p class="text-sm leading-relaxed text-muted">
+      An archive of publicly available video from 20 July 2026, kept with its
+      original sources and labelled by what has actually been verified.
+    </p>
+
+    <div class="cta-row">
+      <a href="/feed" class="cta-primary">Relive the day</a>
+    </div>
+
+    <p class="mt-8 text-sm leading-relaxed text-muted">
       On 20 July 2026, more than 10,000 people marched towards Parliament in
       New Delhi. Police cut mobile internet, closed metro stations and used
       tear gas and batons.
@@ -60,10 +73,6 @@ const ogImage = `${SITE_URL}/banner/hero-wide.jpg`;
       days around it. Every entry keeps its original source and uploader,
       and carries a label saying how much of it has actually been verified.
     </p>
-
-    <div class="cta-row">
-      <a href="/feed" class="cta-primary">Relive the day</a>
-    </div>
 
     <p class="counts">
       {realVideos.length} video{realVideos.length === 1 ? "" : "s"} archived
@@ -86,14 +95,23 @@ const ogImage = `${SITE_URL}/banner/hero-wide.jpg`;
     display: block;
     width: 100%;
     height: auto;
-    aspect-ratio: 3 / 2;
+    /* Matches the portrait poster's native 864x1821 so nothing is distorted. */
+    aspect-ratio: 864 / 1821;
+    /* At full width on a phone this poster is ~2.1x the viewport width tall,
+       which would push the "Relive the day" CTA well below the fold. Cap it and
+       anchor to the top so the date/title block stays intact while the CTA
+       remains reachable without scrolling. */
+    max-height: 54svh;
     object-fit: cover;
+    object-position: top center;
     background: var(--color-bg);
   }
 
   @media (min-width: 768px) {
     .hero-banner {
       aspect-ratio: 2.5 / 1;
+      max-height: none;
+      object-position: center;
     }
   }
 
