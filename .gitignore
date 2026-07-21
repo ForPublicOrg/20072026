@@ -3,3 +3,6 @@ dist
 archive-originals/
 .wrangler
 .astro
+
+# JetBrains IDE
+.idea/

@@ -50,11 +50,23 @@ export interface VideoEntry {
   archivedAt: string;
 }
 
+/**
+ * A citation for a timeline event. The timeline makes factual claims about
+ * events this archive did not witness, so each entry carries the reporting it
+ * is drawn from and links out to it — the reader checks the source, rather
+ * than taking this site's word for it.
+ */
+export interface TimelineSource {
+  title: string;
+  url: string;
+}
+
 export interface TimelineEvent {
-  time: string;
+  time: string; // date-only ISO string; we have never had a clock time for these
   title: string;
   description: string;
   relatedVideoIds: string[];
+  sources?: TimelineSource[];
 }
 
 const VIDEO_ID_RE = /^video-\d{3}$/;
@@ -220,7 +232,27 @@ function validateTimelineEvent(
     }
   }
 
-  const entry: TimelineEvent = { time, title, description, relatedVideoIds };
+  // Citations are optional, but a malformed one must fail the build rather
+  // than silently vanish from the page — an event whose sourcing quietly
+  // disappeared is worse than one that never claimed any.
+  let sources: TimelineSource[] | undefined;
+  if (obj.sources !== undefined) {
+    if (!Array.isArray(obj.sources)) {
+      fail(label, `field "sources" must be an array`);
+    }
+    sources = obj.sources.map((raw, sourceIndex) => {
+      const sourceLabel = `${label} sources[${sourceIndex}]`;
+      const source = requireObject(raw, sourceLabel, "(root)");
+      const sourceTitle = requireString(source.title, sourceLabel, "title");
+      const url = requireString(source.url, sourceLabel, "url");
+      if (!/^https?:\/\//.test(url)) {
+        fail(sourceLabel, `field "url" must be an absolute http(s) URL (got "${url}")`);
+      }
+      return { title: sourceTitle, url };
+    });
+  }
+
+  const entry: TimelineEvent = { time, title, description, relatedVideoIds, sources };
 
   checkNoTodoStrings(entry, label, false);
 

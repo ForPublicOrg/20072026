@@ -9,22 +9,51 @@ export interface Props {
 
 const { event, videos } = Astro.props;
 
-const eventTime = new Date(event.time).toLocaleString("en-US", {
+// Date only — no clock time. The `time` field holds a date-only ISO string
+// ("2026-05-15") and we have never had an hour for any of these events.
+// Formatting with hour/minute previously invented one: a date-only string
+// parses as UTC midnight, so the old toLocaleString rendered a bogus
+// "5:30 AM" that looked like sourced precision and wasn't.
+//
+// timeZone: "UTC" is load-bearing for the same reason — without it, a
+// visitor west of Greenwich renders UTC midnight as the PREVIOUS day, so
+// the march on Parliament would date-stamp 19 July for readers in the US.
+const eventDate = new Date(event.time).toLocaleDateString("en-US", {
   year: "numeric",
-  month: "short",
+  month: "long",
   day: "numeric",
-  hour: "numeric",
-  minute: "2-digit",
+  timeZone: "UTC",
 });
 ---
 
 <li class="timeline-event relative pl-6 pb-10">
   <div class="absolute left-0 top-1.5 h-2.5 w-2.5 -translate-x-1/2 rounded-full border-2 border-bg bg-accent"></div>
   <time datetime={event.time} class="block font-mono text-xs text-muted">
-    {eventTime}
+    {eventDate}
   </time>
   <h3 class="mt-1 text-base font-semibold leading-snug">{event.title}</h3>
   <p class="mt-1 text-sm leading-relaxed text-muted">{event.description}</p>
+
+  {
+    event.sources && event.sources.length > 0 && (
+      <ul class="mt-2 flex flex-col gap-1">
+        {event.sources.map((source) => (
+          <li class="text-xs leading-relaxed">
+            <a
+              href={source.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-link no-underline hover:underline"
+            >
+              {source.title}
+              <span aria-hidden="true"> &#8599;</span>
+              <span class="sr-only"> (opens in a new tab)</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )
+  }
 
   {
     videos.length > 0 && (

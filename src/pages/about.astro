@@ -1,40 +1,11 @@
 ---
 import Base from "../layouts/Base.astro";
-import VerificationBadge from "../components/VerificationBadge.astro";
-import { CONTACT_EMAIL, SITE_NAME } from "../config";
-import type { VerificationStatus } from "../lib/schema";
-
-const statuses: { status: VerificationStatus; description: string }[] = [
-  {
-    status: "verified",
-    description:
-      "Location, date, and source independently confirmed; no signs of manipulation.",
-  },
-  {
-    status: "likely-verified",
-    description:
-      "Location and date each supported by a strong indicator; full corroboration incomplete.",
-  },
-  {
-    status: "partially-verified",
-    description: "Some claims are confirmed; the description states which.",
-  },
-  {
-    status: "unverified",
-    description:
-      "The default; nothing beyond the existence of the public post has been checked.",
-  },
-  {
-    status: "context-unclear",
-    description:
-      "The footage may be real, but its claimed date, place, or framing is in question.",
-  },
-];
+import { SITE_NAME } from "../config";
 ---
 
 <Base
   title="About"
-  description="What this archive is, what it is not, how verification works, and how to reach us about corrections or takedowns."
+  description="What this archive is, what it is not, where the material comes from, and how to reach us about corrections or takedowns."
 >
   <div class="content-col py-8">
     <h1 class="text-2xl font-bold tracking-tight">About</h1>
@@ -42,79 +13,91 @@ const statuses: { status: VerificationStatus; description: string }[] = [
     <section class="mt-8 border-t border-border pt-6">
       <h2 class="text-lg font-semibold">What this is</h2>
       <p class="mt-2 text-sm leading-relaxed text-muted">
-        {SITE_NAME} is a static archive documenting publicly available
-        videos, photos, and reporting related to a specific protest event.
-        The goal is preservation, discoverability, and historical
-        documentation — not commentary. The site clearly distinguishes
-        verified from unverified material, preserves attribution to original
-        sources, and avoids editorializing.
+        On 20 July 2026, students marched on Parliament in New Delhi and were
+        met with tear gas and lathi charges. Much of what happened that day was
+        filmed by the people it happened to, and posted publicly, on platforms
+        that do not promise to keep anything.
+      </p>
+      <p class="mt-3 text-sm leading-relaxed text-muted">
+        {SITE_NAME} keeps a copy. It is a static archive of publicly posted
+        video from that day and the months that led to it, preserved so it stays
+        findable after the feeds have moved on.
+      </p>
+    </section>
+
+    <section class="mt-8 border-t border-border pt-6">
+      <h2 class="text-lg font-semibold">Where the material comes from</h2>
+      <p class="mt-2 text-sm leading-relaxed text-muted">
+        The priority is footage posted by people who were there, rather than
+        material from news organisations — this is a record of what
+        participants saw and chose to publish.
+      </p>
+      <p class="mt-3 text-sm leading-relaxed text-muted">
+        Every entry keeps its attribution: the platform, the account that posted
+        it, and a link to the original post. That link is on every item in the
+        feed. Attribution is never stripped, and the original is always one tap
+        away so you can check it against the source yourself.
       </p>
     </section>
 
     <section class="mt-8 border-t border-border pt-6">
       <h2 class="text-lg font-semibold">What this is not</h2>
       <p class="mt-2 text-sm leading-relaxed text-muted">
-        This is not a social platform. There are no user accounts, no
-        comments, no likes, and no visitor uploads. There is no realtime
-        feed and no backend API — every page is generated ahead of time from
-        a reviewed data file.
+        This is not a news organisation and it is not an investigation. Nothing
+        here has been independently verified. What this site can tell you is
+        that a given video was publicly posted by a given account on a given
+        date, and that a copy has been kept — no more than that.
       </p>
-    </section>
-
-    <section id="verification" class="mt-8 border-t border-border pt-6">
-      <h2 class="text-lg font-semibold">How verification works</h2>
-      <p class="mt-2 text-sm leading-relaxed text-muted">
-        Every item displays exactly one verification status. When in doubt,
-        the lower status is used. The full policy, including the specific
-        criteria for each level, lives in{" "}
-        <code>docs/verification-policy.md</code> in the project repository.
+      <p class="mt-3 text-sm leading-relaxed text-muted">
+        Descriptions are written from what is actually visible in the footage.
+        Where a clip's framing is contested, or where the archive cannot tell
+        what it is looking at, the description says so plainly instead of
+        guessing. If you know better than the description does, the form below
+        is the fastest way to fix it.
       </p>
-      <ul class="mt-4 flex flex-col gap-3">
-        {
-          statuses.map(({ status, description }) => (
-            <li class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-3">
-              <VerificationBadge status={status} variant="light" />
-              <span class="text-sm leading-relaxed text-muted">
-                {description}
-              </span>
-            </li>
-          ))
-        }
-      </ul>
+      <p class="mt-3 text-sm leading-relaxed text-muted">
+        The cover image on the home page is artwork, not footage from the day.
+        Everything in the archive itself is real material from real posts.
+      </p>
+      <p class="mt-3 text-sm leading-relaxed text-muted">
+        It is also not a social platform. There are no accounts, no comments,
+        and no visitor uploads. There is no live feed and no backend serving
+        pages — every page is built ahead of time from a reviewed data file.
+      </p>
     </section>
 
     <section class="mt-8 border-t border-border pt-6">
-      <h2 class="text-lg font-semibold">Sources &amp; attribution</h2>
+      <h2 class="text-lg font-semibold">Timeline</h2>
       <p class="mt-2 text-sm leading-relaxed text-muted">
-        Attribution — platform, uploader, and the original public URL — is
-        always visible on every entry and is never stripped. Original
-        sources are linked directly from each video's page.
+        The{" "}
+        <a href="/timeline/" class="text-accent no-underline hover:underline"
+          >timeline</a
+        >{" "}
+        traces how this started — a remark in the Supreme Court in May 2026,
+        through the exam scandals that gave it force, to the march on Parliament
+        in July. Each entry links to the reporting it is drawn from, so you can
+        read the sources rather than take this site's word for it.
       </p>
     </section>
 
     <section class="mt-8 border-t border-border pt-6">
       <h2 class="text-lg font-semibold">Corrections &amp; takedowns</h2>
       <p class="mt-2 text-sm leading-relaxed text-muted">
-        If you see an error, want to provide corroborating information, or
-        need to request a takedown, contact{" "}
-        <a
-          href={`mailto:${CONTACT_EMAIL}`}
-          class="inline-flex min-h-11 items-center font-medium text-accent no-underline hover:underline"
-          >{CONTACT_EMAIL}</a
-        >. Material entries are corrected, not deleted, wherever possible;
-        if media must be removed, the metadata record is kept with a note so
-        the record of the record survives.
+        If you posted something held here and you want it removed, say so and it
+        comes down — no justification needed. Corrections and missing context
+        are just as welcome.
       </p>
-    </section>
-
-    <section class="mt-8 border-t border-border pt-6">
-      <h2 class="text-lg font-semibold">Sample-content notice</h2>
-      <p class="mt-2 text-sm leading-relaxed text-muted">
-        Some entries in this archive are placeholder sample entries, each
-        clearly marked "SAMPLE — placeholder entry" and carrying{" "}
-        <code>"sample": true</code> in the underlying data. They exist to
-        exercise the pipeline and layout and stand alongside reviewed,
-        real-content entries; they are never presented as verified fact.
+      <p class="mt-3 text-sm leading-relaxed text-muted">
+        Where an entry is wrong rather than unwelcome, it is corrected rather
+        than deleted where possible. If media has to be removed, the metadata
+        record is kept with a note, so the record of the removal survives.
+      </p>
+      <p class="mt-4">
+        <a
+          href="/takedown/"
+          class="inline-flex min-h-11 items-center rounded-lg bg-accent px-4 text-sm font-semibold text-bg no-underline"
+          >Make a request</a
+        >
       </p>
     </section>
   </div>

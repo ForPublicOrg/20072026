@@ -1,7 +1,7 @@
 ---
 import "../styles/global.css";
 import { ClientRouter } from "astro:transitions";
-import { SITE_NAME, SITE_URL, CONTACT_EMAIL } from "../config";
+import { SITE_NAME, SITE_URL } from "../config";
 
 export interface Props {
   title: string;
@@ -212,11 +212,10 @@ const isAbout = path.startsWith("/about");
               commentary.
             </p>
             <p>
-              Corrections &amp; takedowns:{" "}
               <a
-                href={`mailto:${CONTACT_EMAIL}`}
+                href="/takedown/"
                 class="text-accent no-underline hover:underline"
-                >{CONTACT_EMAIL}</a
+                >Corrections &amp; takedowns</a
               >
             </p>
             <p>This is an archive, not an endorsement.</p>

@@ -7,4 +7,6 @@ export const SITE_NAME = "20.07.2026";
 // and canonical URLs. Flip to https://blackdays.in once that zone is live.
 export const SITE_URL = "https://20072026.com";
 export const MEDIA_BASE = "/media/";        // flip to https://media.blackdays.in/ after R2 cutover
-export const CONTACT_EMAIL = "rajtalekar24@gmail.com"; // corrections & takedowns
+// No contact email constant by design. Corrections and takedowns go through
+// the form at /takedown/, which posts to a Worker and stores requests in D1 —
+// so the maintainer's personal address is never published on a public page.

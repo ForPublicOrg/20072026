@@ -1,13 +1,12 @@
 ---
 // Instagram MAIN FEED layout (not the earlier Reels-style overlay): a post
-// header (avatar/handle/location/verification), the video as its own
-// letterboxed block, an action/meta row, then a caption block — all on
+// header (avatar/handle/location), the video as its own letterboxed block,
+// an action/meta row, then a caption block — all on
 // plain black, never metadata burned over the footage. See
 // docs/design-spec.md §9 ("Why the feed card is changing shape, not just
 // colour") for the rationale.
 import type { VideoEntry } from "../lib/schema";
 import { MEDIA_BASE } from "../config";
-import VerificationBadge from "./VerificationBadge.astro";
 
 export interface Props {
   video: VideoEntry;
@@ -37,18 +36,6 @@ const archivedDate = new Date(video.archivedAt).toLocaleDateString("en-US", {
 // on a --color-surface circle with a --color-border ring.
 const avatarInitial = video.source.uploader.replace(/^@/, "").trim().charAt(0).toUpperCase() || "?";
 
-// Feed-only badge suppression. `unverified` is the default status every
-// entry starts with — with 4 of 5 real entries currently sitting on it, a
-// label identical on nearly every card conveys zero information and reads
-// as defensive. We suppress it here ONLY: the full status (including
-// `unverified`) always renders on the item's own /video/[id]/ page, and
-// `about.astro` still explains all five statuses. The other four statuses
-// (verified, likely-verified, partially-verified, context-unclear) either
-// add credibility or flag an actively disputed framing, so they stay. Also
-// suppressed on sample entries so the badge never competes with the
-// non-negotiable SAMPLE banner. See docs/verification-policy.md "Display
-// rules" and docs/design-spec.md for the record of this decision.
-const showBadge = video.verificationStatus !== "unverified" && !video.sample;
 ---
 
 <article
@@ -66,18 +53,9 @@ const showBadge = video.verificationStatus !== "unverified" && !video.sample;
         <span class="handle">{video.source.uploader}</span>
         <span class="location">{video.location}</span>
       </div>
-      {showBadge && <VerificationBadge status={video.verificationStatus} />}
     </header>
 
     <div class="video-wrap">
-      {
-        video.sample && (
-          <div class="sample-banner" role="status">
-            Sample &mdash; placeholder entry
-          </div>
-        )
-      }
-
       <video
         playsinline
         muted
@@ -116,25 +94,62 @@ const showBadge = video.verificationStatus !== "unverified" && !video.sample;
         </svg>
       </button>
 
-      <div class="progress-track" aria-hidden="true">
-        <div class="progress-fill"></div>
+      {/* Hit area is padded well beyond the 3px visible bar (see
+          .progress-hit / .progress-track below) because a 3px target is
+          unhittable on touch. role="slider" + the aria-value* triad make
+          this a real scrubber for AT, not just a decorative meter; feed.ts
+          wires up pointer + keyboard handling.
+
+          Note the JSX-expression comment form: a plain HTML comment here
+          would be emitted into the markup once per card, shipping this
+          paragraph to every visitor five times over. Astro strips this
+          form at build instead. */}
+      <div
+        class="progress-hit"
+        role="slider"
+        tabindex="0"
+        aria-label="Seek video"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="0"
+      >
+        <div class="progress-track">
+          <div class="progress-fill"></div>
+        </div>
       </div>
     </div>
 
     <div class="meta-row">
       <span class="meta-left">
-        <span>{video.source.platform}</span>
+        {
+          video.source.url ? (
+            // The platform name itself is the CTA to the ORIGINAL post — this
+            // is the credibility anchor, so it points off-site rather than at
+            // our own /video/[id]/ page. stopPropagation in feed.ts keeps the
+            // tap from also toggling play/pause on the card underneath.
+            <a
+              href={video.source.url}
+              class="source-link"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`View original post on ${video.source.platform} (opens in a new tab)`}
+            >
+              View on {video.source.platform} <span aria-hidden="true">&#8599;</span>
+            </a>
+          ) : (
+            <span>{video.source.platform}</span>
+          )
+        }
         <span aria-hidden="true">&middot;</span>
         <time datetime={video.date}>{eventDate}</time>
       </span>
-      <a href={`/video/${video.id}/`} class="details-link">Details &rarr;</a>
     </div>
 
     <div class="caption-block">
       <p class="caption line-clamp-2">
         <span class="caption-handle">{video.source.uploader}</span> {video.description}
       </p>
-      <a href={`/video/${video.id}/`} class="more-link">more</a>
+      <button type="button" class="more-link" aria-expanded="false" hidden>more</button>
       <time class="archived-date" datetime={video.archivedAt}>Archived {archivedDate}</time>
     </div>
   </div>
@@ -191,7 +206,7 @@ const showBadge = video.verificationStatus !== "unverified" && !video.sample;
     }
   }
 
-  /* --- Post header: avatar, handle + location, verification badge --- */
+  /* --- Post header: avatar, handle + location --- */
 
   .card-header {
     flex: 0 0 auto;
@@ -249,24 +264,6 @@ const showBadge = video.verificationStatus !== "unverified" && !video.sample;
     min-height: 0;
     overflow: hidden;
     background: var(--color-letterbox);
-  }
-
-  .sample-banner {
-    position: absolute;
-    top: 0.75rem;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 30;
-    border-radius: 999px;
-    background: var(--color-accent);
-    color: var(--color-bg);
-    padding: 0.35rem 0.9rem;
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    white-space: nowrap;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
   }
 
   .card-video {
@@ -373,23 +370,60 @@ const showBadge = video.verificationStatus !== "unverified" && !video.sample;
     opacity: 0;
   }
 
-  .progress-track {
+  /* The visible bar stays a thin 3px (Instagram-style), but the tappable
+     area is padded out to >=20px tall so it's actually hittable on a phone
+     — a 3px target fails any reasonable touch-target guideline. The padded
+     wrapper sits at the same bottom edge as the old bar; the visible track
+     is centered inside it via flex. touch-action: none stops a horizontal
+     drag on the bar from being interpreted as page/feed scroll, which would
+     otherwise fight the vertical scroll-snap between cards. */
+  .progress-hit {
     position: absolute;
     left: 0;
     right: 0;
     bottom: 0;
-    height: 3px;
+    height: 20px;
     z-index: 22;
+    display: flex;
+    align-items: center;
+    padding: 0 0.15rem;
+    box-sizing: border-box;
+    touch-action: none;
+    cursor: pointer;
+  }
+
+  .progress-hit:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: -2px;
+  }
+
+  .progress-track {
+    position: relative;
+    width: 100%;
+    height: 3px;
+    border-radius: 999px;
     background: rgba(255, 255, 255, 0.2);
+    transition: height 120ms ease;
+  }
+
+  /* Grown slightly while actively scrubbing so the user gets visual
+     confirmation the drag registered — set by feed.ts via a data attribute
+     on the hit wrapper rather than a :active pseudo-class, since dragging
+     can continue after the pointer leaves the element (pointer capture). */
+  .progress-hit[data-scrubbing="true"] .progress-track {
+    height: 5px;
   }
 
   .progress-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
     height: 100%;
     width: 0%;
     background: #fff;
+    border-radius: inherit;
   }
 
-  /* --- Action/meta row: platform · date, Details link --- */
+  /* --- Action/meta row: platform · date, source link --- */
 
   .meta-row {
     flex: 0 0 auto;
@@ -411,7 +445,11 @@ const showBadge = video.verificationStatus !== "unverified" && !video.sample;
     white-space: nowrap;
   }
 
-  .details-link {
+  /* The clickable CTA IS the platform name now (was a separate "Details"
+     link to our own page) — it points off-site at the original post, so it
+     needs a visible "leaves the site" affordance (the arrow glyph) even at
+     this row's small 0.75rem size. */
+  .source-link {
     flex: 0 0 auto;
     font-weight: 600;
     color: var(--color-link);
@@ -421,7 +459,7 @@ const showBadge = video.verificationStatus !== "unverified" && !video.sample;
     align-items: center;
   }
 
-  .details-link:hover {
+  .source-link:hover {
     text-decoration: underline;
   }
 
@@ -442,6 +480,19 @@ const showBadge = video.verificationStatus !== "unverified" && !video.sample;
     margin: 0;
   }
 
+  /* Expanded state (toggled by feed.ts, which also sets an inline
+     max-height of ~30% of the card's own height). .caption-block is
+     `flex: 0 0 auto` inside a fixed-height, overflow:hidden flex column
+     (.card-frame) — an unbounded expanded caption would grow the block and
+     either get clipped by the ancestor's overflow:hidden or, worse, push
+     the video out of view. Scrolling the overflow *inside* the caption
+     keeps the card's total height fixed no matter how long the text is. */
+  .caption.is-expanded {
+    display: block;
+    -webkit-line-clamp: unset;
+    overflow-y: auto;
+  }
+
   .caption-handle {
     font-weight: 600;
     margin-right: 0.3em;
@@ -453,10 +504,24 @@ const showBadge = video.verificationStatus !== "unverified" && !video.sample;
     font-weight: 600;
     color: var(--color-link);
     text-decoration: none;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    /* Real button, but must not read as a boxy control in a caption line —
+       matches the anchor it replaced visually while staying >=24px tall to
+       tap. */
+    min-height: 24px;
+    display: inline-flex;
+    align-items: center;
   }
 
   .more-link:hover {
     text-decoration: underline;
+  }
+
+  .more-link[hidden] {
+    display: none;
   }
 
   .archived-date {
@@ -469,7 +534,7 @@ const showBadge = video.verificationStatus !== "unverified" && !video.sample;
      way rather than presenting duplicate, non-functional controls. */
   .feed-card.is-native-controls .mute-btn,
   .feed-card.is-native-controls .play-glyph,
-  .feed-card.is-native-controls .progress-track {
+  .feed-card.is-native-controls .progress-hit {
     display: none;
   }
 </style>
