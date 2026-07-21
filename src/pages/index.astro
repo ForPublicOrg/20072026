@@ -235,21 +235,23 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
   }
 
   /* Bottom scrim so the illustration label and scroll cue stay legible over
-     arbitrary artwork pixels, without darkening the whole poster — and,
-     critically, without touching the poster's own values strip. The owner
-     reviewed and approved that strip's artwork and wants it visible, so the
-     scrim is anchored ABOVE it (bottom: var(--hero-strip-h), not 0) and
-     lightened substantially: it now only has to support our own text, not
-     suppress the poster underneath it. The bottom stop is near-opaque
-     (not the old flat 0.5) so it visually merges into the strip's own
-     near-black background instead of leaving a visible hard-edged seam
-     where a half-transparent scrim met lighter artwork right at the
-     boundary line. */
+     arbitrary artwork pixels, without darkening the whole poster. Runs all
+     the way to the hero's own bottom edge (bottom: 0) on mobile: since
+     .hero-img crops top-anchored there now (see above), how much of the
+     values strip survives varies by viewport and is often cut mid-row,
+     which left a hard, ugly seam where the crisp uncropped art met the flat
+     page background when the scrim stopped short of the edge (bottom:
+     var(--hero-strip-h)) to keep that strip readable. Running the scrim to
+     the true edge means whatever's left of the strip fades into the page's
+     own --color-bg instead of ending in a visible line. Desktop's crop is
+     tuned to keep its strip fully intact (see the `cover`/`center bottom`
+     comment on .hero-img below), so it still gets the readable, non-scrimmed
+     strip via the media query override further down. */
   .hero-scrim {
     position: absolute;
     left: 0;
     right: 0;
-    bottom: var(--hero-strip-h);
+    bottom: 0;
     height: 36%;
     background: linear-gradient(
       to top,
@@ -258,6 +260,12 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
       rgba(0, 0, 0, 0) 100%
     );
     pointer-events: none;
+  }
+
+  @media (min-width: 768px) {
+    .hero-scrim {
+      bottom: var(--hero-strip-h);
+    }
   }
 
   .hero-overlay {
