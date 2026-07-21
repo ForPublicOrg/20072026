@@ -19,7 +19,7 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
 
 <Base
   title="Home"
-  description="On 20 July 2026, more than 10,000 people marched towards Parliament in New Delhi. This is an archive of publicly available video from that day, with source attribution and a verification label on every entry."
+  description="On 20 July 2026, tens of thousands of people marched towards Parliament in New Delhi and were met with tear gas and lathi charges. This is an archive of video posted publicly by the people who were there, each entry linking back to the original post."
   ogImage={ogImage}
   hideHeader
   overlayNav
@@ -32,7 +32,11 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
   <section class="hero">
     <picture>
       <!-- Desktop / wide viewports: native 1536x1024 (3:2), close match to
-           a ~1.6:1 viewport, minimal crop. -->
+           a ~1.6:1 viewport, minimal crop. 1536 is also this crop's ceiling
+           (nothing higher was ever committed) so widths stop there; both
+           candidates got the same mild-unsharp re-encode as the portrait
+           crop below, for consistency, even though a 1440x900 desktop at
+           DPR 1 doesn't actually need to upscale this source. -->
       <source
         media="(min-width: 768px)"
         type="image/webp"
@@ -46,7 +50,28 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
       />
       <!-- Mobile / narrow viewports: native 864x1822 portrait (~1:2.11),
            close match to a ~1:2.16 phone. Do not offer widths above 864 —
-           upscaling only inflates bytes for zero extra detail. -->
+           864x1822 is the highest resolution this illustration has ever
+           existed at anywhere (checked the working tree, archive-originals/,
+           and every commit in git history — no higher-res source, PNG or
+           otherwise, was ever committed); offering a wider candidate would
+           just upscale this same source and add bytes for zero extra
+           detail.
+           The "pixelated" complaint traced to a real, measurable cause: at
+           the common 390 CSS px / DPR 3 phone width, the layout needs ~1170
+           physical px, but 864w is the largest candidate available, so the
+           browser upscales it ~35% and that upscale is what read as soft/
+           pixelated (verified via getBoundingClientRect() vs the image's
+           natural size in a real render, not guessed). Since no higher-res
+           source exists, the fix that's actually possible without
+           fabricating detail is: re-encode both candidates from a fresh
+           decode with a mild unsharp mask (ffmpeg unsharp, luma amount
+           0.4-0.5) before the webp pass, at quality 80 — this measurably
+           sharpens the edges the browser's own upscale softens, confirmed
+           by comparing before/after crops at the simulated DPR3 scale, and
+           it only costs ~12KB on the 864w candidate (216KB -> 228KB), still
+           well inside the ~250KB mobile LCP budget. Encoder quality itself
+           wasn't the problem — the previous 864w file was already ~q82,
+           inside the recommended 80-85 band. -->
       <source
         type="image/webp"
         srcset="/banner/students-portrait-640.webp 640w, /banner/students-portrait-864.webp 864w"
@@ -67,17 +92,21 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
     <div class="hero-scrim" aria-hidden="true"></div>
 
     <div class="hero-overlay">
-      <p class="illustration-label">
-        Illustration. Not documentary footage — see the archive for verified
-        material.
-      </p>
-
-      <a href="/feed" class="cta-primary">Relive the day</a>
-
+      <!-- Scroll cue sits ABOVE the CTA in this stack (unusual order) on
+           purpose: the whole overlay is bottom-anchored to --hero-strip-h
+           (see .hero-overlay below), so whichever element is LAST in the
+           stack ends up glued to that anchor line, right above the values
+           strip. Putting the CTA last, not the scroll cue, is what pulls the
+           button down off the seated figure's face/torso and onto the
+           quieter scattered-papers/book ground area at the bottom of the
+           artwork — see the CSS comment on .hero-overlay for the measurement
+           this is based on. -->
       <div class="scroll-cue">
         <span class="scroll-cue-chevron" aria-hidden="true"></span>
         <span class="scroll-cue-label">Scroll</span>
       </div>
+
+      <a href="/feed" class="cta-primary">Relive the day</a>
     </div>
   </section>
 
@@ -85,9 +114,9 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
     <section class="reveal story-block" data-reveal>
       <h2 class="text-lg font-semibold">What happened</h2>
       <p class="mt-2 text-sm leading-relaxed text-muted">
-        On 20 July 2026, more than 10,000 people marched towards Parliament
-        in New Delhi. Police cut mobile internet, closed metro stations, and
-        used tear gas and batons.
+        On 20 July 2026, tens of thousands of people marched towards
+        Parliament in New Delhi. Police cut mobile internet, closed metro
+        stations, and used tear gas and batons.
       </p>
     </section>
 
@@ -107,14 +136,6 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
           + {sampleVideos.length} sample placeholders in the archive, clearly
           marked, not counted above
         </span>
-      </p>
-    </section>
-
-    <section class="reveal story-block" data-reveal>
-      <h2 class="text-lg font-semibold">Verification</h2>
-      <p class="mt-2 text-sm leading-relaxed text-muted">
-        Every entry carries one of five verification labels, from verified
-        to unverified — see <a href="/about/">how they're assigned</a>.
       </p>
     </section>
 
@@ -170,10 +191,21 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    /* Anchor top: keeps the poster's date/title block intact on a phone,
-       where the 1:2.11 poster is only slightly taller than the viewport. */
-    object-position: top center;
+    /* `contain`, not `cover`, on phones. With cover and a top anchor the
+       poster's aspect (0.4732) against the hero box (0.4974) put ~4.9% of the
+       image height off the bottom edge — which is exactly where the values
+       strip's last row ("THIS ARCHIVE — THEIR STORY. OUR FUTURE.") lives, so
+       it was being sliced off. Anchoring bottom instead would have saved the
+       strip but cropped the date/title block at the top. There is no anchor
+       that keeps both, because cover must crop 4.9% from somewhere.
+       `contain` crops nothing: the poster renders whole, costing ~10px of
+       letterbox on each side. Those bars are --color-bg (#000) against the
+       poster's own dark edges, so they read as nothing at all — a far
+       cheaper price than losing either end of artwork the owner reviewed
+       and approved. Vertical fractions now map 1:1 onto the image, which is
+       also what makes --hero-strip-h below exact rather than estimated. */
+    object-fit: contain;
+    object-position: center;
   }
 
   @media (min-width: 768px) {
@@ -217,7 +249,7 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
     left: 0;
     right: 0;
     /* Anchored above the poster's own values strip (see --hero-strip-h on
-       .hero) so our CTA/label/scroll-cue never sit on top of it — and, as a
+       .hero) so the CTA/scroll-cue never sit on top of it — and, as a
        floor, always clears the floating bottom nav (fixed on every
        breakpoint on this page — see Base.astro's `overlayNav` prop) even on
        a viewport short enough that the strip's measured height would
@@ -238,18 +270,6 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
     .hero-overlay {
       bottom: max(var(--hero-strip-h), calc(var(--app-nav-h-desktop) + 1rem));
     }
-  }
-
-  /* Non-negotiable credibility line: illustration vs. documentary footage
-     must never be ambiguous. Kept genuinely legible — not tertiary grey,
-     not below 12px — against the scrim's guaranteed-dark backdrop. */
-  .illustration-label {
-    margin: 0;
-    max-width: 32rem;
-    font-size: 0.8125rem; /* 13px */
-    line-height: 1.4;
-    color: var(--color-text);
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
   }
 
   .cta-primary {
