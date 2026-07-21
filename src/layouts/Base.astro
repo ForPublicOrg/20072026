@@ -18,6 +18,27 @@ export interface Props {
    * fixed-height feed, not for normal content pages.
    */
   fullBleed?: boolean;
+  /**
+   * Landing-page-only: omits the sticky app header entirely (no visible
+   * site title bar) so a full-viewport hero poster isn't pushed down or
+   * duplicated by a text wordmark. Every other route keeps the header.
+   */
+  hideHeader?: boolean;
+  /**
+   * Landing-page-only: forces the bottom tab bar to float
+   * (`position: fixed`) over the page content at EVERY breakpoint,
+   * including desktop (where it normally sits in-flow as a static top bar
+   * — see the >=768px media query below). Needed so a full `100svh` hero
+   * is never shortened by an in-flow nav bar claiming its own space.
+   */
+  overlayNav?: boolean;
+  /**
+   * Landing-page-only: omits the standard site footer, which spells out
+   * "Black Days" in its disclaimer copy. The landing page must render no
+   * visible "Black Days" text anywhere (the poster carries all titling);
+   * every other route keeps the footer as-is.
+   */
+  hideFooter?: boolean;
 }
 
 const {
@@ -27,6 +48,9 @@ const {
   ogType = "website",
   canonical = new URL(Astro.url.pathname, SITE_URL).toString(),
   fullBleed = false,
+  hideHeader = false,
+  overlayNav = false,
+  hideFooter = false,
 } = Astro.props;
 
 const pageTitle = `${title} — ${SITE_NAME}`;
@@ -76,17 +100,27 @@ const isAbout = path.startsWith("/about");
 
     <ClientRouter />
   </head>
-  <body class:list={["bg-bg", "text-text", { "is-full-bleed": fullBleed }]}>
-    <header class="app-header border-b border-border">
-      <div class="content-col flex items-center justify-center py-3">
-        <a
-          href="/"
-          class="text-base font-semibold tracking-tight text-text no-underline"
-        >
-          {SITE_NAME}
-        </a>
-      </div>
-    </header>
+  <body
+    class:list={[
+      "bg-bg",
+      "text-text",
+      { "is-full-bleed": fullBleed, "is-nav-overlay": overlayNav },
+    ]}
+  >
+    {
+      !hideHeader && (
+        <header class="app-header border-b border-border">
+          <div class="content-col flex items-center justify-center py-3">
+            <a
+              href="/"
+              class="text-base font-semibold tracking-tight text-text no-underline"
+            >
+              {SITE_NAME}
+            </a>
+          </div>
+        </header>
+      )
+    }
 
     <!--
       Icon-only bottom tab bar (Instagram pattern): no text labels — the
@@ -167,7 +201,7 @@ const isAbout = path.startsWith("/about");
     </main>
 
     {
-      !fullBleed && (
+      !fullBleed && !hideFooter && (
         <footer class="border-t border-border">
           <div class="content-col py-8 text-sm text-muted flex flex-col gap-2">
             <p>
@@ -293,5 +327,35 @@ const isAbout = path.startsWith("/about");
       height: calc(100svh - var(--app-header-h) - var(--app-nav-h-desktop));
       height: calc(100dvh - var(--app-header-h) - var(--app-nav-h-desktop));
     }
+
+    /* Landing page: the nav floats (fixed) here too (see .is-nav-overlay
+       above), so — unlike the general non-full-bleed desktop case, which
+       zeroes this out because the nav normally sits in-flow — trailing
+       page content still needs clearance so it isn't hidden underneath the
+       floating bar. Same specificity as the `padding-bottom: 0` rule
+       above; wins on source order. */
+    body.is-nav-overlay:not(.is-full-bleed) main {
+      padding-bottom: var(--app-nav-h-desktop);
+    }
+  }
+
+  /* Landing page only: keep the tab bar floating (fixed, bottom) even on
+     desktop, where it would otherwise sit in-flow as a static top bar (see
+     the >=768px block above). Higher selector specificity than the
+     unqualified `.app-nav` rule above wins regardless of media query, no
+     !important needed. A full 100svh hero must never be shortened by an
+     in-flow nav claiming its own layout space. */
+  body.is-nav-overlay .app-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto;
+    /* Undo the desktop static-top-bar treatment above: a floating bar at
+       the bottom needs a top border (separating it from the content it
+       sits over), not a bottom one, and its own safe-area padding. */
+    border-top: 1px solid var(--color-border);
+    border-bottom: none;
+    padding-bottom: env(safe-area-inset-bottom);
   }
 </style>
