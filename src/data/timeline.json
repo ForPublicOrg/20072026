@@ -837,7 +837,7 @@
   {
     "time": "2026-07-22",
     "title": "Talks stall over a venue; the fast goes on",
-    "description": "A further meeting between the CJP and J.P. Nadda was expected but stalled: the movement rejected an invitation to Nadda's residence, and chief spokesperson Saurav Das said any meeting should be at Jantar Mantar or a neutral venue nearby. The CJP publicly appealed to Wangchuk to end his hunger strike - 'Your sacrifice has inspired a generation' - as opposition MPs visited Medanta urging the same, and police in Patna used tear gas and water cannon on AISA workers protesting over the leak. At RML Hospital, the 21-year-old woman critically injured on 20 July was taken off the ventilator, conscious and responsive, with normal brain and spine scans. As of mid-afternoon, no meeting had taken place.",
+    "description": "A further meeting between the CJP and J.P. Nadda was expected but stalled: the movement rejected an invitation to Nadda's residence, and chief spokesperson Saurav Das said any meeting should be at Jantar Mantar or a neutral venue nearby. The CJP publicly appealed to Wangchuk to end his hunger strike - 'Your sacrifice has inspired a generation' - as opposition MPs visited Medanta urging the same. At RML Hospital, the 21-year-old woman critically injured on 20 July was taken off the ventilator, conscious and responsive, with normal brain and spine scans. As of mid-afternoon, no meeting had taken place.",
     "relatedVideoIds": [],
     "sources": [
       {
@@ -985,6 +985,46 @@
           "title": "The Week - 'Just fire me'",
           "url": "https://www.theweek.in/news/india/2026/07/22/just-fire-me-inside-the-call-between-vijeta-dahiya-and-cjp-founder-abhijeet-dipke-over-burger-controversy.html"
         }
+      }
+    ]
+  },
+  {
+    "time": "2026-07-22",
+    "title": "The High Court asks questions",
+    "description": "The same day the Supreme Court declined urgent listing, the Delhi High Court - Chief Justice Devendra Kumar Upadhyaya and Justice Tejas Karia - issued notice to the Centre and Delhi Police on two PILs alleging excessive force during the 20-21 July police action, and ordered all relevant records preserved, including CCTV footage and videography. Senior Advocate N. Hariharan told the court the protest had begun peacefully before police used force without warning, putting injuries above ninety; the bench questioned the police's contention that assaulted individuals should pursue private complaints instead. A counter-affidavit is due in four weeks; the matter is listed for 11 September.",
+    "relatedVideoIds": [],
+    "sources": [
+      {
+        "title": "LiveLaw - Delhi High Court seeks police response on PILs alleging excessive force, directs preservation of videos",
+        "url": "https://www.livelaw.in/high-court/delhi-high-court/jantar-mantar-protest-delhi-police-force-response-cctv-preservation-ordered-cjp-march-neet-leak-542382"
+      },
+      {
+        "title": "The Week - Why Delhi HC asked police to keep video evidence of CJP protest: 'Not isolated incidents'",
+        "url": "https://www.theweek.in/news/india/2026/07/22/why-delhi-hc-asked-police-to-keep-video-evidence-of-cjp-protest-not-isolated-incidents.html"
+      },
+      {
+        "title": "Prabhat Khabar - CJP Parliament march live blog (22 July)",
+        "url": "https://www.prabhatkhabar.com/national/cjp-parliament-march-live-heavy-police-force-deployed"
+      }
+    ]
+  },
+  {
+    "time": "2026-07-22",
+    "title": "Patna: the second front",
+    "description": "In Bihar - the state where the NEET-UG leak cut deepest - an AISA-led student march from Gandhi Maidan towards Raj Bhavan was met with lathicharge, tear gas and water cannon at the Dakbangla crossing, hardening into a stand-off of roughly six hours with injuries on both sides; Prabhat Khabar's reporters filmed a student bleeding from the eye and an injured police jawan giving his own account. The District Magistrate and SSP came to the crossing to negotiate as CRPF and BSF deployed, and a group of students reached the Deputy Chief Minister's residence. The previous evening, effigies had been burned in Ara against the Delhi lathicharge - the movement now had a second front, and it was spreading district by district.",
+    "relatedVideoIds": [],
+    "sources": [
+      {
+        "title": "Prabhat Khabar - Patna student protest live: lathicharge on students marching towards Raj Bhavan",
+        "url": "https://www.prabhatkhabar.com/state/bihar/patna/patna-student-protest-live-police-lathi-charge-on-students-marching-towards-raj-bhavan"
+      },
+      {
+        "title": "Prabhat Khabar - Students dig in at Dakbangla; DM-SSP negotiate; CRPF/BSF deployed",
+        "url": "https://www.prabhatkhabar.com/state/bihar/patna/patna-student-protest-dakbunglow-patna-dm-ssp-bsf-crpf-police-neet-paper-leak-lathicharge"
+      },
+      {
+        "title": "Prabhat Khabar - Ara: effigy burning against the Jantar Mantar lathicharge",
+        "url": "https://www.prabhatkhabar.com/state/bihar/arrah/protest-delhi-lathicharge-ara-effigy-burning"
       }
     ]
   },
