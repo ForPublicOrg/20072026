@@ -61,12 +61,45 @@ export interface TimelineSource {
   url: string;
 }
 
+/**
+ * What an official actually said, tied to a timeline event. Same contract as
+ * everything else in the archive: the quote is the speaker's words AS QUOTED
+ * by the cited source (never reconstructed from memory or paraphrase), and
+ * the source link lets the reader check it. An event with no statements
+ * simply omits the field — silence is recorded by absence, not invented copy.
+ */
+export type StatementKind =
+  | "tweet"
+  | "address"
+  | "press"
+  | "parliament"
+  | "interview";
+
+const STATEMENT_KINDS: readonly StatementKind[] = [
+  "tweet",
+  "address",
+  "press",
+  "parliament",
+  "interview",
+];
+
+export interface TimelineStatement {
+  speaker: string; // e.g. "Narendra Modi"
+  role: string; // e.g. "Prime Minister"
+  kind: StatementKind;
+  date: string; // date-only ISO string of when the statement was made
+  quote: string; // verbatim excerpt as quoted by the cited source
+  context?: string; // one factual line on where/how it was said
+  source: TimelineSource;
+}
+
 export interface TimelineEvent {
   time: string; // date-only ISO string; we have never had a clock time for these
   title: string;
   description: string;
   relatedVideoIds: string[];
   sources?: TimelineSource[];
+  statements?: TimelineStatement[];
 }
 
 const VIDEO_ID_RE = /^video-\d{3}$/;
@@ -271,7 +304,57 @@ function validateTimelineEvent(
     });
   }
 
-  const entry: TimelineEvent = { time, title, description, relatedVideoIds, sources };
+  // Statements are held to the same bar as citations: optional, but a
+  // malformed one fails the build. A quote attributed to a real person with
+  // no checkable source is exactly what this archive exists to not do.
+  let statements: TimelineStatement[] | undefined;
+  if (obj.statements !== undefined) {
+    if (!Array.isArray(obj.statements)) {
+      fail(label, `field "statements" must be an array`);
+    }
+    statements = obj.statements.map((rawStatement, statementIndex) => {
+      const statementLabel = `${label} statements[${statementIndex}]`;
+      const statement = requireObject(rawStatement, statementLabel, "(root)");
+
+      const kind = requireString(statement.kind, statementLabel, "kind");
+      if (!STATEMENT_KINDS.includes(kind as StatementKind)) {
+        fail(
+          statementLabel,
+          `field "kind" ("${kind}") must be one of ${STATEMENT_KINDS.join(", ")}`,
+        );
+      }
+
+      const sourceObj = requireObject(statement.source, statementLabel, "source");
+      const sourceUrl = requireString(sourceObj.url, statementLabel, "source.url");
+      if (!/^https?:\/\//.test(sourceUrl)) {
+        fail(statementLabel, `field "source.url" must be an absolute http(s) URL (got "${sourceUrl}")`);
+      }
+
+      const context = optionalString(statement.context, statementLabel, "context");
+
+      return {
+        speaker: requireString(statement.speaker, statementLabel, "speaker"),
+        role: requireString(statement.role, statementLabel, "role"),
+        kind: kind as StatementKind,
+        date: requireString(statement.date, statementLabel, "date"),
+        quote: requireString(statement.quote, statementLabel, "quote"),
+        ...(context !== undefined ? { context } : {}),
+        source: {
+          title: requireString(sourceObj.title, statementLabel, "source.title"),
+          url: sourceUrl,
+        },
+      };
+    });
+  }
+
+  const entry: TimelineEvent = {
+    time,
+    title,
+    description,
+    relatedVideoIds,
+    sources,
+    ...(statements !== undefined ? { statements } : {}),
+  };
 
   checkNoTodoStrings(entry, label, false);
 
