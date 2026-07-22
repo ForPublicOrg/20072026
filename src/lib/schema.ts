@@ -93,6 +93,24 @@ export interface TimelineStatement {
   source: TimelineSource;
 }
 
+/**
+ * A photograph attached to a timeline event. Same rules as archived video:
+ * a real capture by a real person, credited, with a link to where the
+ * original lives (Commons file page, original post). Only freely licensed
+ * images or participant-posted photos consistent with the archive's
+ * attribution + takedown model are committed - agency photography is never
+ * copied into this repo, only linked from an event's sources.
+ */
+export interface TimelineImage {
+  src: string; // site-relative path under /timeline/, committed to public/
+  alt: string;
+  caption: string; // factual, no editorializing
+  credit: string; // photographer/account + license, e.g. "Photo: X, CC BY-SA 4.0"
+  sourceUrl: string; // where the original lives - the reader can check it
+  width: number; // intrinsic px, required so the layout never shifts
+  height: number;
+}
+
 export interface TimelineEvent {
   time: string; // date-only ISO string; we have never had a clock time for these
   title: string;
@@ -100,6 +118,7 @@ export interface TimelineEvent {
   relatedVideoIds: string[];
   sources?: TimelineSource[];
   statements?: TimelineStatement[];
+  image?: TimelineImage;
 }
 
 const VIDEO_ID_RE = /^video-\d{3}$/;
@@ -347,6 +366,31 @@ function validateTimelineEvent(
     });
   }
 
+  // Event photo: optional, but held to the citation bar - a credited image
+  // with no checkable source page, or a file path outside the committed
+  // /timeline/ tree, fails the build.
+  let image: TimelineImage | undefined;
+  if (obj.image !== undefined) {
+    const imageObj = requireObject(obj.image, label, "image");
+    const src = requireString(imageObj.src, label, "image.src");
+    if (!src.startsWith("/timeline/")) {
+      fail(label, `field "image.src" must be a committed /timeline/ path (got "${src}")`);
+    }
+    const imageSourceUrl = requireString(imageObj.sourceUrl, label, "image.sourceUrl");
+    if (!/^https?:\/\//.test(imageSourceUrl)) {
+      fail(label, `field "image.sourceUrl" must be an absolute http(s) URL (got "${imageSourceUrl}")`);
+    }
+    image = {
+      src,
+      alt: requireString(imageObj.alt, label, "image.alt"),
+      caption: requireString(imageObj.caption, label, "image.caption"),
+      credit: requireString(imageObj.credit, label, "image.credit"),
+      sourceUrl: imageSourceUrl,
+      width: requireNumber(imageObj.width, label, "image.width"),
+      height: requireNumber(imageObj.height, label, "image.height"),
+    };
+  }
+
   const entry: TimelineEvent = {
     time,
     title,
@@ -354,6 +398,7 @@ function validateTimelineEvent(
     relatedVideoIds,
     sources,
     ...(statements !== undefined ? { statements } : {}),
+    ...(image !== undefined ? { image } : {}),
   };
 
   checkNoTodoStrings(entry, label, false);
