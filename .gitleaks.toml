@@ -7,4 +7,6 @@ regexes = [
   # D1 database_id in wrangler.jsonc — a Cloudflare resource identifier tied
   # to this project's own account, not a bearer credential.
   '''d3231055-fe3a-4a44-8c43-23238b3d1cae''',
+  '''e666f211-8490-4646-805a-4710ebff88d9''',
+  '''8de76959-33bc-4f15-9b14-2df7bd2754f7''',
 ]
