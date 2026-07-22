@@ -8,7 +8,8 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "deploy": "astro build && wrangler deploy",
+    "deploy": "astro build && wrangler deploy --env=\"\"",
+    "deploy:staging": "astro build && wrangler deploy --env staging",
     "samples": "node scripts/generate-samples.mjs",
     "collect": "node scripts/collect.mjs",
     "preview": "astro preview",
