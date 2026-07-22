@@ -282,12 +282,16 @@
   {
     "time": "2026-06-23",
     "title": "Pradhan's first response to the movement",
-    "description": "In an NDTV interview, the Education Minister spoke about the Cockroach Janta Party directly for the first time, and accused the opposition of frightening students ahead of the re-exam. Outlets differed on the central phrase: Free Press Journal and NDTV carried 'B team of disruptive elements', while The Wire and PA-syndicated reports rendered it as 'B-team of terrorists'.",
+    "description": "In an NDTV interview, the Education Minister spoke about the Cockroach Janta Party directly for the first time, and accused the opposition of frightening students ahead of the re-exam. Outlets differed on the central phrase: Free Press Journal and NDTV carried 'B team of disruptive elements', The Wire and PA-syndicated reports rendered it as 'B-team of terrorists', and CNN's later account of the interview rendered it as 'B-team of terror groups'.",
     "relatedVideoIds": [],
     "sources": [
       {
         "title": "Free Press Journal - 'B Team Of Disruptive Elements': Education Minister breaks silence on Cockroach Janta Party",
         "url": "https://www.freepressjournal.in/india/b-team-of-disruptive-elements-education-minister-dharmendra-pradhan-breaks-silence-on-cockroach-janta-party"
+      },
+      {
+        "title": "CNN (via ABC17News) - Why political fury is boiling over on the streets of India's capital",
+        "url": "https://abc17news.com/news/national-world/cnn-world/2026/07/22/why-political-fury-is-boiling-over-on-the-streets-on-indias-capital/"
       }
     ],
     "statements": [
@@ -478,7 +482,7 @@
   {
     "time": "2026-07-20",
     "title": "Tear gas, lathi charges and mass detentions",
-    "description": "Police fired tear gas and carried out baton charges against the crowd. Uniformed personnel are filmed taking hold of individuals at a metal barricade and swinging a cane. Dozens of protesters and more than a hundred police personnel were reported injured, dozens of activists were detained including Samajwadi Party MP Dimple Yadav, and internet access was shut down in the area around Parliament. Whether Dipke himself was detained was disputed within hours: Delhi Police formally denied it mid-march, while evening reports listed him among those held. Separately, men in civilian dress were filmed carrying lathis alongside uniformed officers; the framing of that footage is disputed.",
+    "description": "Police fired tear gas and carried out baton charges against the crowd. Uniformed personnel are filmed taking hold of individuals at a metal barricade and swinging a cane. Dozens of protesters and more than a hundred police personnel were reported injured, dozens of activists were detained including Samajwadi Party MP Dimple Yadav, and internet access was shut down in the area around Parliament. Among the most seriously hurt was a 21-year-old woman who required ventilator support at Ram Manohar Lohia Hospital. Whether Dipke himself was detained was disputed within hours: Delhi Police formally denied it mid-march, while evening reports listed him among those held. Separately, men in civilian dress were filmed carrying lathis alongside uniformed officers; the framing of that footage is disputed.",
     "relatedVideoIds": [
       "video-012",
       "video-013"
@@ -495,6 +499,10 @@
       {
         "title": "Newslaundry - Lathis, tear gas and injured protesters: the crackdown in pictures",
         "url": "https://www.newslaundry.com/2026/07/21/lathis-tear-gas-and-injured-protesters-the-chalo-sansad-crackdown-in-pictures"
+      },
+      {
+        "title": "ETV Bharat live blog - 21-year-old injured woman at RML Hospital shows significant improvement",
+        "url": "https://www.etvbharat.com/en/bharat/live-blog--cjp-congress-neet-jantar-mantar-delhi-protest-live-july-22-abhijeet-dipke-sonam-wangchuk-hunger-strike-rahul-gandhi-latest-news-cockroach-janta-party-enn26072200668"
       },
       {
         "title": "Wikipedia — 2026 Delhi Jantar Mantar protests",
@@ -548,6 +556,40 @@
         "source": {
           "title": "Telangana Today - Violent CJP protest leaves 118 police personnel injured, 70 detained",
           "url": "https://telanganatoday.com/violent-cjp-protest-leaves-118-police-personnel-injured-70-detained"
+        }
+      }
+    ]
+  },
+  {
+    "time": "2026-07-20",
+    "title": "The internet goes dark; no one signs the order",
+    "description": "As the march reached the barricades, mobile internet was suspended in parts of central Delhi around Jantar Mantar and Parliament. No suspension order was published by the Union Home Ministry, the Department of Telecommunications, the Delhi government or Delhi Police - though telecom companies confirmed to reporters that an order existed. The Supreme Court's Anuradha Bhasin ruling (2020) requires every suspension order to be published with reasons recorded in writing; as of publication of the reports cited here, none had been.",
+    "relatedVideoIds": [],
+    "sources": [
+      {
+        "title": "Internet Freedom Foundation - IFF condemns the internet shutdown in parts of Central Delhi; no suspension order has been made public",
+        "url": "https://internetfreedom.in/iff-condemns-the-internet-shutdown-in-parts-of-central-delhi-no-suspension-order-has-been-made-public/"
+      },
+      {
+        "title": "The Wire - Telecom companies 'confirm' Delhi internet shutdown order, government yet to publish it",
+        "url": "https://m.thewire.in/article/government/telecom-companies-confirm-delhi-internet-shutdown-order-government-yet-to-publish-it"
+      },
+      {
+        "title": "The Logical Indian - Internet suspended in Delhi during CJP Sansad march",
+        "url": "https://thelogicalindian.com/internet-suspended-delhi-cjp-protest-sansad/"
+      }
+    ],
+    "statements": [
+      {
+        "speaker": "Internet Freedom Foundation",
+        "role": "Digital rights organisation",
+        "kind": "press",
+        "date": "2026-07-20",
+        "quote": "The Internet Freedom Foundation (IFF) condemns the suspension of mobile internet services imposed today, 20 July 2026, in parts of Central Delhi",
+        "context": "From IFF's formal statement, which noted the absence of any published order from the MHA, DoT, Delhi government or Delhi Police, and demanded publication of every order with recorded reasons, as Anuradha Bhasin and the Telecommunications (Temporary Suspension of Services) Rules, 2024 mandate.",
+        "source": {
+          "title": "Internet Freedom Foundation - statement of 20 July 2026",
+          "url": "https://internetfreedom.in/iff-condemns-the-internet-shutdown-in-parts-of-central-delhi-no-suspension-order-has-been-made-public/"
         }
       }
     ]
@@ -767,12 +809,16 @@
   {
     "time": "2026-07-22",
     "title": "Wangchuk in intensive care; ministers visit",
-    "description": "On the 24th day of his fast, Sonam Wangchuk was in the Intensive Care Unit at Medanta Hospital in Gurugram, where Union Ministers J.P. Nadda and Jitendra Singh visited him. Hospital officials said he intended to continue the hunger strike until protesting student leaders were allowed to meet MPs at Parliament House, or parliamentarians visited him. Solidarity protests were reported in New York, San Jose, London and Dublin.",
+    "description": "On the 24th day of his fast, Sonam Wangchuk was in the Intensive Care Unit at Medanta Hospital in Gurugram, where Union Ministers J.P. Nadda and Jitendra Singh visited him. Safdarjung's discharge note the previous evening had recorded that pancytopenia - a depletion of red cells, white cells and platelets together - persisted, with serum potassium at 3.4 mEq/L. Hospital officials said he intended to continue the hunger strike until protesting student leaders were allowed to meet MPs at Parliament House, or parliamentarians visited him. Solidarity protests were reported in New York, San Jose, London and Dublin.",
     "relatedVideoIds": [],
     "sources": [
       {
         "title": "The Quint - Union Ministers JP Nadda, Jitendra Singh visit Sonam Wangchuk in hospital",
         "url": "https://www.thequint.com/news/breaking-news/union-ministers-nadda-singh-visit-wangchuk-medanta-hospital"
+      },
+      {
+        "title": "The News Minute - Sonam Wangchuk moved to Medanta; supporters throng Jantar Mantar",
+        "url": "https://www.thenewsminute.com/news/sonam-wangchuk-moved-to-medanta-supporters-throng-jantar-mantar"
       }
     ]
   },
@@ -791,7 +837,7 @@
   {
     "time": "2026-07-22",
     "title": "Talks stall over a venue; the fast goes on",
-    "description": "A further meeting between the CJP and J.P. Nadda was expected but stalled: the movement rejected an invitation to Nadda's residence, and chief spokesperson Saurav Das said any meeting should be at Jantar Mantar or a neutral venue nearby. The CJP publicly appealed to Wangchuk to end his hunger strike - 'Your sacrifice has inspired a generation' - as opposition MPs visited Medanta urging the same, and police in Patna used tear gas and water cannon on AISA workers protesting over the leak. As of mid-afternoon, no meeting had taken place.",
+    "description": "A further meeting between the CJP and J.P. Nadda was expected but stalled: the movement rejected an invitation to Nadda's residence, and chief spokesperson Saurav Das said any meeting should be at Jantar Mantar or a neutral venue nearby. The CJP publicly appealed to Wangchuk to end his hunger strike - 'Your sacrifice has inspired a generation' - as opposition MPs visited Medanta urging the same, and police in Patna used tear gas and water cannon on AISA workers protesting over the leak. At RML Hospital, the 21-year-old woman critically injured on 20 July was taken off the ventilator, conscious and responsive, with normal brain and spine scans. As of mid-afternoon, no meeting had taken place.",
     "relatedVideoIds": [],
     "sources": [
       {
@@ -807,7 +853,7 @@
   {
     "time": "2026-07-22",
     "title": "The stand-off hardens",
-    "description": "Clashes returned past midnight at Connaught Place, with stone-pelting alleged near Janpath and a Rapid Action Force jawan chased and assaulted on video - violence the CJP disavowed. Delhi Police's FIR count over the march rose to nine. By morning, 16 metro stations were shut and the Centre ordered 20 additional CRPF companies airlifted into Delhi from West Bengal. The movement added a fourth demand - no legal action against 20 July protesters - and Rahul Gandhi, released late the previous night, demanded a prime-ministerial apology to students and the resignations of both the Home and Education Ministers.",
+    "description": "Clashes returned past midnight at Connaught Place, with stone-pelting alleged near Janpath and a Rapid Action Force jawan chased and assaulted on video - violence the CJP disavowed. Delhi Police's FIR count over the march rose to nine. By morning, 16 metro stations were shut and the Centre ordered 20 additional CRPF companies airlifted into Delhi from West Bengal. The movement added a fourth demand - no legal action against 20 July protesters - and Rahul Gandhi, released late the previous night, demanded a prime-ministerial apology to students and the resignations of both the Home and Education Ministers. Film figures including Naseeruddin Shah, Preity Zinta, Genelia D'Souza and Riteish Deshmukh publicly backed the movement.",
     "relatedVideoIds": [],
     "sources": [
       {
