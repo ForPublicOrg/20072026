@@ -1,6 +1,6 @@
 # blackdays (20072026.com)
 
-A protest-documentation archive: Astro static site + a narrow Cloudflare Worker (`src/worker.ts`, handles only `POST /api/takedown`) on Cloudflare Workers with static assets. D1 (`TAKEDOWNS` binding) is a private correction/takedown inbox — never rendered on the public site. Media (video/thumbnails) is served from R2 at `media.20072026.com`. **Live domain is `20072026.com`** — `blackdays.in` is referenced in some docs as an eventual destination but is not wired up; don't treat it as production.
+A protest-documentation archive: Astro static site + a narrow Cloudflare Worker (`src/worker.ts`, handles only `POST /api/takedown`) on Cloudflare Workers with static assets. D1 (`TAKEDOWNS` binding) is a private correction/takedown inbox — never rendered on the public site. Media (video/thumbnails) is served from R2 at `media.20072026.com`. **`20072026.com` is the permanent domain.**
 
 ## Reading order
 
