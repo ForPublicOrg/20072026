@@ -356,7 +356,7 @@ for (const plan of SAMPLE_PLAN) {
     sample: true,
     source: {
       platform: plan.platform,
-      url: "https://blackdays.in/about",
+      url: "https://20072026.com/about",
       uploader: plan.uploader,
       publishedAt: plan.publishedAt,
     },

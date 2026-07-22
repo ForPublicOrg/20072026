@@ -4,8 +4,8 @@
 // separately where the site name renders visually — see Base.astro.
 export const SITE_NAME = "20.07.2026";
 // Keep in sync with `site` in astro.config.mjs — this drives absolute OG image
-// and canonical URLs. blackdays.in is not a zone in this Cloudflare account;
-// 20072026.com is the real, live domain (see `routes` in wrangler.jsonc).
+// and canonical URLs. 20072026.com is the permanent domain (see `routes` in
+// wrangler.jsonc).
 export const SITE_URL = "https://20072026.com";
 // R2 cutover complete (2026-07-21): media now served from the custom domain
 // bound to the `blackdays-media` R2 bucket, not from public/media/.

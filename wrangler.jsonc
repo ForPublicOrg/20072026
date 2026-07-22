@@ -22,7 +22,7 @@
   ],
   // Served from an existing zone in the account, so no workers.dev subdomain is
   // needed. Cloudflare creates and manages the DNS record for a custom_domain
-  // route automatically. Swap to blackdays.in once that zone is added.
+  // route automatically. 20072026.com is the permanent domain.
   "routes": [{ "pattern": "20072026.com", "custom_domain": true }],
 
   // Staging environment used by CI on every pull request (see
