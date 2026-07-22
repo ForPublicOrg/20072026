@@ -21,8 +21,20 @@ Secrets/config for CI live as GitHub Environment secrets (`CLOUDFLARE_API_TOKEN`
 ## Local setup
 
 - `npm i`
-- `lefthook install` (once) — activates the `gitleaks protect --staged` pre-commit hook (`lefthook.yml`, `.gitleaks.toml`)
+- `lefthook install` (once) — activates the `gitleaks protect --staged` pre-commit hook and the `npm run test:unit` pre-push hook (`lefthook.yml`, `.gitleaks.toml`)
 - `gitleaks` itself isn't an npm package — install separately (e.g. `brew install gitleaks`)
+- `npx playwright install --with-deps chromium` (once) — needed for `npm run test:e2e`
+
+## Testing
+
+Three layers, all required to pass in CI before either deploy job runs (see the `test` job in `.github/workflows/deploy.yml`):
+
+- `npm run test:unit` — Vitest, pure logic only (`src/lib/schema.ts`'s content validation). No Cloudflare runtime involved.
+- `npm run test:integration` — Vitest + `@cloudflare/vitest-pool-workers`, runs `src/worker.ts` in a real local Workers runtime against real (local, not remote) D1/R2 bindings. Covers the `/api/takedown`, `/api/submit-video`, and `/api/upload/:id` request handling.
+- `npm run test:e2e` — Playwright, against `wrangler dev` (not `astro preview` — preview can't serve the API routes or Range requests). Covers real user flows: feed, video pages, timeline, the takedown form actually submitting.
+- `npm test` runs all three, in that order — same thing CI does.
+
+Test files live under `tests/unit/`, `tests/integration/`, `tests/e2e/`. Only `test:unit` runs in the pre-push hook; the other two need a build and a browser, so they stay CI-only.
 
 ## Content-authoring gotchas (detail in `docs/content-pipeline.md`)
 
