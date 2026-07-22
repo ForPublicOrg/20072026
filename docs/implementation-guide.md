@@ -50,7 +50,7 @@ npx astro add tailwind --yes
 npm i
 ```
 
-`astro.config.mjs`: `output: 'static'`, `site: 'https://blackdays.in'`, add `@astrojs/sitemap` integration.
+`astro.config.mjs`: `output: 'static'`, `site: 'https://20072026.com'`, add `@astrojs/sitemap` integration.
 
 `wrangler.jsonc`:
 ```jsonc
@@ -85,8 +85,8 @@ npm i
 `src/config.ts`:
 ```ts
 export const SITE_NAME = "Black Days";
-export const SITE_URL = "https://blackdays.in";
-export const MEDIA_BASE = "/media/";        // flip to https://media.blackdays.in/ after R2 cutover
+export const SITE_URL = "https://20072026.com";
+export const MEDIA_BASE = "/media/";        // flip to https://media.20072026.com/ after R2 cutover
 // No CONTACT_EMAIL constant. Removed 2026-07-21 (commit b8f0fdc): corrections
 // and takedowns now go through the form at /takedown/ (src/pages/takedown.astro
 // -> src/worker.ts -> D1), so no personal address is published on the site or
@@ -173,10 +173,9 @@ Verify on the live URL:
 
 ## 9. Cloudflare domain + R2 (after site is live on workers.dev)
 
-1. Add zone `blackdays.in` to the Cloudflare account (free plan) → note the two assigned nameservers.
-2. **User action at Namecheap:** Domain → Nameservers → Custom DNS → enter the two Cloudflare nameservers.
-3. Once the zone is active: add custom domain `blackdays.in` (and `www` redirect) to the Worker (dashboard: Worker → Settings → Domains & Routes, or `wrangler` routes).
-4. Create R2 bucket `blackdays-media`; when real content lands: enable public access via custom domain `media.blackdays.in`, upload `media/` tree, flip `MEDIA_BASE`, delete `public/media/`, redeploy.
+1. `20072026.com` is already an active zone in the Cloudflare account — no new zone or nameserver change needed.
+2. Add custom domain `20072026.com` to the Worker (dashboard: Worker → Settings → Domains & Routes, or `wrangler` routes).
+3. Create R2 bucket `blackdays-media`; when real content lands: enable public access via custom domain `media.20072026.com`, upload `media/` tree, flip `MEDIA_BASE`, delete `public/media/`, redeploy.
 
 ## 10. Commit conventions
 

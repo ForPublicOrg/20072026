@@ -1,4 +1,4 @@
-# Black Days — blackdays.in
+# Black Days — 20072026.com
 
 A static archive documenting publicly available videos, photos, and reporting related to a specific protest event. Preservation, discoverability, and historical documentation — with attribution always preserved and verification status always shown. No backend, no accounts, no comments.
 
