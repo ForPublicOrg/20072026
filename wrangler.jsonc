@@ -18,6 +18,27 @@
       "binding": "TAKEDOWNS",
       "database_name": "blackdays-takedowns",
       "database_id": "d3231055-fe3a-4a44-8c43-23238b3d1cae"
+    },
+    {
+      // Private inbox for "Submit a video" requests (link or raw upload) from
+      // the home page. Separate database from TAKEDOWNS so the two request
+      // types never share a table. migrations_dir MUST be set here — left at
+      // the wrangler default ("migrations/") it would collide with the
+      // TAKEDOWNS migration folder above and try to apply the wrong schema.
+      "binding": "SUBMISSIONS",
+      "database_name": "blackdays-video-submissions",
+      "database_id": "e666f211-8490-4646-805a-4710ebff88d9",
+      "migrations_dir": "migrations/video-submissions"
+    }
+  ],
+  "r2_buckets": [
+    {
+      // Private landing zone for raw footage uploaded via /api/upload/:id.
+      // Deliberately NOT the public blackdays-media bucket: nothing here is
+      // ever served publicly — only src/worker.ts (write) and an admin's
+      // authenticated `wrangler r2 object get` (read) ever touch it.
+      "binding": "UPLOADS",
+      "bucket_name": "blackdays-uploads"
     }
   ],
   // Served from an existing zone in the account, so no workers.dev subdomain is
@@ -48,6 +69,22 @@
           "binding": "TAKEDOWNS",
           "database_name": "blackdays-takedowns-staging",
           "database_id": "386ab281-46e3-45a5-9d24-3a1a489fb771"
+        },
+        {
+          "binding": "SUBMISSIONS",
+          "database_name": "blackdays-video-submissions-staging",
+          "database_id": "8de76959-33bc-4f15-9b14-2df7bd2754f7",
+          "migrations_dir": "migrations/video-submissions"
+        }
+      ],
+      // Separate bucket from production, unlike blackdays-media — uploads are
+      // live user-submitted data, not shared reference content, so a test
+      // upload on staging must never land in the production bucket (same
+      // reasoning as the staging/production D1 split above).
+      "r2_buckets": [
+        {
+          "binding": "UPLOADS",
+          "bucket_name": "blackdays-uploads-staging"
         }
       ]
     }
