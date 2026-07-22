@@ -39,9 +39,14 @@ const VIDEOS_JSON = path.join(ROOT, "src/data/videos.json");
 
 // Run artifacts (review files) are not archive content — keep them out of
 // the repo. Same convention as scripts/collect-batch.mjs's LOG_FILE.
-const SCRATCH_DIR =
-  process.env.BLACKDAYS_SCRATCH_DIR ||
-  "/private/tmp/claude-501/-Users-rajtalekar-workspace-blackdays/c77d20f5-fa3f-408e-bf2a-aa49767d6c2b/scratchpad";
+if (!process.env.BLACKDAYS_SCRATCH_DIR) {
+  console.error(
+    "BLACKDAYS_SCRATCH_DIR is not set. Point it at a directory outside the repo " +
+      "for review-file output (e.g. export BLACKDAYS_SCRATCH_DIR=/tmp/blackdays-scratch).",
+  );
+  process.exit(1);
+}
+const SCRATCH_DIR = process.env.BLACKDAYS_SCRATCH_DIR;
 const DEFAULT_REVIEW_FILE = path.join(SCRATCH_DIR, "enrich-review.json");
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;

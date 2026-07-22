@@ -226,6 +226,8 @@ function remux() {
     "-y",
     "-i",
     rawFile,
+    "-map_metadata",
+    "-1",
     "-c:v",
     "copy",
     ...audioArgs,
@@ -240,6 +242,8 @@ function reencode() {
     "-y",
     "-i",
     rawFile,
+    "-map_metadata",
+    "-1",
     "-c:v",
     "libx264",
     "-preset",
@@ -291,6 +295,8 @@ run("ffmpeg", [
   "1",
   "-vf",
   "scale=720:-2",
+  "-map_metadata",
+  "-1",
   thumbFile,
 ]);
 

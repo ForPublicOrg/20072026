@@ -20,8 +20,8 @@
 //                    Terminal, skipped.
 // After every attempt this script rewrites the CSV in place with the new
 // Status/VideoId/Notes for that row, so a run that's interrupted partway
-// through leaves accurate state for the next one. Raj appends new links to
-// the same file over time (Status left blank for new rows).
+// through leaves accurate state for the next one. The maintainer appends new
+// links to the same file over time (Status left blank for new rows).
 //
 // HARD RULES (do not relax these — see the task this script was written for):
 //   - Never import or modify collect.mjs. Always spawn it as a child process
@@ -315,6 +315,10 @@ function main() {
   for (const row of rows) {
     if (!row.link) continue;
     const normalizedUrl = normalizeInstagramUrl(row.link);
+    // Persist the canonicalized link, not the raw one: strips Instagram's
+    // igsh= share-tracking token (tied to whichever session generated the
+    // link) and any other query noise before it ever reaches the CSV.
+    row.link = normalizedUrl;
 
     if (row.status === "published" || row.status === "ignored") {
       skippedTerminal++;

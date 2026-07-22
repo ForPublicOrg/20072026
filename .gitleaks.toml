@@ -1,0 +1,10 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Known-public, non-secret identifiers"
+regexes = [
+  # D1 database_id in wrangler.jsonc — a Cloudflare resource identifier tied
+  # to this project's own account, not a bearer credential.
+  '''d3231055-fe3a-4a44-8c43-23238b3d1cae''',
+]
