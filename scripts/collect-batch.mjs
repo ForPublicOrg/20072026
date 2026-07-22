@@ -6,6 +6,23 @@
 //
 // Usage: node scripts/collect-batch.mjs <csv-path>
 //
+// The CSV is both the input queue and the run's own status log: columns are
+// Link,Status,VideoId,Notes. Status is one of:
+//   - "" (blank)  — never attempted; attempt it this run.
+//   - "failed"    — a prior run tried and it didn't stick, but nothing marked
+//                    it permanently dead; retry it this run.
+//   - "ignored"   — a human (or a prior run's classification) decided this
+//                    link will never publish (age/audience-restricted, no
+//                    video in the post, out-of-scope/misattributed content,
+//                    etc). Terminal — never retried automatically. Change it
+//                    back to blank by hand to force a retry.
+//   - "published" — already in videos.json (VideoId column has the id).
+//                    Terminal, skipped.
+// After every attempt this script rewrites the CSV in place with the new
+// Status/VideoId/Notes for that row, so a run that's interrupted partway
+// through leaves accurate state for the next one. Raj appends new links to
+// the same file over time (Status left blank for new rows).
+//
 // HARD RULES (do not relax these — see the task this script was written for):
 //   - Never import or modify collect.mjs. Always spawn it as a child process
 //     and wait for full exit before starting the next one. Concurrency of
@@ -19,7 +36,7 @@
 //     run beats a fast blocked one; do not tighten the delays casually.
 
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -30,14 +47,6 @@ const VIDEOS_JSON = path.join(ROOT, "src/data/videos.json");
 const COLLECT_SCRIPT = path.join(ROOT, "scripts/collect.mjs");
 
 const BREW_HINT = "brew install yt-dlp ffmpeg";
-
-// Where the per-URL run log gets written. This is intentionally NOT inside
-// the repo (it's a run artifact, not archive content). Override with
-// BLACKDAYS_SCRATCH_DIR for reuse outside this particular session.
-const SCRATCH_DIR =
-  process.env.BLACKDAYS_SCRATCH_DIR ||
-  "/private/tmp/claude-501/-Users-rajtalekar-workspace-blackdays/c77d20f5-fa3f-408e-bf2a-aa49767d6c2b/scratchpad";
-const LOG_FILE = path.join(SCRATCH_DIR, "collect-batch-log.json");
 
 // Politeness pacing. Do not tighten — see header comment.
 const MAIN_DELAY_MIN_S = 20;
@@ -116,21 +125,93 @@ export function normalizeInstagramUrl(rawUrl) {
 }
 
 // ---------------------------------------------------------------------------
-// CSV parsing
+// CSV read/write. Minimal RFC4180-ish support (quoted fields, "" escaping
+// embedded quotes) — enough for our own data (URLs, short status words, one
+// free-text Notes column). No external dependency; this repo doesn't use one.
+//
+// Two shapes are accepted for backwards compatibility:
+//   - New: "Link,Status,VideoId,Notes" header.
+//   - Old: single "Links" column (the original archive-collection CSV,
+//     before the status column existed). Old rows are treated as freshly
+//     added with blank status.
 // ---------------------------------------------------------------------------
 
-function parseCsvUrls(csvPath) {
+function parseCsvLine(line) {
+  const fields = [];
+  let field = "";
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (line[i + 1] === '"') {
+          field += '"';
+          i++;
+        } else {
+          inQuotes = false;
+        }
+      } else {
+        field += c;
+      }
+    } else if (c === '"') {
+      inQuotes = true;
+    } else if (c === ",") {
+      fields.push(field);
+      field = "";
+    } else {
+      field += c;
+    }
+  }
+  fields.push(field);
+  return fields;
+}
+
+function csvField(value) {
+  const s = String(value ?? "");
+  if (/[",\n]/.test(s)) {
+    return `"${s.replace(/"/g, '""')}"`;
+  }
+  return s;
+}
+
+export function parseCsvRows(csvPath) {
   if (!existsSync(csvPath)) {
     console.error(`CSV not found: ${csvPath}`);
     process.exit(1);
   }
   const raw = readFileSync(csvPath, "utf8");
-  const lines = raw.split(/\r?\n/);
-  // Skip header row (assumed to be the first line, e.g. "Links").
-  return lines
-    .slice(1)
-    .map((l) => l.trim())
-    .filter((l) => l.length > 0);
+  const lines = raw.split(/\r?\n/).filter((l, i, arr) => l.length > 0 || i < arr.length - 1);
+  if (lines.length === 0) return [];
+  const header = parseCsvLine(lines[0]).map((h) => h.trim().toLowerCase());
+  const isNewFormat = header[0] === "link";
+
+  const rows = [];
+  for (const line of lines.slice(1)) {
+    if (!line.trim()) continue;
+    const fields = parseCsvLine(line);
+    if (isNewFormat) {
+      rows.push({
+        link: (fields[0] || "").trim(),
+        status: (fields[1] || "").trim().toLowerCase(),
+        videoId: (fields[2] || "").trim(),
+        notes: fields[3] || "",
+      });
+    } else {
+      // Old single-column format: every row is an unattempted link.
+      rows.push({ link: fields[0].trim(), status: "", videoId: "", notes: "" });
+    }
+  }
+  return rows;
+}
+
+export function writeCsvRows(csvPath, rows) {
+  const lines = ["Link,Status,VideoId,Notes"];
+  for (const row of rows) {
+    lines.push(
+      [row.link, row.status, row.videoId, row.notes].map(csvField).join(","),
+    );
+  }
+  writeFileSync(csvPath, lines.join("\n") + "\n");
 }
 
 // ---------------------------------------------------------------------------
@@ -212,66 +293,93 @@ function main() {
 
   preflight();
 
-  const rawUrls = parseCsvUrls(csvPath);
-  console.log(`Parsed ${rawUrls.length} URL(s) from ${csvPath}.`);
+  const rows = parseCsvRows(csvPath);
+  console.log(`Parsed ${rows.length} row(s) from ${csvPath}.`);
+
+  const persist = () => writeCsvRows(csvPath, rows);
+  // Persist immediately so a pre-existing old-format ("Links"-only) file gets
+  // upgraded to the new columns even if this run ends up attempting nothing.
+  persist();
 
   const existingVideos = readExistingVideos();
-  const existingNormalized = new Set(
+  const videoIdByNormalizedUrl = new Map(
     existingVideos
-      .map((v) => v?.source?.url)
-      .filter(Boolean)
-      .map(normalizeInstagramUrl),
+      .filter((v) => v?.source?.url)
+      .map((v) => [normalizeInstagramUrl(v.source.url), v.id]),
   );
 
-  const seenThisRun = new Set();
-  const worklist = []; // { normalizedUrl }
-  const skippedDuplicates = []; // { rawUrl, normalizedUrl, reason }
+  const seenThisRun = new Set(); // normalized links already claimed by an earlier row this run
+  const worklist = []; // { row, normalizedUrl }
+  let skippedTerminal = 0;
 
-  for (const rawUrl of rawUrls) {
-    const normalizedUrl = normalizeInstagramUrl(rawUrl);
-    if (existingNormalized.has(normalizedUrl)) {
-      skippedDuplicates.push({ rawUrl, normalizedUrl, reason: "already-in-videos.json" });
+  for (const row of rows) {
+    if (!row.link) continue;
+    const normalizedUrl = normalizeInstagramUrl(row.link);
+
+    if (row.status === "published" || row.status === "ignored") {
+      skippedTerminal++;
+      continue;
+    }
+    if (videoIdByNormalizedUrl.has(normalizedUrl)) {
+      // Already published (e.g. status column wasn't updated yet by hand).
+      row.status = "published";
+      row.videoId = videoIdByNormalizedUrl.get(normalizedUrl);
+      row.notes = "";
+      skippedTerminal++;
       continue;
     }
     if (seenThisRun.has(normalizedUrl)) {
-      skippedDuplicates.push({ rawUrl, normalizedUrl, reason: "duplicate-within-csv" });
+      row.status = "ignored";
+      row.notes = "Duplicate of an earlier row in this CSV.";
       continue;
     }
     seenThisRun.add(normalizedUrl);
-    worklist.push({ normalizedUrl });
+    worklist.push({ row, normalizedUrl });
   }
+  persist();
 
   console.log(
-    `${worklist.length} URL(s) to attempt, ${skippedDuplicates.length} skipped as duplicate.`,
+    `${worklist.length} row(s) to attempt (blank or "failed"), ${skippedTerminal} already terminal (published/ignored).`,
   );
 
-  const runLog = [];
   const total = worklist.length;
   let processed = 0;
   let abortedBySafetyValve = false;
+  const attemptedRows = []; // rows we tried this run, for the retry pass
 
-  function recordAndPrint(entry) {
-    runLog.push(entry);
-    const label = shortcodeOf(entry.url);
-    if (entry.status === "ok") {
-      console.log(`[${processed}/${total}] ${label} → ok (${entry.id})`);
-    } else if (entry.status === "duplicate") {
-      console.log(`[${processed}/${total}] ${label} → skipped: duplicate (${entry.error})`);
-    } else {
-      console.log(`[${processed}/${total}] ${label} → failed: ${entry.error}`);
-    }
-  }
-
-  function attempt(normalizedUrl) {
+  function applyResult(row, normalizedUrl) {
     const result = collectOne(normalizedUrl);
-    const timestamp = new Date().toISOString();
     if (result.ok) {
-      return { url: normalizedUrl, status: "ok", id: result.id, error: null, timestamp };
+      row.status = "published";
+      row.videoId = result.id;
+      row.notes = "";
+      return "ok";
     }
     if (result.duplicate) {
-      return { url: normalizedUrl, status: "duplicate", id: null, error: result.error, timestamp };
+      // collect.mjs itself found this URL already in videos.json.
+      row.status = "published";
+      row.videoId = videoIdByNormalizedUrl.get(normalizedUrl) || row.videoId;
+      row.notes = "";
+      return "duplicate";
     }
-    return { url: normalizedUrl, status: "failed", id: null, error: result.error, timestamp };
+    row.status = "failed";
+    row.notes = result.error;
+    return "failed";
+  }
+
+  function attemptAndPrint(entry) {
+    processed++;
+    const label = shortcodeOf(entry.normalizedUrl);
+    const outcome = applyResult(entry.row, entry.normalizedUrl);
+    persist();
+    if (outcome === "ok") {
+      console.log(`[${processed}/${total}] ${label} → published (${entry.row.videoId})`);
+    } else if (outcome === "duplicate") {
+      console.log(`[${processed}/${total}] ${label} → already published (${entry.row.videoId})`);
+    } else {
+      console.log(`[${processed}/${total}] ${label} → failed: ${entry.row.notes}`);
+    }
+    return outcome;
   }
 
   // -------------------------------------------------------------------------
@@ -279,24 +387,24 @@ function main() {
   // -------------------------------------------------------------------------
 
   const safetyCount = Math.min(SAFETY_VALVE_COUNT, worklist.length);
+  const safetyOutcomes = [];
   for (let i = 0; i < safetyCount; i++) {
-    processed++;
-    const entry = attempt(worklist[i].normalizedUrl);
-    recordAndPrint(entry);
+    attemptedRows.push(worklist[i]);
+    safetyOutcomes.push(attemptAndPrint(worklist[i]));
     if (i < safetyCount - 1) {
       sleepSeconds(randomDelay(MAIN_DELAY_MIN_S, MAIN_DELAY_MAX_S));
     }
   }
 
-  const safetyResults = runLog.slice(0, safetyCount);
-  const safetySucceeded = safetyResults.some((r) => r.status === "ok");
+  const safetySucceeded = safetyOutcomes.some((o) => o === "ok" || o === "duplicate");
 
   if (safetyCount > 0 && !safetySucceeded) {
     abortedBySafetyValve = true;
     console.error(
       `\nSafety valve triggered: all ${safetyCount} of the first ${safetyCount} attempts failed. ` +
         `Aborting the remaining ${total - safetyCount} — Instagram is likely walling this IP; ` +
-        `burning through the rest would achieve nothing and risk making it worse.`,
+        `burning through the rest would achieve nothing and risk making it worse. Rows already ` +
+        `attempted keep their "failed" status and can be retried in a later run.`,
     );
   }
 
@@ -307,83 +415,51 @@ function main() {
   if (!abortedBySafetyValve) {
     for (let i = safetyCount; i < worklist.length; i++) {
       sleepSeconds(randomDelay(MAIN_DELAY_MIN_S, MAIN_DELAY_MAX_S));
-      processed++;
-      const entry = attempt(worklist[i].normalizedUrl);
-      recordAndPrint(entry);
+      attemptedRows.push(worklist[i]);
+      attemptAndPrint(worklist[i]);
     }
   }
 
   // -------------------------------------------------------------------------
-  // Retry pass: failures only, once, longer spacing.
+  // Retry pass: rows still "failed" after the main loop, once, longer spacing.
   // -------------------------------------------------------------------------
 
-  const retryLog = [];
   if (!abortedBySafetyValve) {
-    const failedEntries = runLog.filter((e) => e.status === "failed");
-    if (failedEntries.length > 0) {
-      console.log(`\nRetry pass: ${failedEntries.length} failed URL(s), longer spacing.`);
-      for (let i = 0; i < failedEntries.length; i++) {
+    const stillFailedEntries = attemptedRows.filter((e) => e.row.status === "failed");
+    if (stillFailedEntries.length > 0) {
+      console.log(`\nRetry pass: ${stillFailedEntries.length} failed row(s), longer spacing.`);
+      for (let i = 0; i < stillFailedEntries.length; i++) {
         sleepSeconds(randomDelay(RETRY_DELAY_MIN_S, RETRY_DELAY_MAX_S));
-        const original = failedEntries[i];
-        const retryResult = attempt(original.url);
-        retryResult.timestamp = new Date().toISOString();
-        retryResult.retry = true;
-        retryLog.push(retryResult);
-        const label = shortcodeOf(original.url);
-        if (retryResult.status === "ok") {
-          console.log(`[retry ${i + 1}/${failedEntries.length}] ${label} → ok (${retryResult.id})`);
-          // Update the original run log entry in place so the final log
-          // reflects the outcome that stuck.
-          original.status = "ok";
-          original.id = retryResult.id;
-          original.error = null;
-          original.retriedAt = retryResult.timestamp;
+        const entry = stillFailedEntries[i];
+        const label = shortcodeOf(entry.normalizedUrl);
+        const outcome = applyResult(entry.row, entry.normalizedUrl);
+        persist();
+        if (outcome === "ok" || outcome === "duplicate") {
+          console.log(`[retry ${i + 1}/${stillFailedEntries.length}] ${label} → published (${entry.row.videoId})`);
         } else {
-          console.log(
-            `[retry ${i + 1}/${failedEntries.length}] ${label} → failed again: ${retryResult.error}`,
-          );
-          original.retriedAt = retryResult.timestamp;
-          original.retryError = retryResult.error;
+          console.log(`[retry ${i + 1}/${stillFailedEntries.length}] ${label} → failed again: ${entry.row.notes}`);
         }
       }
     }
   }
 
   // -------------------------------------------------------------------------
-  // Write run log
+  // Summary. The CSV itself (already persisted after every attempt) is the
+  // durable record — this is just what printed to the terminal this run.
   // -------------------------------------------------------------------------
 
-  mkdirSync(SCRATCH_DIR, { recursive: true });
-  const logPayload = {
-    csvPath,
-    totalParsed: rawUrls.length,
-    totalAttempted: total,
-    skippedDuplicates,
-    abortedBySafetyValve,
-    entries: runLog,
-    retryAttempts: retryLog,
-    finishedAt: new Date().toISOString(),
-  };
-  writeFileSync(LOG_FILE, JSON.stringify(logPayload, null, 2) + "\n");
-  console.log(`\nRun log written to ${LOG_FILE}`);
-
-  // -------------------------------------------------------------------------
-  // Summary
-  // -------------------------------------------------------------------------
-
-  const succeeded = runLog.filter((e) => e.status === "ok");
-  const stillFailed = runLog.filter((e) => e.status === "failed");
-  const duplicatesDuringRun = runLog.filter((e) => e.status === "duplicate");
+  const published = attemptedRows.filter((e) => e.row.status === "published").length;
+  const stillFailed = attemptedRows.filter((e) => e.row.status === "failed").length;
 
   console.log("\n--- Summary ---");
-  console.log(`Attempted: ${total}`);
-  console.log(`Succeeded: ${succeeded.length}`);
-  console.log(`Failed after retry: ${stillFailed.length}`);
-  console.log(`Duplicate (caught mid-run by collect.mjs itself): ${duplicatesDuringRun.length}`);
-  console.log(`Skipped as duplicate before any network call: ${skippedDuplicates.length}`);
+  console.log(`Attempted: ${attemptedRows.length}`);
+  console.log(`Published: ${published}`);
+  console.log(`Still failed (retryable next run): ${stillFailed}`);
+  console.log(`Already terminal, skipped: ${skippedTerminal}`);
   if (abortedBySafetyValve) {
     console.log("Run was ABORTED by the safety valve after the first attempts all failed.");
   }
+  console.log(`\nCSV updated in place: ${csvPath}`);
 }
 
 // Only run when executed directly (`node scripts/collect-batch.mjs ...`), not
