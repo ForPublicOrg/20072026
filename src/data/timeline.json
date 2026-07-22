@@ -12,6 +12,48 @@
     ]
   },
   {
+    "time": "2026-05-15",
+    "title": "A re-exam is announced for the leaked NEET-UG paper",
+    "description": "The same day, at a press conference in New Delhi, Education Minister Dharmendra Pradhan announced that the leaked NEET-UG paper of 3 May - cancelled on 12 May after leak complaints - would be re-conducted on 21 June, with fees refunded and a shift to computer-based testing from the following year. He said the CBI had already begun investigating the breach.",
+    "relatedVideoIds": [],
+    "sources": [
+      {
+        "title": "Outlook India - NEET UG 2026 re-exam scheduled for June 21, major reforms announced",
+        "url": "https://www.outlookindia.com/national/neet-ug-2026-re-exam-scheduled-for-june-21-major-reforms-announced-by-education-minister"
+      },
+      {
+        "title": "Moneylife - Govt announces re-exam on 21st June, refunds fees, promises CBT format",
+        "url": "https://moneylife.in/article/neetug-govt-announces-reexam-on-21st-june-refunds-fees-promises-cbt-format-from-next-year/80476.html"
+      }
+    ],
+    "statements": [
+      {
+        "speaker": "Dharmendra Pradhan",
+        "role": "Union Minister of Education",
+        "kind": "press",
+        "date": "2026-05-15",
+        "quote": "Our approach will remain zero tolerance towards malpractices and anti-social elements. With advancements in technology, such challenges are emerging, but we will not allow any compromise with students' future.",
+        "context": "At the press conference announcing the 21 June re-exam.",
+        "source": {
+          "title": "Outlook India - NEET UG 2026 re-exam scheduled for June 21",
+          "url": "https://www.outlookindia.com/national/neet-ug-2026-re-exam-scheduled-for-june-21-major-reforms-announced-by-education-minister"
+        }
+      },
+      {
+        "speaker": "Dharmendra Pradhan",
+        "role": "Union Minister of Education",
+        "kind": "press",
+        "date": "2026-05-15",
+        "quote": "We did not want any deserving student to be deprived of their rights because of the conspiracy of education mafias or because an undeserving candidate benefited through unfair means.",
+        "context": "Explaining the decision to cancel the leaked 3 May paper; he said the CBI had begun investigating.",
+        "source": {
+          "title": "Moneylife - Govt announces re-exam on 21st June",
+          "url": "https://moneylife.in/article/neetug-govt-announces-reexam-on-21st-june-refunds-fees-promises-cbt-format-from-next-year/80476.html"
+        }
+      }
+    ]
+  },
+  {
     "time": "2026-05-16",
     "title": "The insult is adopted as a name",
     "description": "Abhijeet Dipke, a public relations graduate then based in the United States, posted the idea of a \"Cockroach Janta Party\" the day after the remark and built it out online within about a day — a website carrying the tagline \"Voice of the Lazy & Unemployed\", plus social accounts. The name deliberately took the slur and wore it.",
@@ -56,6 +98,32 @@
     ]
   },
   {
+    "time": "2026-05-28",
+    "title": "The CBSE marking row: 'I take responsibility'",
+    "description": "After meeting CBSE officials at the board's Dwarka headquarters over the On-Screen Marking evaluation row - the second grievance the movement would later carry - the Education Minister told reporters he took responsibility for fixing it, while defending the OSM system itself as 'a progressive instrument'.",
+    "relatedVideoIds": [],
+    "sources": [
+      {
+        "title": "The Week - CBSE's OSM system row: 'I take responsibility', says Education Minister",
+        "url": "https://www.theweek.in/news/india/2026/05/28/cbses-osm-system-row-i-take-responsibility-says-education-minister-dharmendra-pradhan.html"
+      }
+    ],
+    "statements": [
+      {
+        "speaker": "Dharmendra Pradhan",
+        "role": "Union Minister of Education",
+        "kind": "press",
+        "date": "2026-05-28",
+        "quote": "I take responsibility. It will be fixed; a solution will be found. We are all working on that task.",
+        "context": "To media after the CBSE meeting at the board's Dwarka headquarters.",
+        "source": {
+          "title": "The Week - 'I take responsibility', says Education Minister",
+          "url": "https://www.theweek.in/news/india/2026/05/28/cbses-osm-system-row-i-take-responsibility-says-education-minister-dharmendra-pradhan.html"
+        }
+      }
+    ]
+  },
+  {
     "time": "2026-06-06",
     "title": "From the timeline to the street",
     "description": "Dipke arrived from the United States and the movement held its first street protest, at Jantar Mantar in New Delhi. Demonstrators gave Education Minister Dharmendra Pradhan seven days to resign over the handling of the NEET-UG paper leak and the CBSE marking irregularities.",
@@ -90,6 +158,70 @@
       {
         "title": "Wikipedia — 2026 Delhi Jantar Mantar protests",
         "url": "https://en.wikipedia.org/wiki/2026_Delhi_Jantar_Mantar_Protests"
+      }
+    ]
+  },
+  {
+    "time": "2026-06-21",
+    "title": "The NEET-UG re-exam is held",
+    "description": "Around 22 lakh candidates sat the re-conducted NEET-UG paper across the country, five weeks after the original was cancelled.",
+    "relatedVideoIds": [],
+    "sources": [
+      {
+        "title": "India TV News - NEET re-exam: Dharmendra Pradhan makes appeal to aspirants",
+        "url": "https://www.indiatvnews.com/news/india/neet-reexam-dharmendra-pradhan-makes-appeal-to-aspirants-here-is-what-education-minister-said-2026-06-21-1045599"
+      }
+    ],
+    "statements": [
+      {
+        "speaker": "Dharmendra Pradhan",
+        "role": "Union Minister of Education",
+        "kind": "address",
+        "date": "2026-06-21",
+        "quote": "Today, around 22 lakh students are going to sit for NEET after a short while. They should sit fearlessly and free of anxiety.",
+        "context": "At an International Yoga Day programme at Delhi University on the morning of the re-exam, where he also asked critics not to 'play with the future of India's new generation'.",
+        "source": {
+          "title": "India TV News - Pradhan makes appeal to aspirants",
+          "url": "https://www.indiatvnews.com/news/india/neet-reexam-dharmendra-pradhan-makes-appeal-to-aspirants-here-is-what-education-minister-said-2026-06-21-1045599"
+        }
+      }
+    ]
+  },
+  {
+    "time": "2026-06-23",
+    "title": "Pradhan's first response to the movement",
+    "description": "In an NDTV interview, the Education Minister spoke about the Cockroach Janta Party directly for the first time, and accused the opposition of frightening students ahead of the re-exam. Outlets differed on the central phrase: Free Press Journal and NDTV carried 'B team of disruptive elements', while The Wire and PA-syndicated reports rendered it as 'B-team of terrorists'.",
+    "relatedVideoIds": [],
+    "sources": [
+      {
+        "title": "Free Press Journal - 'B Team Of Disruptive Elements': Education Minister breaks silence on Cockroach Janta Party",
+        "url": "https://www.freepressjournal.in/india/b-team-of-disruptive-elements-education-minister-dharmendra-pradhan-breaks-silence-on-cockroach-janta-party"
+      }
+    ],
+    "statements": [
+      {
+        "speaker": "Dharmendra Pradhan",
+        "role": "Union Minister of Education",
+        "kind": "interview",
+        "date": "2026-06-23",
+        "quote": "They are the B team of disruptive elements. Those who were rejected in the democracy have come in disguise and are now after the system.",
+        "context": "His first direct response to the Cockroach Janta Party; in the same interview he said the group raises 'slogans for those who want the country to be broken'.",
+        "source": {
+          "title": "Free Press Journal - 'B Team Of Disruptive Elements'",
+          "url": "https://www.freepressjournal.in/india/b-team-of-disruptive-elements-education-minister-dharmendra-pradhan-breaks-silence-on-cockroach-janta-party"
+        }
+      },
+      {
+        "speaker": "Dharmendra Pradhan",
+        "role": "Union Minister of Education",
+        "kind": "interview",
+        "date": "2026-06-23",
+        "quote": "The Opposition has the right to ask questions. But three days before the exam (re-exam), Rahul Gandhi held a programme in Kota to scare students, to derail students' preparations.",
+        "context": "In the same interview, accusing the Congress of 'low-level politics' over the re-exam.",
+        "source": {
+          "title": "Free Press Journal - 'B Team Of Disruptive Elements'",
+          "url": "https://www.freepressjournal.in/india/b-team-of-disruptive-elements-education-minister-dharmendra-pradhan-breaks-silence-on-cockroach-janta-party"
+        }
       }
     ]
   },
@@ -141,6 +273,32 @@
         "title": "Wikipedia — 2026 Delhi Jantar Mantar protests",
         "url": "https://en.wikipedia.org/wiki/2026_Delhi_Jantar_Mantar_Protests"
       }
+    ],
+    "statements": [
+      {
+        "speaker": "DCP New Delhi",
+        "role": "Official X account, Deputy Commissioner of Police, New Delhi district",
+        "kind": "tweet",
+        "date": "2026-07-18",
+        "quote": "As per orders of Hon'ble High Court and on expert medical advise due to the deteriorating health condition of Sh. Sonam Wangchuk, he has been shifted to the hospital for essential medical care.",
+        "context": "Posted hours after the removal ('advise' as in the original). The post went on to say protesters 'tried to create obstruction', that 'slight commotion ensued', that police showed 'maximum restrain', and asked protesters to 'peacefully vacate' Jantar Mantar.",
+        "source": {
+          "title": "DCP New Delhi on X",
+          "url": "https://x.com/DCPNewDelhi/status/2078302425421889690"
+        }
+      },
+      {
+        "speaker": "Unnamed senior officer, Delhi Police",
+        "role": "Senior officer speaking to media; not named by the outlet",
+        "kind": "press",
+        "date": "2026-07-19",
+        "quote": "We didn't attack them or hit them. We didn't even cut off electricity. All their allegations are false. We only picked up Sonam because of doctor's advice who told us he is suffering from severe dehydration",
+        "context": "Responding to protesters' allegations that officers shoved and beat people during the pre-dawn removal.",
+        "source": {
+          "title": "Outlook India - Delhi Police declare CJP's July 20 'Sansad Chalo' march illegal",
+          "url": "https://www.outlookindia.com/national/delhi-police-declare-cjps-july-20-sansad-chalo-march-illegal-after-removing-sonam-wangchuk"
+        }
+      }
     ]
   },
   {
@@ -159,12 +317,38 @@
         "title": "NPR — India's Gen Z 'Cockroach People's Party'",
         "url": "https://www.npr.org/2026/07/20/nx-s1-5889515/india-gen-z-cockroach-party-protests"
       }
+    ],
+    "statements": [
+      {
+        "speaker": "Delhi Police",
+        "role": "Official X account",
+        "kind": "tweet",
+        "date": "2026-07-19",
+        "quote": "Prohibitory orders u/s 163 BNSS are in force in New Delhi District except designated protest site at Jantar Mantar Road. Further, no permission has been sought or granted for any proposed march to Parliament on 20 July 2026.",
+        "context": "The formal permission refusal, posted the day before the march; the advisory added that 'Citizens are advised not to participate in any unauthorised gathering or procession'.",
+        "source": {
+          "title": "The Logical Indian - Delhi Police invokes Section 163 BNSS ahead of 'Chalo Sansad' march",
+          "url": "https://thelogicalindian.com/delhi-police-section-163-cjp-sansad-protest/"
+        }
+      },
+      {
+        "speaker": "Narendra Modi",
+        "role": "Prime Minister",
+        "kind": "address",
+        "date": "2026-07-20",
+        "quote": "Be it the monsoon or the monsoon session, if both are proactive, they prove to be highly productive.",
+        "context": "From the customary address to media before the session opened, hours before the march reached the barricades. The address made no reference to the protests, the NEET dispute or the movement.",
+        "source": {
+          "title": "India TV News - Monsoon Session 2026 live updates (20 July)",
+          "url": "https://www.indiatvnews.com/news/india/parliament-monsoon-session-2026-live-updates-pm-narendra-modi-nda-opposition-sonam-wangchuk-hunger-strike-cjp-protest-march-1048775"
+        }
+      }
     ]
   },
   {
     "time": "2026-07-20",
     "title": "Tear gas, lathi charges and mass detentions",
-    "description": "Police fired tear gas and carried out baton charges against the crowd. Uniformed personnel are filmed taking hold of individuals at a metal barricade and swinging a cane. Dozens of protesters and more than a hundred police personnel were reported injured, dozens of activists were detained including Dipke and Samajwadi Party MP Dimple Yadav, and internet access was shut down in the area around Parliament. Separately, men in civilian dress were filmed carrying lathis alongside uniformed officers; the framing of that footage is disputed.",
+    "description": "Police fired tear gas and carried out baton charges against the crowd. Uniformed personnel are filmed taking hold of individuals at a metal barricade and swinging a cane. Dozens of protesters and more than a hundred police personnel were reported injured, dozens of activists were detained including Samajwadi Party MP Dimple Yadav, and internet access was shut down in the area around Parliament. Whether Dipke himself was detained was disputed within hours: Delhi Police formally denied it mid-march, while evening reports listed him among those held. Separately, men in civilian dress were filmed carrying lathis alongside uniformed officers; the framing of that footage is disputed.",
     "relatedVideoIds": [
       "video-012",
       "video-013"
@@ -182,17 +366,285 @@
         "title": "Wikipedia — 2026 Delhi Jantar Mantar protests",
         "url": "https://en.wikipedia.org/wiki/2026_Delhi_Jantar_Mantar_Protests"
       }
+    ],
+    "statements": [
+      {
+        "speaker": "Delhi Police",
+        "role": "Official X account",
+        "kind": "tweet",
+        "date": "2026-07-20",
+        "quote": "Some segments from media have mentioned sporadic use of violence/detentions at Jantar Mantar by Delhi Police. It is informed that no such incident has taken place and protest is being handled professionally.",
+        "context": "Posted mid-afternoon, while lathi charges and tear gas were being reported from the ground. The same night, the force's own statement acknowledged more than 118 injured personnel.",
+        "source": {
+          "title": "BOOM - Delhi Police calls real CJP protest video 'fake', denies brutality",
+          "url": "https://www.boomlive.in/fact-check/batons-with-nails-delhi-police-calls-real-cjp-protest-video-fake-denies-brutality-31904"
+        }
+      },
+      {
+        "speaker": "Delhi Police",
+        "role": "Official clarification",
+        "kind": "press",
+        "date": "2026-07-20",
+        "quote": "Misleading reports are currently circulating on various social media platforms claiming that Abhijit Dipke has been detained by the Delhi Police. It is formally clarified that these allegations are entirely false and he is available on stage.",
+        "context": "Issued mid-march after CJP spokesperson Saurav Das claimed Dipke had been detained; Das retracted the claim. Evening reports nonetheless listed Dipke among those held.",
+        "source": {
+          "title": "IBTimes India - Dipke not arrested; Das backtracks; SP MP Dimple Yadav detained",
+          "url": "https://www.ibtimes.co.in/abhijeet-dipke-not-arrested-saurav-das-backtracks-after-claiming-dipke-was-detained-sp-mp-dimple-904028"
+        }
+      },
+      {
+        "speaker": "Delhi Police",
+        "role": "Official X account",
+        "kind": "tweet",
+        "date": "2026-07-20",
+        "quote": "During today's violent protests, more than 118 police personnel from Delhi Police and Central Police Forces, including Special Commissioner, Joint Commissioner, Additional Commissioner, and Deputy Commissioner rank officers deployed on duty, sustained injuries.",
+        "context": "The force's injury count, posted on the evening of the clashes as Commissioner Anurag Kumar visited hospitalised officers.",
+        "source": {
+          "title": "IANS Live - Over 118 police personnel injured in violent Delhi protest clashes",
+          "url": "https://ianslive.in/over-118-police-personnel-injured-in-violent-delhi-protests-cp-anurag-kumar-visits-hospitalised-officers--20260721001313"
+        }
+      },
+      {
+        "speaker": "Delhi Police",
+        "role": "Institutional press statement",
+        "kind": "press",
+        "date": "2026-07-20",
+        "quote": "The protesters attacked police personnel with stones and other objects, attempted to breach police barricades, vandalised police and other government vehicles, damaged public property and resorted to large-scale violence.",
+        "context": "From the force's late-night statement, which put police injuries at more than 118, protester injuries at around 60, detentions at around 70, and announced an FIR for rioting and assault on public servants.",
+        "source": {
+          "title": "Telangana Today - Violent CJP protest leaves 118 police personnel injured, 70 detained",
+          "url": "https://telanganatoday.com/violent-cjp-protest-leaves-118-police-personnel-injured-70-detained"
+        }
+      }
+    ]
+  },
+  {
+    "time": "2026-07-20",
+    "title": "CJP delegates meet J.P. Nadda",
+    "description": "After the government reached out that morning, CJP spokespersons Sourav Das and Ashutosh Ranka met Union Health Minister J.P. Nadda in New Delhi - the movement had refused meetings with a district magistrate, a union secretary and a minister of state, insisting on a Cabinet minister. The demands presented included the resignations of the Education Minister and the Prime Minister, national examination reforms, and compensation and justice for the families of students who died by suicide. No outcome was reported.",
+    "relatedVideoIds": [],
+    "sources": [
+      {
+        "title": "Outlook India - CJP leaders Sourav Das, Ashutosh Ranka meet JP Nadda over NEET row",
+        "url": "https://www.outlookindia.com/national/cjp-leaders-sourav-das-ashutosh-ranka-meet-jp-nadda-over-neet-row"
+      }
     ]
   },
   {
     "time": "2026-07-21",
     "title": "The site is rebuilt",
-    "description": "Protesters returned to Jantar Mantar and rebuilt the dismantled protest site. As of this date the Union government and the Ministry of Education had issued no formal response to the movement's demands.",
+    "description": "Protesters returned to Jantar Mantar and rebuilt the dismantled protest site, as disputes over the previous day's footage and injury figures played out in public.",
     "relatedVideoIds": [],
     "sources": [
       {
         "title": "Wikipedia — 2026 Delhi Jantar Mantar protests",
         "url": "https://en.wikipedia.org/wiki/2026_Delhi_Jantar_Mantar_Protests"
+      }
+    ],
+    "statements": [
+      {
+        "speaker": "Delhi Police",
+        "role": "Official X account",
+        "kind": "tweet",
+        "date": "2026-07-21",
+        "quote": "Reports claiming that police forces are using pellet guns against peaceful protesters are completely false and misleading.",
+        "context": "A 'Fake News Alert' posted after CJP spokesperson Saurav Das alleged pellet-gun use during the crackdown; the post warned of legal action against those spreading rumours.",
+        "source": {
+          "title": "Siasat Daily - Delhi Police denies CJP's pellet gun claims",
+          "url": "https://www.siasat.com/rahul-detained-delhi-police-denies-cjps-pellet-guns-used-claims-3510410/"
+        }
+      },
+      {
+        "speaker": "Unnamed senior officer, Delhi Police",
+        "role": "Senior officer speaking to ThePrint; not named",
+        "kind": "interview",
+        "date": "2026-07-21",
+        "quote": "This is not illegal deployment. However, they are deployed in law and order duties as reinforcements during situations such as yesterday's, and it was neither illegal nor unprecedented.",
+        "context": "On videos of plainclothes men wielding lathis alongside uniformed officers on 20 July; the officer said they were policemen from 'the special staff and from the teams which are not part of active policing duties'.",
+        "source": {
+          "title": "ThePrint - Lathi-wielding plainclothes cops spark row; police say deployment lawful",
+          "url": "https://theprint.in/politics/lathi-wielding-plainclothes-cops-in-delhi-protest-crackdown-spark-row-police-say-deployment-lawful/2992528/"
+        }
+      }
+    ]
+  },
+  {
+    "time": "2026-07-21",
+    "title": "The High Court moves Wangchuk to Medanta",
+    "description": "In Gitanjali Angmo v. Union of India, the Delhi High Court allowed the hunger-striking Sonam Wangchuk to be shifted from the government-run Safdarjung Hospital to Medanta Hospital in Gurugram. After hearing the doctors present in court, the bench said there was a consensus that constant monitoring was needed.",
+    "relatedVideoIds": [],
+    "sources": [
+      {
+        "title": "Bar and Bench - Delhi High Court allows Sonam Wangchuk to be shifted to Medanta Hospital",
+        "url": "https://www.barandbench.com/news/litigation/delhi-high-court-allows-sonam-wangchuk-to-be-shifted-to-medanta-hospital"
+      }
+    ]
+  },
+  {
+    "time": "2026-07-21",
+    "title": "The CJP halts street marches",
+    "description": "The movement announced it would stop marching through New Delhi's streets out of concern for supporters' safety, while continuing the Jantar Mantar sit-in and its campaign. 'We will not march again because the police will hurt the youth again,' founder Abhijeet Dipke said. Delhi police put the injured from 20 July at nearly 180 - 118 security personnel and about 60 protesters - against the CJP's own count of 150 protesters wounded, and said legal action would be initiated against 70 detained protesters.",
+    "relatedVideoIds": [],
+    "sources": [
+      {
+        "title": "Al Jazeera - India's 'cockroach' protest movement halts marches after police violence",
+        "url": "https://www.aljazeera.com/news/2026/7/21/indias-cockroach-protest-movement-halts-marches-after-police-violence"
+      }
+    ]
+  },
+  {
+    "time": "2026-07-21",
+    "title": "Parliament stalls; opposition leaders detained outside the PM's residence",
+    "description": "Both Houses were repeatedly adjourned and then adjourned for the day as opposition MPs demanded a discussion of the NEET-UG leak and the police action, and the Education Minister's resignation. In the afternoon, Rahul Gandhi, Priyanka Gandhi Vadra, Akhilesh Yadav and other opposition leaders were detained during a sit-in near the Prime Minister's residence at Lok Kalyan Marg, and released hours later. Left MPs demanded that Home Minister Amit Shah come to Parliament and explain the police action; through 22 July Shah had made no public statement on the crackdown, with The Tribune reporting - via unnamed sources - that he had taken personal charge of the situation and convened a meeting of ministers.",
+    "relatedVideoIds": [],
+    "sources": [
+      {
+        "title": "Republic World - Parliament Monsoon Session live updates (21 July)",
+        "url": "https://www.republicworld.com/india/parliament-monsoon-session-live-updates-breaking-cjp-vande-mataram-sc-judges-bill-amit-shah-live-news-2026-07-21-132960"
+      },
+      {
+        "title": "Onmanorama - Rahul, Priyanka Gandhi detained after sit-in outside PM Modi's residence",
+        "url": "https://www.onmanorama.com/news/india/2026/07/21/rahul-gandhi-priyanka-gandhi-dk-shivakumar-taken-into-custody.html"
+      },
+      {
+        "title": "Outlook India - Left MPs demand Amit Shah's statement in Parliament over police action",
+        "url": "https://www.outlookindia.com/national/left-mps-visit-jantar-mantar-demand-amit-shahs-statement-in-parliament-over-police-action"
+      },
+      {
+        "title": "The Tribune - Government ready to discuss exam reforms; Amit Shah reviews situation",
+        "url": "https://www.tribuneindia.com/news/india/cjp-protests-government-ready-to-discuss-exam-reforms-in-parliament-amit-shah-reviews-situation/"
+      }
+    ]
+  },
+  {
+    "time": "2026-07-21",
+    "title": "Modi's first response, behind closed doors",
+    "description": "The Prime Minister's first reported response to the movement came at a closed-door NDA parliamentary party meeting in the Parliament Library Building, relayed to reporters afterwards by Parliamentary Affairs Minister Kiren Rijiju - not delivered in public or on the floor of either House. Per that account, he called the NEET-UG paper leak a 'grave sin', said the government stood with students, and appealed to leaders not to incite the young.",
+    "relatedVideoIds": [],
+    "sources": [
+      {
+        "title": "Oneindia - PM Modi breaks silence on NEET-UG protest, urges NDA MPs to guide youth",
+        "url": "https://www.oneindia.com/india/pm-modi-finally-breaks-silence-on-neet-ug-protest-at-jantar-mantar-urges-nda-mps-to-guide-youth-8152189.html"
+      },
+      {
+        "title": "Medical Dialogues - NEET paper leak a 'grave sin': PM Modi says govt stands with students",
+        "url": "https://medicaldialogues.in/state-news/delhi/neet-paper-leak-a-grave-sin-pm-modi-says-govt-stands-with-students-promises-strict-action-against-culprits-175439"
+      }
+    ],
+    "statements": [
+      {
+        "speaker": "Narendra Modi",
+        "role": "Prime Minister",
+        "kind": "press",
+        "date": "2026-07-21",
+        "quote": "It is easy to go on the wrong path, but it is much tougher to return to the right path. We have to bring them onto the right path. That is our responsibility.",
+        "context": "As relayed to reporters by Parliamentary Affairs Minister Kiren Rijiju from the closed-door NDA meeting - a second-hand account, not a transcript.",
+        "source": {
+          "title": "Oneindia - PM Modi breaks silence on NEET-UG protest",
+          "url": "https://www.oneindia.com/india/pm-modi-finally-breaks-silence-on-neet-ug-protest-at-jantar-mantar-urges-nda-mps-to-guide-youth-8152189.html"
+        }
+      },
+      {
+        "speaker": "Narendra Modi",
+        "role": "Prime Minister",
+        "kind": "press",
+        "date": "2026-07-21",
+        "quote": "Do not incite them, show them the right path.",
+        "context": "An appeal aimed at leaders he said were misleading protesting youth, from the same relayed account; outlets rendered the line with slight variations.",
+        "source": {
+          "title": "Medical Dialogues - NEET paper leak a 'grave sin'",
+          "url": "https://medicaldialogues.in/state-news/delhi/neet-paper-leak-a-grave-sin-pm-modi-says-govt-stands-with-students-promises-strict-action-against-culprits-175439"
+        }
+      }
+    ]
+  },
+  {
+    "time": "2026-07-21",
+    "title": "Pradhan breaks his silence, on X",
+    "description": "Late that night, the Education Minister posted his first detailed public response to the weeks of protests centring on him - on X, not in Parliament. The thread attacked the Congress leadership over the day's dharna, said the government was ready to discuss NEET in the House, and gave no indication that he intends to resign.",
+    "relatedVideoIds": [],
+    "sources": [
+      {
+        "title": "The Wire - Responding to protests centring on him, Pradhan attacks Congress, gives no sign of resignation",
+        "url": "https://m.thewire.in/article/politics/pradhan-first-response-weeks-protests-attacks-congress-no-sign-resignation"
+      },
+      {
+        "title": "India TV News - 'Committed to discussing NEET, owe students more than outrage'",
+        "url": "https://www.indiatvnews.com/news/india/rahul-gandhi-exploiting-students-as-political-tools-dharmendra-pradhan-responds-to-congress-protest-2026-07-21-1048981"
+      }
+    ],
+    "statements": [
+      {
+        "speaker": "Dharmendra Pradhan",
+        "role": "Union Minister of Education",
+        "kind": "tweet",
+        "date": "2026-07-21",
+        "quote": "LoP Shri Rahul Gandhi and INC continue to shamelessly exploit students as political tools to manufacture disruption during the Monsoon Session of Parliament",
+        "context": "From the X thread posted after Congress leaders' dharna outside the Prime Minister's residence.",
+        "source": {
+          "title": "India TV News - Pradhan hits out at Rahul Gandhi",
+          "url": "https://www.indiatvnews.com/news/india/rahul-gandhi-exploiting-students-as-political-tools-dharmendra-pradhan-responds-to-congress-protest-2026-07-21-1048981"
+        }
+      },
+      {
+        "speaker": "Dharmendra Pradhan",
+        "role": "Union Minister of Education",
+        "kind": "tweet",
+        "date": "2026-07-21",
+        "quote": "They deserve certainty over chaos, solutions over slogans and responsibility over disruption. We owe our students more than outrage. We owe them answers, reforms and accountability.",
+        "context": "The Wire reported the thread as his first exhaustive remark on the protests, noting he gave no indication he intends to resign.",
+        "source": {
+          "title": "The Wire - Pradhan attacks Congress, gives no sign of resignation",
+          "url": "https://m.thewire.in/article/politics/pradhan-first-response-weeks-protests-attacks-congress-no-sign-resignation"
+        }
+      },
+      {
+        "speaker": "Dharmendra Pradhan",
+        "role": "Union Minister of Education",
+        "kind": "tweet",
+        "date": "2026-07-21",
+        "quote": "Our Government remains 100% committed to discussing NEET and addressing every genuine concern of our youth on the floor of the house.",
+        "context": "Posted after the government conveyed readiness for a Lok Sabha discussion on the paper leak.",
+        "source": {
+          "title": "India TV News - 'Committed to discussing NEET'",
+          "url": "https://www.indiatvnews.com/news/india/rahul-gandhi-exploiting-students-as-political-tools-dharmendra-pradhan-responds-to-congress-protest-2026-07-21-1048981"
+        }
+      }
+    ]
+  },
+  {
+    "time": "2026-07-22",
+    "title": "Wangchuk in intensive care; ministers visit",
+    "description": "On the 24th day of his fast, Sonam Wangchuk was in the Intensive Care Unit at Medanta Hospital in Gurugram, where Union Ministers J.P. Nadda and Jitendra Singh visited him. Hospital officials said he intended to continue the hunger strike until protesting student leaders were allowed to meet MPs at Parliament House, or parliamentarians visited him. Solidarity protests were reported in New York, San Jose, London and Dublin.",
+    "relatedVideoIds": [],
+    "sources": [
+      {
+        "title": "The Quint - Union Ministers JP Nadda, Jitendra Singh visit Sonam Wangchuk in hospital",
+        "url": "https://www.thequint.com/news/breaking-news/union-ministers-nadda-singh-visit-wangchuk-medanta-hospital"
+      }
+    ]
+  },
+  {
+    "time": "2026-07-22",
+    "title": "The government agrees to a Lok Sabha discussion",
+    "description": "Amid a third day of disruption, Parliamentary Affairs Minister Kiren Rijiju told the Lok Sabha the government was ready to discuss the NEET paper leak, with the format to be decided by the Speaker after meeting floor leaders. The opposition held to its demand: 'Our demand is very clear: Education Minister should resign,' Congress's K.C. Venugopal said, while Akhilesh Yadav said the issue 'is not of Congress, Samajwadi Party or the BJP; it's about the youth of the country'.",
+    "relatedVideoIds": [],
+    "sources": [
+      {
+        "title": "Prokerala (IANS) - LS erupts over NEET row; Oppn adamant on Pradhan's resignation",
+        "url": "https://www.prokerala.com/news/articles/a1790950.html"
+      }
+    ]
+  },
+  {
+    "time": "2026-07-22",
+    "title": "Talks stall over a venue; the fast goes on",
+    "description": "A further meeting between the CJP and J.P. Nadda was expected but stalled: chief spokesperson Saurav Das said the party would not travel to Nadda's office, and that any meeting should be held at a neutral venue near Jantar Mantar. The CJP publicly appealed to Wangchuk to end his hunger strike - 'Your sacrifice has inspired a generation' - as opposition MPs visited Medanta urging the same, and police in Patna used tear gas and water cannon on AISA workers protesting over the leak. As of mid-afternoon, no meeting had taken place.",
+    "relatedVideoIds": [],
+    "sources": [
+      {
+        "title": "Deccan Chronicle live blog - CJP seeks neutral venue for Nadda meeting",
+        "url": "https://www.deccanchronicle.com/nation/current-affairs/delhi-protest-cjp-live-updates-1972936"
       }
     ]
   }
