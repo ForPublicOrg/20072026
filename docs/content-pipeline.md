@@ -30,6 +30,27 @@ Pipeline stages, in order:
 
 The raw download is kept in `archive-originals/` (git-ignored) as the archival copy; only the compressed version is served.
 
+**Post-R2-cutover caveat:** `collect.mjs` still writes to `public/media/videos|thumbnails/`, which predates the 2026-07-21 R2 cutover and is no longer served (see "Media base switch" below). Files that land there need to be moved to `/media/videos|thumbnails/` and pushed to the `blackdays-media` bucket by hand:
+```sh
+wrangler r2 object put blackdays-media/videos/video-NNN.mp4 --file media/videos/video-NNN.mp4 --remote
+wrangler r2 object put blackdays-media/thumbnails/video-NNN.jpg --file media/thumbnails/video-NNN.jpg --remote
+```
+`collect.mjs` itself is deliberately not touched to fix this (see the hard rules in `collect-batch.mjs`) — it's a known gap, not a design choice.
+
+## Adding many videos at once: `node scripts/collect-batch.mjs <csv-path>`
+
+Wraps `collect.mjs`, one child process per URL, strictly serial (never concurrent — see the hard rules at the top of the script). Takes a CSV with columns **Link, Status, VideoId, Notes**; this file (e.g. `20072026 - Sheet1.csv` at the repo root) is both the input queue and the durable status log — Raj appends new links to the same file over time, leaving `Status` blank on new rows.
+
+`Status` per row:
+- **blank** — never attempted; this run will try it.
+- **failed** — a previous run tried and didn't get a video; this run retries it. Used for both a real technical hiccup (soft-walled request, transient empty response) and "not attempted yet in a way that stuck" — anything that might still work.
+- **ignored** — terminal, never retried automatically. Set this (by hand, or by a session that investigated why a link won't work) when the content is genuinely unusable: audience/age-restricted, no video in the post, or out of scope for the archive (e.g. stock footage from an unrelated era, wrongly included in a handpicked batch). Flip back to blank to force a retry.
+- **published** — already in `videos.json`; `VideoId` names the entry. Terminal, skipped.
+
+The script rewrites the CSV in place after every single attempt (not just at the end), so an interrupted run leaves accurate state for the next one. It keeps the original script's safety valve (aborts if the first 3 attempts in a row all fail — likely an IP-level soft wall) and its politeness pacing (20–40s between requests, 60–90s before a retry pass over rows still `failed`) — do not tighten these; recon showed roughly a third of Instagram requests get silently soft-walled otherwise.
+
+New videos this script collects still land in `public/media/` per the caveat above and need the same manual R2 upload step before they're actually live.
+
 ## Timeline data
 
 Unlike video entries, `src/data/timeline.json` is not produced by a script — it is hand-researched and hand-written, then validated at build time by `src/lib/schema.ts`. **As of 2026-07-21 (commit `b8f0fdc`), the timeline was rewritten from research** rather than from whatever the archive happened to hold: it now has 14 events running from the Chief Justice's remark in the Supreme Court on 15 May 2026 through the march on Parliament and its aftermath on 21 July 2026.
