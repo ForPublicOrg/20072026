@@ -20,9 +20,13 @@ interface D1Result<T = unknown> {
   results: T[];
 }
 
+interface D1RunResult {
+  meta: { last_row_id: number };
+}
+
 interface D1PreparedStatement {
   bind(...values: unknown[]): D1PreparedStatement;
-  run(): Promise<unknown>;
+  run(): Promise<D1RunResult>;
   all<T = unknown>(): Promise<D1Result<T>>;
 }
 
@@ -34,9 +38,39 @@ interface AssetsBinding {
   fetch(request: Request): Promise<Response>;
 }
 
+/** Minimal hand-rolled R2 types — same rationale as the D1 ones above. */
+interface R2HttpMetadata {
+  contentType?: string;
+}
+
+interface R2PutOptions {
+  httpMetadata?: R2HttpMetadata;
+  customMetadata?: Record<string, string>;
+}
+
+interface R2Bucket {
+  put(key: string, value: ReadableStream | ArrayBuffer | null, options?: R2PutOptions): Promise<unknown>;
+}
+
+/**
+ * Workers-runtime global, not part of the DOM lib astro/tsconfigs/strict
+ * pulls in. R2Bucket.put() requires a stream with a known length — piping an
+ * arbitrary ReadableStream (e.g. through a counting TransformStream) into it
+ * fails at runtime with "Provided readable stream must have a known length".
+ * FixedLengthStream is the platform's own fix: it declares the length up
+ * front and errors if the actual byte count doesn't match.
+ */
+declare class FixedLengthStream {
+  constructor(length: number);
+  readonly readable: ReadableStream<Uint8Array>;
+  readonly writable: WritableStream<Uint8Array>;
+}
+
 interface Env {
   ASSETS: AssetsBinding;
   TAKEDOWNS: D1Database;
+  SUBMISSIONS: D1Database;
+  UPLOADS: R2Bucket;
 }
 
 /** Accepted values for the request `kind` field. */
@@ -49,6 +83,7 @@ const KINDS = new Set(["takedown", "correction", "context", "other"]);
  */
 const MAX_MESSAGE = 4000;
 const MAX_SHORT_FIELD = 300;
+const MAX_DESCRIPTION = 2000;
 
 /**
  * Crude global flood cap: total submissions accepted per minute across all
@@ -58,6 +93,40 @@ const MAX_SHORT_FIELD = 300;
  * intended next step; see docs.
  */
 const MAX_PER_MINUTE = 20;
+
+/** Raw uploads get a stricter per-minute cap than link submissions or takedowns
+ *  — each one is a real file landing in R2, not just a DB row. */
+const MAX_UPLOADS_PER_MINUTE = 5;
+
+/** Per-file cap for raw footage uploads (see docs/design-spec.md for how this
+ *  number was picked — sanity-check against the account's actual Cloudflare
+ *  plan request-body limits before relying on it). */
+const MAX_UPLOAD_BYTES = 250 * 1024 * 1024;
+
+/** Total upload bytes accepted per rolling day, across all uploads — bounds
+ *  storage-cost abuse even though (per the takedown design above) we don't
+ *  track individual submitters by IP. */
+const MAX_DAILY_UPLOAD_BYTES = 5 * 1024 * 1024 * 1024;
+
+/** Allowed MIME types for raw video uploads. Shallow check only — the Worker
+ *  can't run ffprobe, so real content validation happens admin-side after
+ *  `scripts/admin-requests.mjs download`, using the same local ffmpeg/ffprobe
+ *  toolchain scripts/collect.mjs already requires. */
+const UPLOAD_MIME_TYPES = new Set([
+  "video/mp4",
+  "video/quicktime",
+  "video/webm",
+  "video/x-matroska",
+  "video/3gpp",
+]);
+
+const MIME_EXTENSIONS: Record<string, string> = {
+  "video/mp4": "mp4",
+  "video/quicktime": "mov",
+  "video/webm": "webm",
+  "video/x-matroska": "mkv",
+  "video/3gpp": "3gp",
+};
 
 /**
  * Served only to no-JavaScript form submissions. Deliberately self-contained
@@ -117,6 +186,27 @@ function clean(value: unknown, max: number): string {
     .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "")
     .trim()
     .slice(0, max);
+}
+
+/**
+ * Wraps a request body so it errors once more than `maxBytes` has passed
+ * through — enforcing the upload cap on the bytes actually received, not on
+ * a client-declared `content-length` header, which is trivial to lie about.
+ */
+function limitStream(stream: ReadableStream<Uint8Array>, maxBytes: number): ReadableStream<Uint8Array> {
+  let total = 0;
+  return stream.pipeThrough(
+    new TransformStream<Uint8Array, Uint8Array>({
+      transform(chunk, controller) {
+        total += chunk.byteLength;
+        if (total > maxBytes) {
+          controller.error(new Error("Upload exceeds the size limit."));
+          return;
+        }
+        controller.enqueue(chunk);
+      },
+    }),
+  );
 }
 
 async function handleTakedown(request: Request, env: Env): Promise<Response> {
@@ -226,12 +316,289 @@ async function handleTakedown(request: Request, env: Env): Promise<Response> {
   return json({ ok: true }, 200);
 }
 
+/**
+ * Handles the "Submit a video" form (src/pages/index.astro): either a link to
+ * an existing public post (`mode: "url"`), or the metadata half of a raw
+ * footage upload (`mode: "upload"`) — the file itself follows in a second
+ * request to handleVideoUpload once this returns an `id`. JS-only: unlike
+ * /api/takedown there is no plausible no-JS fallback for a two-step upload
+ * with a progress bar, so a non-JSON caller just gets a 400.
+ */
+async function handleSubmitVideo(request: Request, env: Env): Promise<Response> {
+  if (request.method !== "POST") {
+    return json({ ok: false, error: "Method not allowed." }, 405);
+  }
+
+  const origin = request.headers.get("origin");
+  if (origin) {
+    const allowed = new URL(request.url).origin;
+    if (origin !== allowed) {
+      return json({ ok: false, error: "Cross-origin requests are not accepted." }, 403);
+    }
+  }
+
+  const contentType = request.headers.get("content-type") ?? "";
+  if (!contentType.includes("application/json")) {
+    return json({ ok: false, error: "This endpoint requires JavaScript." }, 400);
+  }
+
+  let payload: Record<string, unknown>;
+  try {
+    payload = (await request.json()) as Record<string, unknown>;
+  } catch {
+    return json({ ok: false, error: "Could not read the submitted form." }, 400);
+  }
+
+  // Honeypot, same convention as handleTakedown: return a normal-looking
+  // success so a bot doesn't learn to adapt.
+  if (clean(payload.website, 50) !== "") {
+    return json({ ok: true, id: 0 }, 200);
+  }
+
+  const mode = clean(payload.mode, 10).toLowerCase();
+  const eventDate = clean(payload.eventDate, 40);
+  const description = clean(payload.description, MAX_DESCRIPTION);
+  const contact = clean(payload.contact, MAX_SHORT_FIELD);
+  const countryCode = clean((request as { cf?: { country?: string } }).cf?.country, 8) || null;
+  const userAgent = clean(request.headers.get("user-agent"), MAX_SHORT_FIELD) || null;
+
+  if (mode === "url") {
+    const url = clean(payload.url, 2000);
+    let parsed: URL;
+    try {
+      parsed = new URL(url);
+    } catch {
+      return json({ ok: false, error: "Please enter a valid URL." }, 400);
+    }
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      return json({ ok: false, error: "Please enter a valid URL." }, 400);
+    }
+
+    try {
+      const recent = await env.SUBMISSIONS.prepare(
+        "SELECT COUNT(*) AS n FROM video_submissions WHERE created_at > datetime('now', '-1 minute')",
+      ).all<{ n: number }>();
+      if ((recent.results[0]?.n ?? 0) >= MAX_PER_MINUTE) {
+        return json(
+          { ok: false, error: "Too many requests right now. Please try again shortly." },
+          429,
+        );
+      }
+
+      await env.SUBMISSIONS.prepare(
+        `INSERT INTO video_submissions (submission_type, url, event_date, description, contact, ip_country, user_agent)
+         VALUES ('url', ?, ?, ?, ?, ?, ?)`,
+      )
+        .bind(url, eventDate || null, description || null, contact || null, countryCode, userAgent)
+        .run();
+    } catch (error) {
+      console.error("video submission (url) insert failed", error);
+      return json(
+        { ok: false, error: "Something went wrong saving that. Please try again." },
+        500,
+      );
+    }
+
+    return json({ ok: true }, 200);
+  }
+
+  if (mode === "upload") {
+    const mimeType = clean(payload.mimeType, 100).toLowerCase();
+    const filename = clean(payload.filename, MAX_SHORT_FIELD);
+    const fileSize = Number(payload.fileSize);
+
+    if (!UPLOAD_MIME_TYPES.has(mimeType)) {
+      return json(
+        { ok: false, error: "That file type isn't supported. Please upload a video file." },
+        400,
+      );
+    }
+    if (!Number.isFinite(fileSize) || fileSize <= 0 || fileSize > MAX_UPLOAD_BYTES) {
+      return json({ ok: false, error: "That file is too large. The limit is 250MB." }, 400);
+    }
+
+    try {
+      const recentUploads = await env.SUBMISSIONS.prepare(
+        `SELECT COUNT(*) AS n FROM video_submissions
+         WHERE submission_type = 'upload' AND created_at > datetime('now', '-1 minute')`,
+      ).all<{ n: number }>();
+      if ((recentUploads.results[0]?.n ?? 0) >= MAX_UPLOADS_PER_MINUTE) {
+        return json(
+          { ok: false, error: "Too many uploads right now. Please try again shortly." },
+          429,
+        );
+      }
+
+      const daily = await env.SUBMISSIONS.prepare(
+        `SELECT COALESCE(SUM(file_size_bytes), 0) AS total FROM video_submissions
+         WHERE submission_type = 'upload' AND created_at > datetime('now', '-1 day')`,
+      ).all<{ total: number }>();
+      const dailyTotal = daily.results[0]?.total ?? 0;
+      if (dailyTotal + fileSize > MAX_DAILY_UPLOAD_BYTES) {
+        return json(
+          {
+            ok: false,
+            error: "Uploads are at capacity for today. Please try again tomorrow, or share a link instead.",
+          },
+          429,
+        );
+      }
+
+      const inserted = await env.SUBMISSIONS.prepare(
+        `INSERT INTO video_submissions
+           (submission_type, mime_type, original_filename, event_date, description, contact, ip_country, user_agent)
+         VALUES ('upload', ?, ?, ?, ?, ?, ?, ?)`,
+      )
+        .bind(
+          mimeType,
+          filename || null,
+          eventDate || null,
+          description || null,
+          contact || null,
+          countryCode,
+          userAgent,
+        )
+        .run();
+
+      return json({ ok: true, id: inserted.meta.last_row_id }, 200);
+    } catch (error) {
+      console.error("video submission (upload) insert failed", error);
+      return json(
+        { ok: false, error: "Something went wrong saving that. Please try again." },
+        500,
+      );
+    }
+  }
+
+  return json({ ok: false, error: "Unrecognized submission mode." }, 400);
+}
+
+/**
+ * Step 2 of the upload flow: PUT /api/upload/:id streams the raw file into
+ * the private UPLOADS bucket. `id` must reference a row created moments
+ * earlier by handleSubmitVideo with `submission_type = 'upload'` and no
+ * r2_key yet — this makes the endpoint single-use per id, which both stops
+ * an id being replayed to overwrite a file and keeps the daily-byte guard
+ * (checked again here) honest against a race between the two steps.
+ */
+async function handleVideoUpload(request: Request, env: Env, id: number): Promise<Response> {
+  if (request.method !== "PUT") {
+    return json({ ok: false, error: "Method not allowed." }, 405);
+  }
+
+  const origin = request.headers.get("origin");
+  if (origin) {
+    const allowed = new URL(request.url).origin;
+    if (origin !== allowed) {
+      return json({ ok: false, error: "Cross-origin requests are not accepted." }, 403);
+    }
+  }
+
+  if (!Number.isInteger(id) || id <= 0) {
+    return json({ ok: false, error: "Unknown submission." }, 404);
+  }
+
+  // R2's put() requires a stream with a known length (see FixedLengthStream
+  // above), so — unlike the header check elsewhere in this file, which is
+  // just an early-reject optimization — content-length isn't optional here:
+  // a chunked request with no declared length has no length to fix the
+  // stream to, and is rejected rather than buffered to find out.
+  const contentLengthHeader = request.headers.get("content-length");
+  const contentLength = Number(contentLengthHeader);
+  if (!contentLengthHeader || !Number.isInteger(contentLength) || contentLength <= 0) {
+    return json({ ok: false, error: "A file size (content-length) is required." }, 411);
+  }
+  if (contentLength > MAX_UPLOAD_BYTES) {
+    return json({ ok: false, error: "That file is too large. The limit is 250MB." }, 413);
+  }
+
+  const contentType = (request.headers.get("content-type") ?? "").toLowerCase();
+  if (!UPLOAD_MIME_TYPES.has(contentType)) {
+    return json(
+      { ok: false, error: "That file type isn't supported. Please upload a video file." },
+      400,
+    );
+  }
+
+  if (!request.body) {
+    return json({ ok: false, error: "No file was received." }, 400);
+  }
+
+  try {
+    const existing = await env.SUBMISSIONS.prepare(
+      "SELECT submission_type, r2_key FROM video_submissions WHERE id = ?",
+    )
+      .bind(id)
+      .all<{ submission_type: string; r2_key: string | null }>();
+    const row = existing.results[0];
+    if (!row || row.submission_type !== "upload" || row.r2_key !== null) {
+      return json({ ok: false, error: "Unknown submission." }, 404);
+    }
+
+    const daily = await env.SUBMISSIONS.prepare(
+      `SELECT COALESCE(SUM(file_size_bytes), 0) AS total FROM video_submissions
+       WHERE submission_type = 'upload' AND created_at > datetime('now', '-1 day')`,
+    ).all<{ total: number }>();
+    const dailyTotal = daily.results[0]?.total ?? 0;
+    if (dailyTotal + contentLength > MAX_DAILY_UPLOAD_BYTES) {
+      return json(
+        { ok: false, error: "Uploads are at capacity for today. Please try again tomorrow." },
+        429,
+      );
+    }
+
+    const extension = MIME_EXTENSIONS[contentType] ?? "bin";
+    const key = `pending/${id}-${crypto.randomUUID()}.${extension}`;
+
+    // Fix the stream to the declared length (required by put(), see
+    // FixedLengthStream above) while still enforcing the byte cap on what
+    // actually arrives via limitStream — a client that lies and sends more
+    // bytes than it declared gets cut off there rather than trusted.
+    const fixedLength = new FixedLengthStream(contentLength);
+    limitStream(request.body, MAX_UPLOAD_BYTES)
+      .pipeTo(fixedLength.writable)
+      .catch(() => {
+        // Propagates to the put() below via fixedLength.readable erroring;
+        // this catch only exists so the pipeTo promise itself doesn't
+        // surface as an unhandled rejection.
+      });
+
+    await env.UPLOADS.put(key, fixedLength.readable, {
+      httpMetadata: { contentType },
+      customMetadata: { submissionId: String(id) },
+    });
+
+    await env.SUBMISSIONS.prepare(
+      "UPDATE video_submissions SET r2_key = ?, file_size_bytes = ?, mime_type = ? WHERE id = ?",
+    )
+      .bind(key, contentLength, contentType, id)
+      .run();
+  } catch (error) {
+    console.error("video upload failed", error);
+    return json(
+      { ok: false, error: "Something went wrong saving that file. Please try again." },
+      500,
+    );
+  }
+
+  return json({ ok: true }, 200);
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const { pathname } = new URL(request.url);
 
     if (pathname === "/api/takedown") {
       return handleTakedown(request, env);
+    }
+
+    if (pathname === "/api/submit-video") {
+      return handleSubmitVideo(request, env);
+    }
+
+    const uploadMatch = /^\/api\/upload\/(\d+)$/.exec(pathname);
+    if (uploadMatch) {
+      return handleVideoUpload(request, env, Number(uploadMatch[1]));
     }
 
     return env.ASSETS.fetch(request);

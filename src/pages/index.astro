@@ -156,6 +156,119 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
         <a href="/about/">About this archive</a>
       </nav>
     </section>
+
+    <!-- Progressive enhancement: a real <form> that posts JSON via the
+         inline script below. Unlike takedown.astro this has no no-JS
+         fallback — a two-step upload with a progress bar has no sane plain
+         POST equivalent, so /api/submit-video and /api/upload/:id (see
+         src/worker.ts) both just 400 a non-JSON caller. -->
+    <section class="reveal story-block" data-reveal>
+      <h2 class="text-lg font-semibold">Submit a video</h2>
+      <p class="mt-2 text-sm leading-relaxed text-muted">
+        Have footage from that day? Share a link to where you posted it, or
+        upload the raw file directly if you never posted it anywhere.
+      </p>
+
+      <form
+        id="submit-video-form"
+        class="mt-6 flex flex-col gap-5 border-t border-border pt-6"
+      >
+        <div class="flex gap-5 text-sm" role="radiogroup" aria-label="How are you sharing this?">
+          <label class="flex items-center gap-2">
+            <input type="radio" name="submit-mode" value="url" checked />
+            I have a link
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="radio" name="submit-mode" value="upload" />
+            I have raw footage
+          </label>
+        </div>
+
+        <div id="submit-video-url-field" class="flex flex-col gap-1.5">
+          <label for="video-url" class="text-sm font-semibold">Link to the post</label>
+          <input
+            id="video-url"
+            name="url"
+            type="url"
+            placeholder="https://..."
+            class="min-h-11 rounded-lg border border-border bg-surface px-3 text-sm text-text placeholder:text-tertiary"
+          />
+        </div>
+
+        <div id="submit-video-file-field" class="flex flex-col gap-1.5" style="display:none">
+          <label for="video-file" class="text-sm font-semibold">Video file</label>
+          <input
+            id="video-file"
+            name="file"
+            type="file"
+            accept="video/*"
+            class="text-sm text-text file:mr-3 file:min-h-11 file:rounded-lg file:border-0 file:bg-accent file:px-4 file:text-sm file:font-semibold file:text-bg"
+          />
+          <p class="text-xs leading-relaxed text-muted">Up to 250MB.</p>
+          <div id="submit-video-progress-wrap" style="display:none">
+            <div class="h-1.5 w-full overflow-hidden rounded-full bg-surface">
+              <div id="submit-video-progress-bar" class="h-full w-0 bg-accent"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label for="video-event-date" class="text-sm font-semibold">
+            When did this happen? <span class="font-normal text-muted">(optional)</span>
+          </label>
+          <input
+            id="video-event-date"
+            name="eventDate"
+            type="datetime-local"
+            class="min-h-11 rounded-lg border border-border bg-surface px-3 text-sm text-text"
+          />
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label for="video-description" class="text-sm font-semibold">
+            Description <span class="font-normal text-muted">(optional)</span>
+          </label>
+          <textarea
+            id="video-description"
+            name="description"
+            maxlength="2000"
+            rows="4"
+            placeholder="What does this show? Where was it filmed?"
+            class="rounded-lg border border-border bg-surface px-3 py-2 text-sm leading-relaxed text-text placeholder:text-tertiary"
+          ></textarea>
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label for="video-contact" class="text-sm font-semibold">
+            How to reach you <span class="font-normal text-muted">(optional)</span>
+          </label>
+          <input
+            id="video-contact"
+            name="contact"
+            type="text"
+            maxlength="300"
+            placeholder="Email or social handle"
+            class="min-h-11 rounded-lg border border-border bg-surface px-3 text-sm text-text placeholder:text-tertiary"
+          />
+        </div>
+
+        {/* Honeypot. Hidden from people, filled in by bots — see src/worker.ts. */}
+        <div class="hp" aria-hidden="true">
+          <label for="video-website">Leave this field empty</label>
+          <input id="video-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <button
+            type="submit"
+            class="min-h-11 rounded-lg bg-accent px-4 text-sm font-semibold text-bg"
+          >
+            Submit video
+          </button>
+          <p id="submit-video-status" role="status" aria-live="polite" class="text-sm"></p>
+        </div>
+      </form>
+    </section>
   </div>
 </Base>
 
@@ -449,6 +562,20 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
     text-decoration: underline;
   }
 
+  /* --- "Submit a video" form ------------------------------------------- */
+
+  /* Off-screen rather than display:none — some bots skip inputs that are
+     display:none, but will happily fill one that is merely positioned away.
+     Same trick as takedown.astro's own .hp; duplicated here rather than
+     shared because Astro scopes <style> per component. */
+  .hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
   /* Progressive enhancement: sections are visible by default (this rule is
      NOT inside a prefers-reduced-motion or JS-only gate). landing.ts only
      ever ADDS a class that hides them again for the staged-reveal
@@ -477,3 +604,172 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
 </style>
 
 <script src="../scripts/landing.ts"></script>
+
+<script>
+  const MAX_UPLOAD_BYTES = 250 * 1024 * 1024;
+
+  function initSubmitVideoForm() {
+    const form = document.getElementById("submit-video-form");
+    if (!(form instanceof HTMLFormElement)) return;
+    if (form.dataset.enhanced === "true") return;
+    form.dataset.enhanced = "true";
+
+    const urlField = document.getElementById("submit-video-url-field");
+    const fileField = document.getElementById("submit-video-file-field");
+    const progressWrap = document.getElementById("submit-video-progress-wrap");
+    const progressBar = document.getElementById("submit-video-progress-bar");
+    const status = document.getElementById("submit-video-status");
+    const button = form.querySelector('button[type="submit"]');
+    const fileInput = document.getElementById("video-file");
+    const urlInput = document.getElementById("video-url");
+
+    function currentMode(): string {
+      const checked = form!.querySelector('input[name="submit-mode"]:checked');
+      return checked instanceof HTMLInputElement ? checked.value : "url";
+    }
+
+    function syncMode() {
+      const mode = currentMode();
+      if (urlField instanceof HTMLElement) urlField.style.display = mode === "url" ? "flex" : "none";
+      if (fileField instanceof HTMLElement) fileField.style.display = mode === "upload" ? "flex" : "none";
+      // Only the field for the active mode should be required/validated.
+      if (urlInput instanceof HTMLInputElement) urlInput.required = mode === "url";
+      if (fileInput instanceof HTMLInputElement) fileInput.required = mode === "upload";
+    }
+
+    form.querySelectorAll('input[name="submit-mode"]').forEach((input) => {
+      input.addEventListener("change", syncMode);
+    });
+    syncMode();
+
+    function setStatus(text: string) {
+      if (status) status.textContent = text;
+    }
+
+    function setBusy(busy: boolean, label?: string) {
+      if (!(button instanceof HTMLButtonElement)) return;
+      button.disabled = busy;
+      if (label) button.textContent = label;
+    }
+
+    function fieldValue(id: string): string {
+      const el = document.getElementById(id);
+      return el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement ? el.value : "";
+    }
+
+    function uploadFile(id: number, file: File): Promise<void> {
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("PUT", `/api/upload/${id}`);
+        xhr.setRequestHeader("content-type", file.type);
+        xhr.upload.addEventListener("progress", (event) => {
+          if (event.lengthComputable && progressBar instanceof HTMLElement) {
+            progressBar.style.width = `${Math.round((event.loaded / event.total) * 100)}%`;
+          }
+        });
+        xhr.addEventListener("load", () => {
+          if (xhr.status >= 200 && xhr.status < 300) resolve();
+          else reject(new Error("upload failed"));
+        });
+        xhr.addEventListener("error", () => reject(new Error("upload failed")));
+        xhr.send(file);
+      });
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!form.reportValidity()) return;
+
+      const mode = currentMode();
+      const eventDate = fieldValue("video-event-date");
+      const description = fieldValue("video-description");
+      const contact = fieldValue("video-contact");
+      const website = fieldValue("video-website");
+
+      setStatus("");
+      setBusy(true, "Sending…");
+
+      try {
+        if (mode === "url") {
+          const response = await fetch("/api/submit-video", {
+            method: "POST",
+            headers: { "content-type": "application/json", accept: "application/json" },
+            body: JSON.stringify({
+              mode: "url",
+              url: fieldValue("video-url"),
+              eventDate,
+              description,
+              contact,
+              website,
+            }),
+          });
+          const result = (await response.json()) as { ok?: boolean; error?: string };
+
+          if (response.ok && result.ok) {
+            form.reset();
+            syncMode();
+            setStatus("Thank you — this will be reviewed.");
+            setBusy(false, "Sent");
+            return;
+          }
+          setStatus(result.error ?? "Something went wrong. Please try again.");
+          setBusy(false, "Submit video");
+          return;
+        }
+
+        // Upload mode: create the row first, then stream the file in.
+        const file = fileInput instanceof HTMLInputElement ? fileInput.files?.[0] : undefined;
+        if (!file) {
+          setStatus("Please choose a file to upload.");
+          setBusy(false, "Submit video");
+          return;
+        }
+        if (file.size > MAX_UPLOAD_BYTES) {
+          setStatus("That file is too large. The limit is 250MB.");
+          setBusy(false, "Submit video");
+          return;
+        }
+
+        const createResponse = await fetch("/api/submit-video", {
+          method: "POST",
+          headers: { "content-type": "application/json", accept: "application/json" },
+          body: JSON.stringify({
+            mode: "upload",
+            eventDate,
+            description,
+            contact,
+            website,
+            filename: file.name,
+            mimeType: file.type,
+            fileSize: file.size,
+          }),
+        });
+        const created = (await createResponse.json()) as { ok?: boolean; error?: string; id?: number };
+
+        if (!createResponse.ok || !created.ok || !created.id) {
+          setStatus(created.error ?? "Something went wrong. Please try again.");
+          setBusy(false, "Submit video");
+          return;
+        }
+
+        if (progressWrap instanceof HTMLElement) progressWrap.style.display = "block";
+        await uploadFile(created.id, file);
+
+        form.reset();
+        syncMode();
+        if (progressWrap instanceof HTMLElement) progressWrap.style.display = "none";
+        if (progressBar instanceof HTMLElement) progressBar.style.width = "0%";
+        setStatus("Thank you — this will be reviewed.");
+        setBusy(false, "Sent");
+      } catch {
+        if (progressWrap instanceof HTMLElement) progressWrap.style.display = "none";
+        setStatus("Could not reach the server. Please check your connection and try again.");
+        setBusy(false, "Submit video");
+      }
+    });
+  }
+
+  initSubmitVideoForm();
+  // Astro's ClientRouter swaps documents without a full reload.
+  document.addEventListener("astro:page-load", initSubmitVideoForm);
+</script>

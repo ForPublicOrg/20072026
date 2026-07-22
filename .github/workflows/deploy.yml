@@ -60,6 +60,7 @@ jobs:
           accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
           command: |
             d1 migrations apply blackdays-takedowns-staging --env staging --remote
+            d1 migrations apply blackdays-video-submissions-staging --env staging --remote
             deploy --env staging
       - name: Comment preview URL on PR
         uses: marocchino/sticky-pull-request-comment@v2
@@ -69,6 +70,8 @@ jobs:
             Staging deploy ready: https://staging.20072026.com
 
             DB: `blackdays-takedowns-staging` (isolated from production takedowns data)
+            DB: `blackdays-video-submissions-staging` (isolated from production video submissions)
+            R2: `blackdays-uploads-staging` (isolated from production uploads)
 
   deploy-production:
     needs: build
@@ -96,4 +99,5 @@ jobs:
           accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
           command: |
             d1 migrations apply blackdays-takedowns --remote
+            d1 migrations apply blackdays-video-submissions --remote
             deploy --env=""
