@@ -149,14 +149,6 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
       </p>
     </section>
 
-    <section class="reveal story-block story-block--closing" data-reveal>
-      <a href="/feed" class="cta-primary">Show me proof</a>
-      <nav class="secondary-links" aria-label="More about this archive">
-        <a href="/timeline/">Read the timeline</a>
-        <a href="/about/">About this archive</a>
-      </nav>
-    </section>
-
     <!-- Progressive enhancement: a real <form> that posts JSON via the
          inline script below. Unlike takedown.astro this has no no-JS
          fallback — a two-step upload with a progress bar has no sane plain
@@ -525,14 +517,6 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
     color: var(--color-muted);
   }
 
-  .story-block--closing {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
-    text-align: center;
-  }
-
   .counts {
     margin-top: 1rem;
     font-size: 0.8125rem;
@@ -544,22 +528,6 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
     margin-top: 0.3rem;
     font-size: 0.75rem;
     color: var(--color-tertiary);
-  }
-
-  .secondary-links {
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    font-size: 0.8125rem;
-  }
-
-  .secondary-links a {
-    color: var(--color-link);
-    text-decoration: none;
-  }
-
-  .secondary-links a:hover {
-    text-decoration: underline;
   }
 
   /* --- "Submit a video" form ------------------------------------------- */
