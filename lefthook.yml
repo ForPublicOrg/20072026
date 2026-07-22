@@ -2,3 +2,13 @@ pre-commit:
   commands:
     gitleaks:
       run: gitleaks protect --staged --verbose
+
+# Unit tests only — they run in well under a second and catch a broken
+# src/data/*.json or src/lib/schema.ts edit before it's even pushed.
+# Integration/e2e tests need a build + a local Workers runtime + a browser,
+# so they stay CI-only (see .github/workflows/deploy.yml) rather than
+# slowing down every push.
+pre-push:
+  commands:
+    unit-tests:
+      run: npm run test:unit
