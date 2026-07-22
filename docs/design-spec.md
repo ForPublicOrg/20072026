@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-21
 **Status:** Approved
-**Domain:** blackdays.in
+**Domain:** 20072026.com
 
 ## 1. What this is
 
@@ -15,10 +15,10 @@ This spec refines `initial-doc.md` with the concrete decisions made on 2026-07-2
 | Decision | Choice | Why |
 |---|---|---|
 | Hosting | Cloudflare **Workers static assets** | Pages is in maintenance mode; Workers is Cloudflare's current direction, same free CDN, one-command deploy |
-| Domain | **blackdays.in** (registered at Namecheap) | Move DNS to a free Cloudflare zone; attach custom domain to the Worker. Site is live on `*.workers.dev` immediately |
+| Domain | **20072026.com** (already an active Cloudflare zone) | Attach custom domain to the Worker directly; no nameserver move needed |
 | Launch content | **Sample data** + working pipeline | No real content collected yet; sample entries are unmistakably labeled so credibility is never compromised |
 | Day-1 scope | Hero + feed, `/video/:id` pages, timeline | Individual pages with OG tags are what make shared links render rich previews — essential for spread |
-| Media storage | Site assets (day 1) → **R2** (`media.blackdays.in`) | Zero egress fees; a single `MEDIA_BASE` config switches without data rewrites |
+| Media storage | Site assets (day 1) → **R2** (`media.20072026.com`) | Zero egress fees; a single `MEDIA_BASE` config switches without data rewrites |
 
 ## 3. Architecture
 
@@ -97,7 +97,7 @@ Cloudflare Worker (static assets)  +  R2 (real media, later)
 
 **`videos.json` real vs. sample (updated 2026-07-21):** the eight `sample: true` placeholder entries and their media (`public/media/videos/video-001.mp4` … `video-008.mp4` and matching thumbnails) were deleted once real footage existed to replace them. Five real entries remain (`video-009` … `video-013`). The `sample` field itself is still part of the schema and still supported end-to-end (build validation, the `/video/[id]` placeholder banner, the landing page's sample count) — there just isn't any data using it right now. See `docs/content-pipeline.md`.
 
-**`MEDIA_BASE`**: single constant in `src/config.ts`. Day 1 it is `/media/` (site assets); when R2 is live it becomes `https://media.blackdays.in/`. Data files never change.
+**`MEDIA_BASE`**: single constant in `src/config.ts`. Day 1 it is `/media/` (site assets); when R2 is live it becomes `https://media.20072026.com/`. Data files never change.
 
 ## 6. Verification levels
 

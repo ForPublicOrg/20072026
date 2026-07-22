@@ -67,7 +67,7 @@ Generates 8 placeholder video entries (plus its own placeholder timeline entries
 
 - Clips: `ffmpeg -f lavfi -i "color=c=<dark color>:s=720x1280:d=8" -vf "drawtext=text='SAMPLE':fontsize=96:fontcolor=white:x=(w-tw)/2:y=(h-th)/2" -c:v libx264 -crf 30 -pix_fmt yuv420p` — 8s, distinct dark colors, big "SAMPLE" watermark. No audio track.
 - Thumbnails extracted from frame 1 as in the main pipeline.
-- Entries: varied realistic-shaped metadata (different dates/times, locations, tags, all five verification statuses represented at least once), every title prefixed `[SAMPLE]`, `"sample": true`, `source.url` pointing at `https://blackdays.in/about` (not a fake external link).
+- Entries: varied realistic-shaped metadata (different dates/times, locations, tags, all five verification statuses represented at least once), every title prefixed `[SAMPLE]`, `"sample": true`, `source.url` pointing at `https://20072026.com/about` (not a fake external link).
 - Output to `public/media/{videos,thumbnails}/` and `src/data/videos.json` + a matching sample `timeline.json` (6–8 events referencing the sample ids).
 
 Sample media lives in the site's own assets (`public/media/`), so day 1 needs no R2. Real media later goes to R2 and `MEDIA_BASE` flips (see below).
@@ -76,7 +76,7 @@ Sample media lives in the site's own assets (`public/media/`), so day 1 needs no
 
 `src/config.ts` exports `MEDIA_BASE`:
 - Day 1: `"/media/"` (served from `public/media/`)
-- After R2 cutover: `"https://media.blackdays.in/"`
+- After R2 cutover: `"https://media.20072026.com/"`
 
 All `media.video` / `media.thumbnail` paths in JSON are relative; components join them with `MEDIA_BASE`. Cutover = upload files to R2 bucket `blackdays-media`, change one constant, delete `public/media/`, redeploy.
 

@@ -1,6 +1,6 @@
 # Black Days — Execution Plan
 
-**Date:** 2026-07-21 · Goal: live at blackdays.in today.
+**Date:** 2026-07-21 · Goal: live at 20072026.com today.
 
 ## Phase 1 — Launch day (today)
 
@@ -11,14 +11,14 @@
 5. **Site** — hero + feed (IntersectionObserver autoplay), `/video/[id]` (OG meta, related videos), `/timeline`, `/about`, 404, sitemap.
 6. **Pipeline** — `scripts/collect.mjs <url>`: download → compress → thumbnail → metadata → dedupe → append to `videos.json`.
 7. **Deploy** — `npm run deploy` → verify on `*.workers.dev` (feed behavior, video page OG tags via curl, timeline, mobile viewport).
-8. **Domain** — add `blackdays.in` zone to Cloudflare, create R2 bucket `blackdays-media`, attach custom domain to Worker. **User action:** set the two Cloudflare nameservers at Namecheap.
+8. **Domain** — attach custom domain to Worker on the already-owned `20072026.com` zone, create R2 bucket `blackdays-media`.
 
 **Definition of done (today):** live URL serving the full experience; one real URL successfully collected through the pipeline; nameserver instructions delivered.
 
 ## Phase 2 — First real content (this week)
 
 - Collect real public media via the pipeline; review each entry's metadata and description.
-- Move media to R2 (`media.blackdays.in`), flip `MEDIA_BASE`, delete sample entries.
+- Move media to R2 (`media.20072026.com`), flip `MEDIA_BASE`, delete sample entries.
 - Apply verification policy to each item; write the real timeline from corroborated sources.
 - Client-side filtering: tag, location, date, platform, verification status (small static index, no backend).
 
