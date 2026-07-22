@@ -39,7 +39,7 @@ wrangler r2 object put blackdays-media/thumbnails/video-NNN.jpg --file media/thu
 
 ## Adding many videos at once: `node scripts/collect-batch.mjs <csv-path>`
 
-Wraps `collect.mjs`, one child process per URL, strictly serial (never concurrent — see the hard rules at the top of the script). Takes a CSV with columns **Link, Status, VideoId, Notes**; this file (e.g. `20072026 - Sheet1.csv` at the repo root) is both the input queue and the durable status log — Raj appends new links to the same file over time, leaving `Status` blank on new rows.
+Wraps `collect.mjs`, one child process per URL, strictly serial (never concurrent — see the hard rules at the top of the script). Takes a CSV with columns **Link, Status, VideoId, Notes**; this file (e.g. `20072026 - Sheet1.csv` at the repo root) is both the input queue and the durable status log — the maintainer appends new links to the same file over time, leaving `Status` blank on new rows.
 
 `Status` per row:
 - **blank** — never attempted; this run will try it.

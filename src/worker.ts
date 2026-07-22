@@ -83,12 +83,29 @@ const CONFIRMATION_HTML = `<!doctype html>
 <p><a href="/">Return to the archive</a></p>
 </main></body></html>`;
 
+// public/_headers only covers static-asset responses — anything returned
+// directly from this Worker (this file's json() responses, and the no-JS
+// CONFIRMATION_HTML below) bypasses it entirely, confirmed by testing
+// against a local wrangler dev server. Applied by hand here so /api/takedown
+// isn't the one unprotected corner of the site.
+const SECURITY_HEADERS: Record<string, string> = {
+  "x-content-type-options": "nosniff",
+  "x-frame-options": "DENY",
+  "referrer-policy": "strict-origin-when-cross-origin",
+  "permissions-policy":
+    "geolocation=(), microphone=(), camera=(), payment=(), usb=(), browsing-topics=(), interest-cohort=()",
+  "strict-transport-security": "max-age=63072000; includeSubDomains",
+  "cross-origin-opener-policy": "same-origin",
+  "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'",
+};
+
 function json(body: unknown, status: number): Response {
   return new Response(JSON.stringify(body), {
     status,
     headers: {
       "content-type": "application/json; charset=utf-8",
       "cache-control": "no-store",
+      ...SECURITY_HEADERS,
     },
   });
 }
@@ -198,7 +215,11 @@ async function handleTakedown(request: Request, env: Env): Promise<Response> {
   if (!accept.includes("application/json")) {
     return new Response(CONFIRMATION_HTML, {
       status: 200,
-      headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" },
+      headers: {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "no-store",
+        ...SECURITY_HEADERS,
+      },
     });
   }
 

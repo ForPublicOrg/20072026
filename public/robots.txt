@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://20072026.com/sitemap-index.xml
