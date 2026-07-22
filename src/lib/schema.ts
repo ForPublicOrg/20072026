@@ -73,6 +73,7 @@ export type StatementKind =
   | "address"
   | "press"
   | "parliament"
+  | "court"
   | "interview";
 
 const STATEMENT_KINDS: readonly StatementKind[] = [
@@ -80,6 +81,7 @@ const STATEMENT_KINDS: readonly StatementKind[] = [
   "address",
   "press",
   "parliament",
+  "court",
   "interview",
 ];
 
