@@ -155,8 +155,12 @@ run("yt-dlp", [
   // transcoded. Instagram and X serve VP9 by default, which is ~2x more efficient
   // than H.264 — converting it necessarily inflates the file (one 1.92MiB VP9 reel
   // became 8.88MiB as H.264). Taking the platform's own H.264 rendition keeps the
-  // file small AND universally playable. Falls back to any format if none exists.
-  "bv*[height<=1080][vcodec^=avc1]+ba/b[height<=1080][vcodec^=avc1]/bv*[height<=1080]+ba/b[height<=1080]",
+  // file small AND universally playable. Falls back to any <=1080p rendition, then
+  // (some portrait reels' smallest DASH stream is already >1080px tall, with no
+  // avc1 or sub-1080 option at all) to whatever's available, so a valid post never
+  // hard-fails purely on this filter — reencode() below still caps the output at
+  // 720px wide regardless of what was fetched here.
+  "bv*[height<=1080][vcodec^=avc1]+ba/b[height<=1080][vcodec^=avc1]/bv*[height<=1080]+ba/b[height<=1080]/bv*+ba/b",
   "--no-playlist",
   "-o",
   path.join(tmpDir, "raw.%(ext)s"),
