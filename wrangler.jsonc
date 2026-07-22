@@ -23,5 +23,33 @@
   // Served from an existing zone in the account, so no workers.dev subdomain is
   // needed. Cloudflare creates and manages the DNS record for a custom_domain
   // route automatically. Swap to blackdays.in once that zone is added.
-  "routes": [{ "pattern": "20072026.com", "custom_domain": true }]
+  "routes": [{ "pattern": "20072026.com", "custom_domain": true }],
+
+  // Staging environment used by CI on every pull request (see
+  // .github/workflows/deploy.yml and .claude/skills/deploy/SKILL.md).
+  "env": {
+    "staging": {
+      "name": "blackdays-staging",
+      // `main`, `assets`, `compatibility_date` are inheritable — no need to
+      // repeat them. `d1_databases` is a binding (non-inheritable) and MUST
+      // get its own database so test takedown submissions never land in the
+      // production table. `routes` is inheritable and MUST be explicitly
+      // overridden here — left unset, it would silently reattach the live
+      // 20072026.com custom domain to this Worker on every staging deploy
+      // (see cloudflare/workers-sdk#13925). Deliberately NOT using
+      // `workers_dev: true` here: this account has never registered a
+      // workers.dev subdomain (skipped on purpose when the site was first
+      // set up — it's a one-time, permanent, account-wide registration) and
+      // staging shouldn't be the thing that triggers it. staging.20072026.com
+      // is a route on the zone we already own instead.
+      "routes": [{ "pattern": "staging.20072026.com", "custom_domain": true }],
+      "d1_databases": [
+        {
+          "binding": "TAKEDOWNS",
+          "database_name": "blackdays-takedowns-staging",
+          "database_id": "386ab281-46e3-45a5-9d24-3a1a489fb771"
+        }
+      ]
+    }
+  }
 }
