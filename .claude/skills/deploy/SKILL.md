@@ -1,6 +1,6 @@
 ---
 name: deploy
-description: Use when deploying the 20072026.com site, onboarding a new contributor, verifying a staging or production deploy, or rolling back a bad production deploy.
+description: Use when deploying the 20072026.com site, onboarding a new contributor, running or debugging the test suite, verifying a staging or production deploy, or rolling back a bad production deploy.
 ---
 
 # Deploy
@@ -43,12 +43,15 @@ If any unchecked item is still open, CI will fail on `deploy-staging`/`deploy-pr
 
 ## 3. Day-to-day flow
 
-1. Branch off `main`, make changes, commit (pre-commit hook runs gitleaks automatically)
-2. `git push`, `gh pr create` targeting `main`
-3. CI builds and deploys to `blackdays-staging`; check the PR for a "Staging deploy ready" comment with the preview URL
-4. Verify on staging (commands below) — including that a test takedown submission lands in `blackdays-takedowns-staging`, and a test video submission (link or upload) lands in `blackdays-video-submissions-staging` / `blackdays-uploads-staging` — **never** the production table/bucket
-5. Merge the PR
-6. CI deploys production automatically; verify prod the same way
+1. Branch off `main`, make changes, commit (pre-commit hook runs gitleaks automatically; pre-push runs `npm run test:unit`)
+2. Run `npm test` locally before pushing if you touched `src/worker.ts`, `src/lib/schema.ts`, or any page — this is exactly what CI's `test` job runs
+3. `git push`, `gh pr create` targeting `main`
+4. CI runs `build` and `test` (unit + integration + e2e) in parallel; `deploy-staging` only starts once **both** succeed, and deploys to `blackdays-staging`; check the PR for a "Staging deploy ready" comment with the preview URL
+5. Verify on staging (commands below) — including that a test takedown submission lands in `blackdays-takedowns-staging`, and a test video submission (link or upload) lands in `blackdays-video-submissions-staging` / `blackdays-uploads-staging` — **never** the production table/bucket
+6. Merge the PR
+7. CI re-runs `build` + `test`, then `deploy-production` deploys automatically; verify prod the same way
+
+If `deploy-staging`/`deploy-production` didn't run at all, check the `test` job first — a failing test blocks both deploys by design (see §6 Testing below).
 
 ## 4. Verification commands
 
@@ -83,7 +86,19 @@ npx wrangler tail blackdays-staging   # or: npx wrangler tail blackdays
 - Otherwise: revert the bad commit on `main` and push — CI redeploys automatically
 - D1 has no down-migrations here — fix a bad migration forward with a new migration file, don't try to undo one
 
-## 6. Gotchas (full detail in `docs/content-pipeline.md`)
+## 6. Testing
+
+Three layers — `npm test` runs all of them, same as CI's `test` job:
+
+- `npm run test:unit` — Vitest, pure logic (`src/lib/schema.ts` content validation). Also the pre-push hook.
+- `npm run test:integration` — Vitest + `@cloudflare/vitest-pool-workers`; runs `src/worker.ts` in a real local Workers runtime against local D1/R2. Covers `/api/takedown`, `/api/submit-video`, `/api/upload/:id`.
+- `npm run test:e2e` — Playwright against `wrangler dev` (not `astro preview` — preview can't serve the API routes). Covers the feed, video pages, timeline, and the takedown form actually submitting, in a real browser.
+
+First time only: `npx playwright install --with-deps chromium`.
+
+A failing test on any layer blocks both `deploy-staging` and `deploy-production` (`needs: [build, test]` in the workflow) — this is the mechanism that keeps a regression from ever reaching either environment.
+
+## 7. Gotchas (full detail in `docs/content-pipeline.md`)
 
 - Build validation rejects any content entry still containing a literal `TODO` field
 - `scripts/collect.mjs` writes new media to `public/media/`, which is stale/unserved since the R2 cutover — push new media manually: `wrangler r2 object put blackdays-media/<key> --file <path> --remote`

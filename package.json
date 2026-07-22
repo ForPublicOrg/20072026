@@ -14,7 +14,11 @@
     "collect": "node scripts/collect.mjs",
     "admin-requests": "node scripts/admin-requests.mjs",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "test:unit": "vitest run --config vitest.config.ts",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:e2e": "playwright test",
+    "test": "npm run test:unit && npm run test:integration && npm run test:e2e"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
@@ -23,7 +27,10 @@
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.18.7",
+    "@playwright/test": "^1.61.1",
     "lefthook": "^2.1.10",
+    "vitest": "^4.1.10",
     "wrangler": "^4.112.0"
   }
 }

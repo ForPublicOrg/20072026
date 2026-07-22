@@ -15,3 +15,8 @@ archive-originals/
 # media. Files stay on disk here as a local working copy; not committed.
 /media/
 .DS_Store
+
+# Test artifacts
+test-results/
+playwright-report/
+blob-report/
