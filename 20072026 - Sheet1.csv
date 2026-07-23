@@ -50,7 +50,7 @@ https://www.instagram.com/reel/DbDJYO_xEoI/,published,video-052,
 https://www.instagram.com/reel/DbBWIndMXO8/,published,video-053,
 https://www.instagram.com/reel/DbCpN6oKSZL/,published,video-054,
 https://www.instagram.com/reel/DbDUgM8TpCi/,published,video-055,
-https://www.instagram.com/reel/DbCYBG2v0cQ/,failed,,"Command failed: yt-dlp --dump-json --no-playlist https://www.instagram.com/reel/DbCYBG2v0cQ/ | ERROR: [Instagram] DbCYBG2v0cQ: Instagram sent an empty media response. Check if this post is accessible in your browser without being logged-in. If it is not, then use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Otherwise, if the post is accessible in browser without being logged-in, please report this issue on  https://github.com/yt-dlp/yt-dlp/issues?q= , filling out the appropriate issue template. Confirm you are on the latest version using  yt-dlp -U"
+https://www.instagram.com/reel/DbCYBG2v0cQ/,ignored,,"Command failed: yt-dlp --dump-json --no-playlist https://www.instagram.com/reel/DbCYBG2v0cQ/ | ERROR: [Instagram] DbCYBG2v0cQ: Instagram sent an empty media response. Check if this post is accessible in your browser without being logged-in. If it is not, then use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Otherwise, if the post is accessible in browser without being logged-in, please report this issue on  https://github.com/yt-dlp/yt-dlp/issues?q= , filling out the appropriate issue template. Confirm you are on the latest version using  yt-dlp -U (skipped via admin-tui)"
 https://www.instagram.com/reel/Dajv5oEMiuJ/,ignored,,"Out of scope: July 9 2026 commentary about Uttar Pradesh Police / Yogi Adityanath, filmed indoors, unrelated to the July 20 protest (uploader's own caption + pre-dated upload confirm this)"
 https://www.instagram.com/reel/DbA_21QNZgC/,published,video-056,
 https://www.instagram.com/reel/DbBMml9TrAS/,ignored,,"Instagram: audience-restricted (""can't be seen by certain audiences""), not fetchable unauthenticated"
@@ -79,7 +79,7 @@ https://www.instagram.com/reel/DbBrr2ty3mR/,published,video-071,
 https://www.instagram.com/reel/DbBBIxmvcog/,published,video-103,
 https://www.instagram.com/reel/DbBakM4vy35/,published,video-104,
 https://www.instagram.com/reel/DbBAhWDzBYf/,published,video-072,
-https://www.instagram.com/reel/DbBOLWoz1eL/,failed,,"Command failed: yt-dlp --dump-json --no-playlist https://www.instagram.com/reel/DbBOLWoz1eL/ | ERROR: [Instagram] DbBOLWoz1eL: Instagram sent an empty media response. Check if this post is accessible in your browser without being logged-in. If it is not, then use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Otherwise, if the post is accessible in browser without being logged-in, please report this issue on  https://github.com/yt-dlp/yt-dlp/issues?q= , filling out the appropriate issue template. Confirm you are on the latest version using  yt-dlp -U"
+https://www.instagram.com/reel/DbBOLWoz1eL/,ignored,,"Command failed: yt-dlp --dump-json --no-playlist https://www.instagram.com/reel/DbBOLWoz1eL/ | ERROR: [Instagram] DbBOLWoz1eL: Instagram sent an empty media response. Check if this post is accessible in your browser without being logged-in. If it is not, then use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Otherwise, if the post is accessible in browser without being logged-in, please report this issue on  https://github.com/yt-dlp/yt-dlp/issues?q= , filling out the appropriate issue template. Confirm you are on the latest version using  yt-dlp -U (skipped via admin-tui)"
 https://www.instagram.com/reel/DbBPGTexM3x/,published,video-073,
 https://www.instagram.com/reel/DbBlBKQTYLh/,published,video-074,
 https://www.instagram.com/reel/DbB4alLzKgi/,published,video-075,
@@ -96,7 +96,7 @@ https://www.instagram.com/reel/DbCvH50RZ12/,published,video-085,
 https://www.instagram.com/reel/DbBKwaQKr4y/,published,video-086,
 https://www.instagram.com/reel/DbDTeOZojpM/,published,video-087,
 https://www.instagram.com/reel/DbAWvzvzRS9/,published,video-088,
-https://www.instagram.com/reel/DbArB-nuRCp/,failed,,"Command failed: yt-dlp --dump-json --no-playlist https://www.instagram.com/reel/DbArB-nuRCp/ | WARNING: [Instagram] DbArB-nuRCp: Instagram API is not granting access | ERROR: [Instagram] DbArB-nuRCp: Instagram sent an empty media response. Check if this post is accessible in your browser without being logged-in. If it is not, then use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Otherwise, if the post is accessible in browser without being logged-in, please report this issue on  https://github.com/yt-dlp/yt-dlp/issues?q= , filling out the appropriate issue template. Confirm you are on the latest version using  yt-dlp -U"
+https://www.instagram.com/reel/DbArB-nuRCp/,ignored,,"Command failed: yt-dlp --dump-json --no-playlist https://www.instagram.com/reel/DbArB-nuRCp/ | WARNING: [Instagram] DbArB-nuRCp: Instagram API is not granting access | ERROR: [Instagram] DbArB-nuRCp: Instagram sent an empty media response. Check if this post is accessible in your browser without being logged-in. If it is not, then use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Otherwise, if the post is accessible in browser without being logged-in, please report this issue on  https://github.com/yt-dlp/yt-dlp/issues?q= , filling out the appropriate issue template. Confirm you are on the latest version using  yt-dlp -U (skipped via admin-tui)"
 https://www.instagram.com/reel/DbBTTWgzcvg/,ignored,,"Instagram: audience-restricted (""can't be seen by certain audiences""), not fetchable unauthenticated"
 https://www.instagram.com/reel/DbBrySJTl7X/,published,video-089,
 https://www.instagram.com/reel/DbA4VETIuOR/,published,video-090,
@@ -105,29 +105,33 @@ https://x.com/i/status/2079401634954911866/,ignored,,yt-dlp: no video in this tw
 https://www.instagram.com/reel/DbCogNDofMA/,ignored,,"Misattributed: Getty-watermarked 1930s independence-movement stock footage per uploader's own caption -- not from this protest, excluded from the archive"
 https://www.instagram.com/p/DbDORLUPTk1/,ignored,,yt-dlp: no video in this post (photo only)
 https://www.instagram.com/reel/DbEI79RASVa/,published,video-093,
-https://www.instagram.com/reel/DbFtFCypmcS/,,,PeekTV @peektv_in #PeekOnGround - interview with the Nagpur protester from the viral lathicharge video (22 Jul)
-https://www.instagram.com/reel/DbFLaczTDpB/,,,PeekTV @peektv_in #PeekOnGround - lathicharge victim Aniket Patil interview shot day after the march (22 Jul)
-https://www.instagram.com/reel/DbFZlfPOMYj/,,,PeekTV @peektv_in - own aftermath footage of police vehicles damaged during the march (22 Jul)
-https://www.instagram.com/reel/DbFVXaOOXDB/,,,PeekTV @peektv_in #PeekOnGround - field interview with journalist Mandeep Punia on police stone-pelting (22 Jul)
-https://www.instagram.com/reel/DbFoNR5tnTp/,,,PeekTV @peektv_in #PeekOnGround - second Mandeep Punia field interview on the violence (22 Jul)
-https://www.instagram.com/reel/Da-vXTTJPOn/,,,NewsPinch @thenewspinch - ground interview with bereaved father from Gujarat after Wangchuk removal (19 Jul)
-https://www.instagram.com/reel/DbFxQgiFTDM/,,,NewsPinch @thenewspinch - Jantar Mantar vox-pop: we are having to protest for education (22 Jul)
-https://www.instagram.com/reel/DbFvO_NAsyL/,,,NewsPinch @thenewspinch - ground feature: food deliveries ordered to the sit-in from across India (22 Jul)
-https://www.instagram.com/reel/DbAI50_vH1K/,,,Newslaundry Hindi @newslaundryhindi - raw march-day footage: welded barricades toppled at Jantar Mantar (20 Jul)
-https://x.com/newslaundry/status/2079155452513018275/,,,Newslaundry on X - ground interview during crackdown: Ballia student on trapped protesters and plainclothes police (20 Jul)
-https://x.com/newslaundry/status/2079175349217423452/,,,Newslaundry on X - student responds to disorganised-protest framing; swimming goggles against tear gas (20 Jul)
-https://x.com/newslaundry/status/2079178386707243372/,,,Newslaundry on X - injured young protester interviewed on the road during the crackdown (20 Jul)
-https://www.youtube.com/watch/,,,Molitics YouTube - Nivedita ground report: lathi bruises and fractures at Jantar Mantar (21 Jul)
-https://www.youtube.com/watch/,,,Molitics YouTube - Nivedita 24-hours-after ground report from Jantar Mantar (21 Jul)
-https://www.youtube.com/watch/,,,The Wire YouTube - Atul Howale on-location interviews with lathicharge victims (22 Jul)
-https://www.youtube.com/watch/,,,The Wire YouTube - rebuilt Jantar Mantar site and opposition detention scene coverage (21 Jul)
-https://www.instagram.com/reel/Da_5VNTPesx/,,,Mojo Story @barkha.dutt x @themojostory - Barkha Dutt at rain-hit Jantar Mantar ahead of the march (19-20 Jul)
-https://www.youtube.com/watch/,,,Mojo Story YouTube - Shashi Tharoor talks to injured protesters (21 Jul)
-https://x.com/prabhatkhabar/status/2079911386990477489/,,,Prabhat Khabar on X - Patna: interview with student injured in lathicharge bleeding from the eye (22 Jul)
-https://x.com/prabhatkhabar/status/2079901273294549245/,,,Prabhat Khabar on X - Patna: police identifying and detaining stone-pelters after the protest (22 Jul)
-https://www.youtube.com/watch/,,,Prabhat Khabar YouTube - LIVE from Dakbangla crossing after the Patna lathicharge (22 Jul)
-https://www.youtube.com/watch/,,,Prabhat Khabar YouTube - Patna raw scene: girl confronting SSB jawan as lathicharge begins (22 Jul)
-https://www.youtube.com/watch/,,,Prabhat Khabar YouTube - Patna: injured police jawan gives his own account on location (22 Jul)
-https://www.youtube.com/watch/,,,Prabhat Khabar YouTube - self-labelled Ground Report from Jantar Mantar: volunteers and free food (22 Jul)
-https://www.youtube.com/watch/,,,Prabhat Khabar YouTube - Parliament March LIVE stream incl. Dipke detention moment (20 Jul)
-https://www.youtube.com/watch/,,,Prabhat Khabar YouTube - protester testimony on police brutality after the march (20 Jul)
+https://www.instagram.com/reel/DbFtFCypmcS/,ignored,,PeekTV @peektv_in #PeekOnGround - interview with the Nagpur protester from the viral lathicharge video (22 Jul) (skipped via admin-tui)
+https://www.instagram.com/reel/DbFLaczTDpB/,ignored,,PeekTV @peektv_in #PeekOnGround - lathicharge victim Aniket Patil interview shot day after the march (22 Jul) (skipped via admin-tui)
+https://www.instagram.com/reel/DbFZlfPOMYj/,ignored,,PeekTV @peektv_in - own aftermath footage of police vehicles damaged during the march (22 Jul) (skipped via admin-tui)
+https://www.instagram.com/reel/DbFVXaOOXDB/,ignored,,PeekTV @peektv_in #PeekOnGround - field interview with journalist Mandeep Punia on police stone-pelting (22 Jul) (skipped via admin-tui)
+https://www.instagram.com/reel/DbFoNR5tnTp/,ignored,,PeekTV @peektv_in #PeekOnGround - second Mandeep Punia field interview on the violence (22 Jul) (skipped via admin-tui)
+https://www.instagram.com/reel/Da-vXTTJPOn/,ignored,,NewsPinch @thenewspinch - ground interview with bereaved father from Gujarat after Wangchuk removal (19 Jul) (skipped via admin-tui)
+https://www.instagram.com/reel/DbFxQgiFTDM/,ignored,,NewsPinch @thenewspinch - Jantar Mantar vox-pop: we are having to protest for education (22 Jul) (skipped via admin-tui)
+https://www.instagram.com/reel/DbFvO_NAsyL/,ignored,,NewsPinch @thenewspinch - ground feature: food deliveries ordered to the sit-in from across India (22 Jul) (skipped via admin-tui)
+https://www.instagram.com/reel/DbAI50_vH1K/,ignored,,Newslaundry Hindi @newslaundryhindi - raw march-day footage: welded barricades toppled at Jantar Mantar (20 Jul) (skipped via admin-tui)
+https://x.com/newslaundry/status/2079155452513018275/,ignored,,Newslaundry on X - ground interview during crackdown: Ballia student on trapped protesters and plainclothes police (20 Jul) (skipped via admin-tui)
+https://x.com/newslaundry/status/2079175349217423452/,ignored,,Newslaundry on X - student responds to disorganised-protest framing; swimming goggles against tear gas (20 Jul) (skipped via admin-tui)
+https://x.com/newslaundry/status/2079178386707243372/,ignored,,Newslaundry on X - injured young protester interviewed on the road during the crackdown (20 Jul) (skipped via admin-tui)
+https://www.youtube.com/watch/,ignored,,Molitics YouTube - Nivedita ground report: lathi bruises and fractures at Jantar Mantar (21 Jul) (skipped via admin-tui)
+https://www.youtube.com/watch/,ignored,,Duplicate of an earlier row in this CSV.
+https://www.youtube.com/watch/,ignored,,Duplicate of an earlier row in this CSV.
+https://www.youtube.com/watch/,ignored,,Duplicate of an earlier row in this CSV.
+https://www.instagram.com/reel/Da_5VNTPesx/,ignored,,Mojo Story @barkha.dutt x @themojostory - Barkha Dutt at rain-hit Jantar Mantar ahead of the march (19-20 Jul) (skipped via admin-tui)
+https://www.youtube.com/watch/,ignored,,Duplicate of an earlier row in this CSV.
+https://x.com/prabhatkhabar/status/2079911386990477489/,ignored,,Prabhat Khabar on X - Patna: interview with student injured in lathicharge bleeding from the eye (22 Jul) (skipped via admin-tui)
+https://x.com/prabhatkhabar/status/2079901273294549245/,ignored,,Prabhat Khabar on X - Patna: police identifying and detaining stone-pelters after the protest (22 Jul) (skipped via admin-tui)
+https://www.youtube.com/watch/,ignored,,Duplicate of an earlier row in this CSV.
+https://www.youtube.com/watch/,ignored,,Duplicate of an earlier row in this CSV.
+https://www.youtube.com/watch/,ignored,,Duplicate of an earlier row in this CSV.
+https://www.youtube.com/watch/,ignored,,Duplicate of an earlier row in this CSV.
+https://www.youtube.com/watch/,ignored,,Duplicate of an earlier row in this CSV.
+https://www.youtube.com/watch/,ignored,,Duplicate of an earlier row in this CSV.
+https://www.instagram.com/reel/DbF43o6jx3P/,published,video-105,
+https://www.instagram.com/reel/DbH58syMPE4/,published,video-106,
+https://www.instagram.com/reel/DbG6IrlReJT/,published,video-107,
+https://www.instagram.com/reel/DbBz8TgzUPD/,published,video-108,

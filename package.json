@@ -13,6 +13,7 @@
     "samples": "node scripts/generate-samples.mjs",
     "collect": "node scripts/collect.mjs",
     "admin-requests": "node scripts/admin-requests.mjs",
+    "admin-tui": "node scripts/admin-tui.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "test:unit": "vitest run --config vitest.config.ts",
@@ -24,6 +25,9 @@
     "@astrojs/sitemap": "^3.7.3",
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.1.3",
+    "ink": "^7.1.1",
+    "open": "^11.0.0",
+    "react": "^19.2.8",
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
