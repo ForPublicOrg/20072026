@@ -586,7 +586,17 @@ async function handleVideoUpload(request: Request, env: Env, id: number): Promis
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    const { pathname } = new URL(request.url);
+    const url = new URL(request.url);
+    const { pathname } = url;
+
+    // 20072026.com is the canonical host (see CLAUDE.md) — www has no DNS
+    // record of its own on the zone, so this only fires once www is added
+    // as a second custom_domain route in wrangler.jsonc, which points it at
+    // this same Worker.
+    if (url.hostname === "www.20072026.com") {
+      url.hostname = "20072026.com";
+      return Response.redirect(url.toString(), 301);
+    }
 
     if (pathname === "/api/takedown") {
       return handleTakedown(request, env);

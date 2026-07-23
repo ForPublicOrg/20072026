@@ -428,6 +428,13 @@ function validateTimelineEvent(
   return entry;
 }
 
+// Sample/placeholder entries exist only to demo the pipeline locally against
+// an otherwise-empty archive — they must never reach a visitor. Every public
+// page (feed, video/[id]) must filter through this before rendering.
+export function publicVideos(videos: VideoEntry[]): VideoEntry[] {
+  return videos.filter((video) => !video.sample);
+}
+
 let cachedVideos: VideoEntry[] | null = null;
 
 export function loadVideos(): VideoEntry[] {

@@ -54,7 +54,7 @@ Unlike video entries, `src/data/timeline.json` is hand-researched and hand-writt
 
 ## Sample data: `node scripts/generate-samples.mjs`
 
-Generates 8 placeholder video entries (plus placeholder timeline entries) so the site can demonstrate the full experience on an otherwise-empty archive. No entry in the live `videos.json` currently sets `sample: true` — the archive holds real, collected footage only — but the script is unchanged and still works for re-demoing the pipeline/layout.
+Generates 8 placeholder video entries (plus placeholder timeline entries) for locally exercising the pipeline/build against an otherwise-empty archive. No entry in the live `videos.json` currently sets `sample: true` — the archive holds real, collected footage only. `sample: true` entries are filtered out of every public page (`publicVideos()` in `src/lib/schema.ts` — excluded from `/feed`, and their `/video/:id` page is never built, so the id 404s) so this script is useful for schema/build validation but no longer demos the browsing experience.
 
 **Caveat:** `TimelineEvent` has no `sample` boolean — only `VideoEntry` does. Running this script against the current, real, researched `timeline.json` would merge its placeholder timeline entries in with no schema-level marker distinguishing them from the real 39, and nothing currently filters them back out; removing them afterward would be manual.
 
