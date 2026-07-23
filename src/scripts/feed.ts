@@ -348,6 +348,22 @@ function shuffleFeedOrder(container: HTMLElement) {
     }
   }
   for (const card of [...participant, ...rest]) container.appendChild(card);
+
+  // `container` has `scroll-snap-type: y mandatory` (see feed.astro's
+  // .feed style). Reordering its children via appendChild while scrolled to
+  // 0 does NOT keep scrollTop at 0: the browser keeps whichever card was
+  // snapped-to *before* the reorder (the pre-shuffle first card, i.e.
+  // whatever feed.astro's build-time sort put first) scrolled into view at
+  // its new, post-shuffle position — landing the user deep in the list on
+  // a fixed card instead of at the top. Confirmed via manual reproduction;
+  // unaffected by `overflow-anchor: none` (a different, unrelated
+  // mechanism) or by toggling scroll-snap-type off for the mutation.
+  // Forcing scrollTop back to 0 one frame later, after layout has settled
+  // from the reorder, is what actually sticks.
+  container.scrollTop = 0;
+  requestAnimationFrame(() => {
+    container.scrollTop = 0;
+  });
 }
 
 function initFeed() {
