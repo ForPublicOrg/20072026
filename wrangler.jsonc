@@ -1,15 +1,27 @@
 {
   "name": "blackdays",
   "compatibility_date": "2026-07-21",
-  // The site is still a static build. `main` exists only so POSTs to
-  // /api/takedown have somewhere to land — see src/worker.ts. With `assets`
-  // configured alongside `main`, Cloudflare serves matching static files
-  // WITHOUT invoking the Worker, so adding this costs nothing on page loads.
+  // The site is still a static build. `main` exists so POSTs to /api/takedown
+  // have somewhere to land, and so the www.20072026.com -> 20072026.com
+  // redirect in src/worker.ts can run (see below) — everything else is
+  // delegated straight back to env.ASSETS.fetch().
   "main": "./src/worker.ts",
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
-    "not_found_handling": "404-page"
+    "not_found_handling": "404-page",
+    // Without this, a request whose path matches a file in `dist/` is
+    // served directly by Cloudflare's edge WITHOUT invoking the Worker at
+    // all — regardless of hostname. Since www.20072026.com and 20072026.com
+    // share this same Worker+assets pair, that meant every real page
+    // (anything matching a static file) served identical content on both
+    // hosts instead of the Worker ever getting a chance to redirect www.
+    // run_worker_first only matches by path, not hostname, so there's no
+    // way to scope this to just the www route — it has to be true for
+    // every request. Confirmed necessary by testing production directly:
+    // without it, https://www.20072026.com/ returned 200 with the actual
+    // homepage instead of a 301.
+    "run_worker_first": true
   },
   "d1_databases": [
     {
