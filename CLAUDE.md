@@ -1,10 +1,10 @@
 # blackdays (20072026.com)
 
-A protest-documentation archive: Astro static site + a narrow Cloudflare Worker (`src/worker.ts`, handles only `POST /api/takedown`) on Cloudflare Workers with static assets. D1 (`TAKEDOWNS` binding) is a private correction/takedown inbox — never rendered on the public site. Media (video/thumbnails) is served from R2 at `media.20072026.com`. **`20072026.com` is the permanent domain.**
+A protest-documentation archive: Astro static site + a narrow Cloudflare Worker (`src/worker.ts`) on Cloudflare Workers with static assets. The Worker handles exactly three routes — `POST /api/takedown`, `POST /api/submit-video`, `PUT /api/upload/:id` — everything else falls through to the static `ASSETS` binding untouched. Two D1 databases back these: `TAKEDOWNS` (corrections/takedown requests) and `SUBMISSIONS` (public "submit a video" requests, link or raw upload); one R2 bucket, `UPLOADS`, holds raw uploaded footage pending review. None of these three inboxes are ever rendered on the public site. Reference media (video/thumbnails) is served separately from R2 at `media.20072026.com` (not a Worker binding — its own custom domain). **`20072026.com` is the permanent domain.**
 
 ## Reading order
 
-`README.md` → `docs/design-spec.md` → `docs/implementation-guide.md` → `docs/execution-plan.md` → `docs/content-pipeline.md` → `docs/verification-policy.md`.
+`README.md` → `docs/design-spec.md` → `docs/execution-plan.md` → `docs/content-pipeline.md` → `docs/verification-policy.md`.
 
 ## Deploy model
 

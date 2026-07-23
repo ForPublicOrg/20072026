@@ -2,7 +2,7 @@
 
 Every media item carries exactly one verification status. The archive's credibility depends on never implying certainty that does not exist. **When in doubt, use the lower status.**
 
-**Not currently rendered anywhere in the UI (as of 2026-07-21).** This policy still governs how `verificationStatus` is assigned in `src/data/videos.json`, and the field is still required and validated by `src/lib/schema.ts` — nothing below is obsolete as *data* policy. What changed is display: the feed, the `/video/[id]` page, and the about page no longer show a badge for it at all. `src/components/VerificationBadge.astro` still exists on disk with its full five-color set but is no longer imported by anything. See "Display rules" below for the history of how the badge went from "always shown" to "shown on some pages" to "shown nowhere," and `docs/design-spec.md` §9 for the corresponding design-side record.
+**Not currently rendered anywhere in the UI.** This policy governs how `verificationStatus` is assigned in `src/data/videos.json`; the field is required and validated by `src/lib/schema.ts`. Display is a separate concern — see "Display" below.
 
 ## Statuses
 
@@ -31,17 +31,8 @@ The footage is real but its framing is in question: it may be from a different e
 2. Status upgrades are manual edits to `videos.json`, made only after the checks above; note the evidence in the entry's `description` when practical.
 3. Downgrades are immediate: if new information casts doubt, drop the status first, investigate after.
 4. Never delete an entry to hide an error — correct it. If material must be removed (takedown, privacy, safety), remove media files but keep the metadata entry with a note, so the record of the record survives.
-5. Sample/placeholder entries are exempt. The `sample` field is still supported by the schema (`src/lib/schema.ts`) and by the placeholder-banner code path on `/video/[id]`, but as of 2026-07-21 the eight sample entries and their media were deleted from `videos.json` now that real footage exists — no entry currently has `"sample": true`. If sample entries are ever reintroduced (e.g. to demo the pipeline again), this exemption still applies.
+5. Sample/placeholder entries are exempt. The `sample` field is supported by the schema and by the placeholder-banner code path on `/video/[id]`, but no entry currently sets it — the exemption applies whenever one is reintroduced.
 
-## Display rules
+## Display
 
-**As of 2026-07-21, the badge renders nowhere in the UI.** This is the end state of a same-day sequence, kept here rather than overwritten so the reasoning survives:
-
-1. **Originally:** the badge was always visible on the item's own `/video/[id]` page — never hidden, never defaulted to a higher status by UI fallback — and also rendered on every feed card.
-2. **Feed exception (added 2026-07-21, midday):** on `/feed` cards only, the badge was suppressed when the status was `unverified`. `unverified` is the default every entry starts with; at the time this was written 4 of 5 real entries carried it, so a label present on nearly every card conveyed no information and made the feed read as defensive. The other four statuses still rendered on feed cards. The `/video/[id]` page was untouched by this change — it kept showing the badge unconditionally.
-3. **Total removal (2026-07-21, evening, commit `b8f0fdc`), current state:** the badge was removed from the UI entirely — not just the feed's `unverified` case, but every status on every surface: the feed, `/video/[id]`, and the about page's former "How verification works" section (which was deleted; see the about-page rewrite in the same commit). `verificationStatus` still exists on every entry and is still validated at build time; this change removed the *display*, not the *record*. `VerificationBadge.astro` was left in place on disk (unimported) rather than deleted, in case badge display is reinstated later.
-
-Why the record is kept even though nothing renders it: it is cheap to maintain, it documents editorial judgment made about specific entries, and it means reinstating a badge (or building some other verification UI) later is a display change, not a re-litigation of every entry's status.
-
-- Badge colors, when they did render, were muted and informational, not alarmist: e.g. verified = muted green, likely = teal, partially = amber, unverified = neutral gray, context-unclear = orange. The specific values (re-derived for the true-black theme) are preserved in `docs/design-spec.md` §9 and in `VerificationBadge.astro` itself, for whoever reinstates display.
-- The `/about` page no longer explains the five statuses or links to this policy from site copy — see `docs/design-spec.md` §7 for what replaced that section. This document remains the source of truth for how `verificationStatus` is assigned; it is just no longer surfaced to readers directly from the site.
+`src/components/VerificationBadge.astro` is fully implemented (five colors, WCAG-contrast-checked) but is not imported anywhere in `src/` — it renders on no page. This is deliberate: `verificationStatus` is still recorded and validated on every entry, but nothing in the current UI surfaces a per-item badge. `/about` instead states plainly, once, that nothing in the archive has been independently verified. The component is kept on disk (not deleted) so that reinstating a badge, or building different verification UI, is a display change rather than a re-derivation of every entry's status. See `docs/design-spec.md` §5 and §10 for the corresponding colors/design-side record.
