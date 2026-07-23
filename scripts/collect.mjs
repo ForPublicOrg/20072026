@@ -320,6 +320,7 @@ const entry = {
   location: "TODO",
   tags: ["TODO"],
   verificationStatus: "unverified",
+  footageOrigin: "TODO",
   source: {
     platform,
     url,
@@ -358,6 +359,6 @@ console.log(`  duration:         ${duration}s, ${width}x${height}`);
 console.log(`  verificationStatus: unverified`);
 console.log(
   `\nWrote entry to ${path.relative(ROOT, VIDEOS_JSON)}. ` +
-    `Fields description/date/location/tags are "TODO" placeholders — ` +
+    `Fields description/date/location/tags/footageOrigin are "TODO" placeholders — ` +
     `fill them in before deploying; \`npm run build\` will fail until you do.`,
 );

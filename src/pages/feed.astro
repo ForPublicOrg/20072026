@@ -4,6 +4,9 @@ import VideoCard from "../components/VideoCard.astro";
 import { loadVideos } from "../lib/schema";
 
 const videos = [...loadVideos()].sort((a, b) => {
+  if (a.footageOrigin !== b.footageOrigin) {
+    return a.footageOrigin === "participant" ? -1 : 1;
+  }
   if (a.date !== b.date) return a.date < b.date ? 1 : -1;
   return a.id < b.id ? 1 : -1;
 });
