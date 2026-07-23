@@ -26,7 +26,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-010",
@@ -55,7 +56,8 @@
       "width": 480,
       "height": 852
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-011",
@@ -84,7 +86,8 @@
       "width": 480,
       "height": 852
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-012",
@@ -113,7 +116,8 @@
       "width": 480,
       "height": 852
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-013",
@@ -142,7 +146,8 @@
       "width": 480,
       "height": 852
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-014",
@@ -164,7 +169,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-015",
@@ -186,7 +192,8 @@
       "width": 720,
       "height": 900
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-016",
@@ -208,7 +215,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-017",
@@ -230,7 +238,8 @@
       "width": 720,
       "height": 406
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-018",
@@ -252,7 +261,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-019",
@@ -274,7 +284,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-020",
@@ -296,7 +307,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-021",
@@ -318,7 +330,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-022",
@@ -340,7 +353,8 @@
       "width": 536,
       "height": 952
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-023",
@@ -362,7 +376,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-024",
@@ -384,7 +399,8 @@
       "width": 480,
       "height": 854
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-025",
@@ -406,7 +422,8 @@
       "width": 716,
       "height": 922
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-026",
@@ -428,7 +445,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-027",
@@ -450,7 +468,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-028",
@@ -472,7 +491,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-029",
@@ -494,7 +514,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-030",
@@ -516,7 +537,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-031",
@@ -538,7 +560,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-032",
@@ -560,7 +583,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-033",
@@ -582,7 +606,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-034",
@@ -604,7 +629,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-035",
@@ -626,7 +652,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-036",
@@ -648,7 +675,8 @@
       "width": 360,
       "height": 640
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-037",
@@ -670,7 +698,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-038",
@@ -692,7 +721,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-039",
@@ -714,7 +744,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-040",
@@ -736,7 +767,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-041",
@@ -758,7 +790,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-042",
@@ -780,7 +813,8 @@
       "width": 720,
       "height": 900
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-043",
@@ -802,7 +836,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-044",
@@ -824,7 +859,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-045",
@@ -846,7 +882,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-046",
@@ -868,7 +905,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-047",
@@ -890,7 +928,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-048",
@@ -912,7 +951,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-049",
@@ -934,7 +974,8 @@
       "width": 720,
       "height": 900
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-050",
@@ -956,7 +997,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-051",
@@ -978,7 +1020,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-052",
@@ -1000,7 +1043,8 @@
       "width": 720,
       "height": 896
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-053",
@@ -1022,7 +1066,8 @@
       "width": 720,
       "height": 406
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-054",
@@ -1044,7 +1089,8 @@
       "width": 480,
       "height": 854
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-055",
@@ -1066,7 +1112,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-056",
@@ -1088,7 +1135,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-057",
@@ -1110,7 +1158,8 @@
       "width": 360,
       "height": 640
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-058",
@@ -1132,7 +1181,8 @@
       "width": 720,
       "height": 900
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-059",
@@ -1154,7 +1204,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-060",
@@ -1176,7 +1227,8 @@
       "width": 720,
       "height": 900
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-061",
@@ -1198,7 +1250,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-062",
@@ -1220,7 +1273,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-063",
@@ -1242,7 +1296,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-064",
@@ -1264,7 +1319,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-065",
@@ -1286,7 +1342,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-066",
@@ -1308,7 +1365,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-067",
@@ -1330,7 +1388,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-068",
@@ -1352,7 +1411,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-069",
@@ -1374,7 +1434,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-070",
@@ -1396,7 +1457,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-071",
@@ -1418,7 +1480,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-072",
@@ -1440,7 +1503,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-073",
@@ -1462,7 +1526,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-074",
@@ -1484,7 +1549,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-075",
@@ -1506,7 +1572,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-076",
@@ -1528,7 +1595,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-077",
@@ -1550,7 +1618,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-078",
@@ -1572,7 +1641,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-079",
@@ -1594,7 +1664,8 @@
       "width": 480,
       "height": 854
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-080",
@@ -1616,7 +1687,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-081",
@@ -1638,7 +1710,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-082",
@@ -1660,7 +1733,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-083",
@@ -1682,7 +1756,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "media"
   },
   {
     "id": "video-084",
@@ -1704,7 +1779,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-21"
+    "archivedAt": "2026-07-21",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-085",
@@ -1732,7 +1808,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-22"
+    "archivedAt": "2026-07-22",
+    "footageOrigin": "media"
   },
   {
     "id": "video-086",
@@ -1760,7 +1837,8 @@
       "width": 720,
       "height": 406
     },
-    "archivedAt": "2026-07-22"
+    "archivedAt": "2026-07-22",
+    "footageOrigin": "media"
   },
   {
     "id": "video-087",
@@ -1788,7 +1866,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-22"
+    "archivedAt": "2026-07-22",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-088",
@@ -1817,7 +1896,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-22"
+    "archivedAt": "2026-07-22",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-089",
@@ -1845,7 +1925,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-22"
+    "archivedAt": "2026-07-22",
+    "footageOrigin": "media"
   },
   {
     "id": "video-090",
@@ -1873,7 +1954,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-22"
+    "archivedAt": "2026-07-22",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-091",
@@ -1900,7 +1982,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-22"
+    "archivedAt": "2026-07-22",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-093",
@@ -1926,7 +2009,8 @@
       "width": 540,
       "height": 960
     },
-    "archivedAt": "2026-07-22"
+    "archivedAt": "2026-07-22",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-094",
@@ -1954,7 +2038,8 @@
       "width": 720,
       "height": 1280
     },
-    "archivedAt": "2026-07-22"
+    "archivedAt": "2026-07-22",
+    "footageOrigin": "media"
   },
   {
     "id": "video-095",
@@ -1982,7 +2067,8 @@
       "width": 720,
       "height": 1280
     },
-    "archivedAt": "2026-07-22"
+    "archivedAt": "2026-07-22",
+    "footageOrigin": "media"
   },
   {
     "id": "video-096",
@@ -2009,7 +2095,8 @@
       "width": 720,
       "height": 1280
     },
-    "archivedAt": "2026-07-22"
+    "archivedAt": "2026-07-22",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-097",
@@ -2037,7 +2124,8 @@
       "width": 720,
       "height": 1280
     },
-    "archivedAt": "2026-07-22"
+    "archivedAt": "2026-07-22",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-098",
@@ -2065,7 +2153,8 @@
       "width": 720,
       "height": 1280
     },
-    "archivedAt": "2026-07-22"
+    "archivedAt": "2026-07-22",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-100",
@@ -2093,7 +2182,8 @@
       "width": 720,
       "height": 1280
     },
-    "archivedAt": "2026-07-22"
+    "archivedAt": "2026-07-22",
+    "footageOrigin": "media"
   },
   {
     "id": "video-101",
@@ -2121,7 +2211,8 @@
       "width": 720,
       "height": 1280
     },
-    "archivedAt": "2026-07-22"
+    "archivedAt": "2026-07-22",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-102",
@@ -2149,7 +2240,8 @@
       "width": 720,
       "height": 1280
     },
-    "archivedAt": "2026-07-22"
+    "archivedAt": "2026-07-22",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-103",
@@ -2176,7 +2268,8 @@
       "width": 720,
       "height": 1280
     },
-    "archivedAt": "2026-07-22"
+    "archivedAt": "2026-07-22",
+    "footageOrigin": "participant"
   },
   {
     "id": "video-104",
@@ -2202,6 +2295,7 @@
       "width": 720,
       "height": 1280
     },
-    "archivedAt": "2026-07-22"
+    "archivedAt": "2026-07-22",
+    "footageOrigin": "media"
   }
 ]

@@ -40,6 +40,7 @@ function minimalVideo(overrides: Record<string, unknown> = {}) {
     date: "2026-07-20",
     tags: [],
     verificationStatus: "unverified",
+    footageOrigin: "participant",
     source: {
       platform: "instagram",
       url: "https://example.com/p/abc",
@@ -111,6 +112,30 @@ describe("loadVideos() validation", () => {
       minimalVideo({ verificationStatus: "definitely-true" }),
     ]);
     expect(() => loadVideos()).toThrow(/verificationStatus/);
+  });
+
+  it("throws when footageOrigin is missing", async () => {
+    const bad = minimalVideo();
+    delete (bad as Record<string, unknown>).footageOrigin;
+    const { loadVideos } = await loadWithFixtures([bad]);
+    expect(() => loadVideos()).toThrow(/"footageOrigin" must be a string/);
+  });
+
+  it("throws on an unrecognized footageOrigin", async () => {
+    const { loadVideos } = await loadWithFixtures([
+      minimalVideo({ footageOrigin: "influencer" }),
+    ]);
+    expect(() => loadVideos()).toThrow(/footageOrigin/);
+  });
+
+  it("accepts footageOrigin: 'media'", async () => {
+    const { loadVideos } = await loadWithFixtures([minimalVideo({ footageOrigin: "media" })]);
+    expect(loadVideos()).toHaveLength(1);
+  });
+
+  it("throws when footageOrigin is the literal TODO placeholder", async () => {
+    const { loadVideos } = await loadWithFixtures([minimalVideo({ footageOrigin: "TODO" })]);
+    expect(() => loadVideos()).toThrow(/footageOrigin/);
   });
 
   it("throws on duplicate ids", async () => {

@@ -21,6 +21,16 @@ const VERIFICATION_STATUSES: readonly VerificationStatus[] = [
   "context-unclear",
 ];
 
+// Whether this is raw footage filmed and posted by someone who was there
+// ("participant"), or content from a media outlet, political party, or
+// influencer/channel account ("media") — commentary, edited compilations,
+// news-broadcast rebroadcasts, branded/pitching content. Drives feed
+// ordering (see src/pages/feed.astro, src/scripts/feed.ts): participant
+// footage surfaces first. See docs/content-pipeline.md "Editorial rules".
+export type FootageOrigin = "participant" | "media";
+
+const FOOTAGE_ORIGINS: readonly FootageOrigin[] = ["participant", "media"];
+
 export interface VideoSource {
   platform: string;
   url: string; // original public URL — always preserved
@@ -44,6 +54,7 @@ export interface VideoEntry {
   location?: string; // omitted when not yet verified — never a guessed placeholder
   tags: string[]; // defaults to [] when not yet tagged
   verificationStatus: VerificationStatus;
+  footageOrigin: FootageOrigin;
   sample?: boolean; // present + true ONLY for placeholder entries
   source: VideoSource;
   media: VideoMedia;
@@ -235,6 +246,14 @@ function validateVideoEntry(raw: unknown, index: number): VideoEntry {
     );
   }
 
+  const footageOrigin = requireString(obj.footageOrigin, label, "footageOrigin");
+  if (!FOOTAGE_ORIGINS.includes(footageOrigin as FootageOrigin)) {
+    fail(
+      label,
+      `field "footageOrigin" ("${footageOrigin}") must be one of ${FOOTAGE_ORIGINS.join(", ")}`,
+    );
+  }
+
   let sample: boolean | undefined;
   if (obj.sample !== undefined) {
     if (typeof obj.sample !== "boolean") {
@@ -270,6 +289,7 @@ function validateVideoEntry(raw: unknown, index: number): VideoEntry {
     ...(location !== undefined ? { location } : {}),
     tags,
     verificationStatus: verificationStatus as VerificationStatus,
+    footageOrigin: footageOrigin as FootageOrigin,
     ...(sample !== undefined ? { sample } : {}),
     source,
     media,

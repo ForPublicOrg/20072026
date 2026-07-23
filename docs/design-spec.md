@@ -61,6 +61,9 @@ Cloudflare Worker (static assets)  +  R2 (real media, later)
   "location": "…",
   "tags": ["…"],
   "verificationStatus": "unverified", // see verification-policy.md
+  "footageOrigin": "participant",  // "participant" (raw, filmed by someone who was there) or
+                                    // "media" (outlet/party/influencer/channel content) — drives
+                                    // feed ordering, see §8 and content-pipeline.md "Editorial rules"
   "sample": true,                  // present + true ONLY for placeholder entries
   "source": {
     "platform": "YouTube",
@@ -150,6 +153,7 @@ Lives at `/feed` (moved from `/` on 2026-07-21, see §7).
 - Tap/click toggles sound. Keyboard: cards focusable, space/enter toggles play.
 - Mobile-first layout; desktop centers the column (~`max-w-xl`).
 - The feed is a full-bleed, fixed-height scroll container beneath the app shell (`Base.astro`'s `fullBleed` prop removes page padding and document scroll so the feed owns its own snap-scrolling), not a normal padded page.
+- **Ordering (added 2026-07-23):** two-tier priority by `footageOrigin` — `"participant"` entries first, then `"media"` entries, each tier independently shuffled. `feed.astro`'s build-time sort establishes this as the deterministic no-JS baseline; `src/scripts/feed.ts`'s `shuffleFeedOrder()` re-randomizes within each tier on every load/navigation (Fisher-Yates per tier, tiers never interleaved), reading each card's `data-footage-origin` attribute (set by `VideoCard.astro`). See `docs/content-pipeline.md` "Editorial rules".
 
 ## 9. Design language
 
