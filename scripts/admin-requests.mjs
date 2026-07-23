@@ -9,6 +9,9 @@
 //   node scripts/admin-requests.mjs update --type takedown|video --id <n> --status <new|reviewing|approved|rejected|done> [--env staging]
 //   node scripts/admin-requests.mjs download --id <n> --out <path> [--env staging]   (video uploads only)
 //
+// For an interactive alternative that also opens videos/links for review
+// and can trigger ingestion after approval, see `node scripts/admin-tui.mjs`.
+//
 // Auth: every command shells out to `wrangler` (d1 execute / r2 object get),
 // relying entirely on the operator's own `wrangler login` session — the same
 // mechanism already documented for takedowns in migrations/0001_takedown_requests.sql
@@ -21,30 +24,18 @@
 // .claude/skills/deploy/SKILL.md) so a PR's test data can be reviewed without
 // touching production.
 
-import { spawnSync } from "node:child_process";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { parseCsvRows, writeCsvRows } from "./collect-batch.mjs";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ROOT = path.resolve(__dirname, "..");
-const MASTER_CSV = path.join(ROOT, "20072026 - Sheet1.csv");
-
-const STATUSES = new Set(["new", "reviewing", "approved", "rejected", "done"]);
-
-const RESOURCES = {
-  takedown: {
-    table: "takedown_requests",
-    database: (env) => (env === "staging" ? "blackdays-takedowns-staging" : "blackdays-takedowns"),
-  },
-  video: {
-    table: "video_submissions",
-    database: (env) =>
-      env === "staging" ? "blackdays-video-submissions-staging" : "blackdays-video-submissions",
-  },
-};
-
-const UPLOAD_BUCKET = (env) => (env === "staging" ? "blackdays-uploads-staging" : "blackdays-uploads");
+import {
+  MASTER_CSV,
+  RESOURCES,
+  STATUSES,
+  UPLOAD_BUCKET,
+  appendUrlSubmissionToCsv,
+  d1Execute,
+  r2Get,
+  requireResource,
+  shapeVideoRow,
+} from "./lib/admin-resources.mjs";
 
 // ---------------------------------------------------------------------------
 // Arg parsing — no dependency, this project's scripts don't use one.
@@ -67,47 +58,6 @@ function parseArgs(argv) {
 function fail(message) {
   console.error(message);
   process.exit(1);
-}
-
-// ---------------------------------------------------------------------------
-// wrangler CLI wrappers
-// ---------------------------------------------------------------------------
-
-function d1Execute(database, sql) {
-  const result = spawnSync(
-    "npx",
-    ["wrangler", "d1", "execute", database, "--remote", "--json", "--command", sql],
-    { encoding: "utf8" },
-  );
-
-  if (result.error) {
-    fail(`Could not run wrangler: ${result.error.message}`);
-  }
-  if (result.status !== 0) {
-    fail(result.stderr || result.stdout || "wrangler d1 execute failed.");
-  }
-
-  let parsed;
-  try {
-    parsed = JSON.parse(result.stdout);
-  } catch {
-    fail(`Could not parse wrangler's output as JSON:\n${result.stdout}`);
-  }
-  return parsed[0]?.results ?? [];
-}
-
-function r2Get(bucket, key, outPath) {
-  const result = spawnSync(
-    "npx",
-    ["wrangler", "r2", "object", "get", `${bucket}/${key}`, "--file", outPath, "--remote"],
-    { stdio: "inherit" },
-  );
-  if (result.error) {
-    fail(`Could not run wrangler: ${result.error.message}`);
-  }
-  if (result.status !== 0) {
-    fail("wrangler r2 object get failed — see output above.");
-  }
 }
 
 // ---------------------------------------------------------------------------
@@ -151,12 +101,6 @@ function printCsv(rows) {
 // Commands
 // ---------------------------------------------------------------------------
 
-function requireResource(type) {
-  const resource = RESOURCES[type];
-  if (!resource) fail(`--type must be one of: ${Object.keys(RESOURCES).join(", ")}`);
-  return resource;
-}
-
 function cmdList(flags) {
   const resource = requireResource(flags.type);
   const env = flags.env;
@@ -174,21 +118,7 @@ function cmdList(flags) {
 
   // For video submissions, collapse the type-specific columns into one
   // human-readable "source" column instead of a wide, mostly-empty table.
-  const shaped =
-    flags.type === "video"
-      ? rows.map((row) => ({
-          id: row.id,
-          status: row.status,
-          source:
-            row.submission_type === "upload"
-              ? `upload (${row.file_size_bytes ?? "?"} bytes, ${row.r2_key ?? "not yet uploaded"})`
-              : row.url,
-          event_date: row.event_date,
-          description: row.description,
-          contact: row.contact,
-          created_at: row.created_at,
-        }))
-      : rows;
+  const shaped = flags.type === "video" ? rows.map(shapeVideoRow) : rows;
 
   if (format === "json") console.log(JSON.stringify(rows, null, 2));
   else if (format === "csv") printCsv(shaped);
@@ -219,14 +149,13 @@ function cmdUpdate(flags) {
     return;
   }
 
-  if (!row.url) return;
-  const csvRows = parseCsvRows(MASTER_CSV);
-  if (csvRows.some((r) => r.link === row.url)) {
-    console.log(`${row.url} is already in the master CSV — skipped.`);
+  const result = appendUrlSubmissionToCsv(row, id);
+  if (!result.appended) {
+    if (result.reason === "already-present") {
+      console.log(`${row.url} is already in the master CSV — skipped.`);
+    }
     return;
   }
-  csvRows.push({ link: row.url, status: "", videoId: "", notes: `submitted via web form (submission #${id})` });
-  writeCsvRows(MASTER_CSV, csvRows);
   console.log(`Appended ${row.url} to ${path.basename(MASTER_CSV)} for the next collect-batch.mjs run.`);
 }
 
@@ -254,21 +183,25 @@ function cmdDownload(flags) {
 
 const { command, flags } = parseArgs(process.argv.slice(2));
 
-switch (command) {
-  case "list":
-    cmdList(flags);
-    break;
-  case "update":
-    cmdUpdate(flags);
-    break;
-  case "download":
-    cmdDownload(flags);
-    break;
-  default:
-    fail(
-      "Usage:\n" +
-        "  node scripts/admin-requests.mjs list --type takedown|video [--status <s>] [--format table|csv|json] [--env staging]\n" +
-        "  node scripts/admin-requests.mjs update --type takedown|video --id <n> --status <new|reviewing|approved|rejected|done> [--env staging]\n" +
-        "  node scripts/admin-requests.mjs download --id <n> --out <path> [--env staging]",
-    );
+try {
+  switch (command) {
+    case "list":
+      cmdList(flags);
+      break;
+    case "update":
+      cmdUpdate(flags);
+      break;
+    case "download":
+      cmdDownload(flags);
+      break;
+    default:
+      fail(
+        "Usage:\n" +
+          "  node scripts/admin-requests.mjs list --type takedown|video [--status <s>] [--format table|csv|json] [--env staging]\n" +
+          "  node scripts/admin-requests.mjs update --type takedown|video --id <n> --status <new|reviewing|approved|rejected|done> [--env staging]\n" +
+          "  node scripts/admin-requests.mjs download --id <n> --out <path> [--env staging]",
+      );
+  }
+} catch (err) {
+  fail(err instanceof Error ? err.message : String(err));
 }
