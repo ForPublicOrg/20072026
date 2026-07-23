@@ -1,9 +1,9 @@
 ---
 import Base from "../layouts/Base.astro";
 import VideoCard from "../components/VideoCard.astro";
-import { loadVideos } from "../lib/schema";
+import { loadVideos, publicVideos } from "../lib/schema";
 
-const videos = [...loadVideos()].sort((a, b) => {
+const videos = publicVideos(loadVideos()).sort((a, b) => {
   if (a.footageOrigin !== b.footageOrigin) {
     return a.footageOrigin === "participant" ? -1 : 1;
   }

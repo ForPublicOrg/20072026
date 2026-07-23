@@ -1,12 +1,12 @@
 ---
 import Base from "../layouts/Base.astro";
 import TimelineEvent from "../components/TimelineEvent.astro";
-import { loadTimeline, loadVideos } from "../lib/schema";
+import { loadTimeline, loadVideos, publicVideos } from "../lib/schema";
 
 const events = [...loadTimeline()].sort((a, b) =>
   a.time < b.time ? -1 : a.time > b.time ? 1 : 0,
 );
-const videos = loadVideos();
+const videos = publicVideos(loadVideos());
 const videosById = new Map(videos.map((video) => [video.id, video]));
 ---
 
