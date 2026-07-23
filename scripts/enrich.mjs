@@ -25,9 +25,16 @@
 // `date` is marked "accepted" automatically by `propose` when it can be
 // derived at all — the task calls it "SAFE, fully automatic... no human
 // review needed" since it's just a reformat of source.publishedAt, which
-// collect.mjs already captured from yt-dlp. `description`, `tags`, and
-// `location` always come out as "proposed"/"blocked" and require a human to
-// flip the status before `apply` will touch them.
+// collect.mjs already captured from yt-dlp. `description`, `tags`,
+// `location`, and `footageOrigin` always come out as "proposed"/"blocked"
+// and require a human to flip the status before `apply` will touch them.
+//
+// `footageOrigin` ("participant" vs "media") is the template for adding
+// future editorial-judgment fields (e.g. a content-warning flag): add a
+// derive<Field>() function below with the same {status, value, confidence,
+// rationale} shape, wire it into buildProposal() and cmdApply()'s field
+// list. Never auto-"accept" — a heuristic here is a starting point for a
+// human, not a verdict.
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -233,27 +240,162 @@ function deriveLocation(entry) {
   };
 }
 
+// Keyword signals scanned against description text. Crude substring
+// matching, same posture as TAG_KEYWORD_MAP — only ever a *suggestion*.
+const MEDIA_DESCRIPTION_RE =
+  /media outlet|media[- ]house|rebroadcast|news broadcast|news coverage|edited compilation|reaction\/commentary|screen recording of a news/i;
+const PARTICIPANT_DESCRIPTION_RE =
+  /first-person|first person|eyewitness|handheld footage|selfie video/i;
+
+// Uploader handles that are identifiably an outlet/org/branded channel
+// rather than an individual — literal names observed in this archive's
+// existing 94 entries. Not a general-purpose classifier; new uploaders
+// outside this list always fall through to "blocked" for human review
+// rather than being guessed at by pattern alone.
+const KNOWN_MEDIA_UPLOADERS = new Set([
+  "the red mike",
+  "cockroach janta party",
+  "𝗖𝗼𝗰𝗸𝗿𝗼𝗮𝗰𝗵 𝗝𝗮𝗻𝘁𝗮 𝗣𝗮𝗿𝘁𝘆",
+  "news pinch",
+  "peek tv",
+  "ravishnews",
+  "the lallantop",
+  "the wire",
+  "the bharat lens🇮🇳",
+  "officialdeshmirror",
+  "citysamachar",
+  "trolls official",
+  "batangarh news",
+  "anchor bablu saini",
+  "update 24/7",
+  "news updates | india & the world",
+  "aawaaz unfiltered",
+]);
+
+// Name-shaped signals for outlet/org accounts not already in the known
+// list above — used only to flag a video for review, never to auto-accept.
+const MEDIA_UPLOADER_NAME_RE = /news|samachar|tv\b|patrakar|journalist|official$/i;
+
+function deriveFootageOrigin(entry, uploaderPostCounts) {
+  if (entry.footageOrigin !== undefined) {
+    return {
+      status: "skipped",
+      value: entry.footageOrigin,
+      confidence: null,
+      rationale: "footageOrigin already set",
+    };
+  }
+
+  const description = entry.description ?? "";
+  if (MEDIA_DESCRIPTION_RE.test(description)) {
+    return {
+      status: "proposed",
+      value: "media",
+      confidence: "high",
+      rationale: `description text matches a media/produced-content signal (e.g. "media outlet", "compilation", "commentary").`,
+    };
+  }
+  if (PARTICIPANT_DESCRIPTION_RE.test(description)) {
+    return {
+      status: "proposed",
+      value: "participant",
+      confidence: "high",
+      rationale: `description text matches a raw/first-person signal (e.g. "first-person", "handheld", "selfie video").`,
+    };
+  }
+
+  const tags = entry.tags ?? [];
+  const mediaTags = ["media-piece", "media-criticism", "commentary", "edited-compilation", "reaction"];
+  const participantTags = ["first-person", "testimony"];
+  if (tags.some((t) => mediaTags.includes(t))) {
+    return {
+      status: "proposed",
+      value: "media",
+      confidence: "medium",
+      rationale: `tags include a media/produced-content marker (${tags.filter((t) => mediaTags.includes(t)).join(", ")}).`,
+    };
+  }
+  if (tags.some((t) => participantTags.includes(t))) {
+    return {
+      status: "proposed",
+      value: "participant",
+      confidence: "medium",
+      rationale: `tags include a raw/participant marker (${tags.filter((t) => participantTags.includes(t)).join(", ")}).`,
+    };
+  }
+
+  const uploader = (entry.source?.uploader ?? "").trim();
+  const uploaderLower = uploader.toLowerCase();
+  if (KNOWN_MEDIA_UPLOADERS.has(uploaderLower)) {
+    return {
+      status: "proposed",
+      value: "media",
+      confidence: "medium",
+      rationale: `uploader "${uploader}" is a known outlet/org/branded channel.`,
+    };
+  }
+  if (MEDIA_UPLOADER_NAME_RE.test(uploader)) {
+    return {
+      status: "blocked",
+      value: null,
+      confidence: null,
+      rationale: `uploader name "${uploader}" looks outlet-shaped (matches a news/org naming pattern) but isn't in the known list — needs a human look rather than a guess.`,
+    };
+  }
+
+  const postCount = uploaderPostCounts.get(uploaderLower) ?? 0;
+  if (postCount >= 2) {
+    return {
+      status: "blocked",
+      value: null,
+      confidence: null,
+      rationale: `uploader "${uploader}" has posted ${postCount} entries in this archive — repeat posting can indicate an org/outlet account, needs a human look.`,
+    };
+  }
+
+  return {
+    status: "blocked",
+    value: null,
+    confidence: null,
+    rationale:
+      "No description/tag/uploader signal matched. Per docs/content-pipeline.md's stated bias toward participant footage, this is NOT auto-defaulted to \"participant\" — left for a human to actually look at the footage and uploader before deciding.",
+  };
+}
+
+function collectUploaderPostCounts(entries) {
+  const counts = new Map();
+  for (const entry of entries) {
+    const uploader = (entry.source?.uploader ?? "").trim().toLowerCase();
+    if (!uploader) continue;
+    counts.set(uploader, (counts.get(uploader) ?? 0) + 1);
+  }
+  return counts;
+}
+
 // ---------------------------------------------------------------------------
 // propose
 // ---------------------------------------------------------------------------
 
-function buildProposal(entry, vocabulary) {
+function buildProposal(entry, vocabulary, uploaderPostCounts) {
   return {
     id: entry.id,
     title: entry.title,
     sourcePlatform: entry.source?.platform ?? null,
     sourceUrl: entry.source?.url ?? null,
+    sourceUploader: entry.source?.uploader ?? null,
     current: {
       description: entry.description,
       date: entry.date,
       location: entry.location,
       tags: entry.tags,
+      footageOrigin: entry.footageOrigin ?? null,
     },
     proposed: {
       date: deriveDate(entry),
       description: deriveDescription(entry),
       tags: deriveTags(entry, vocabulary),
       location: deriveLocation(entry),
+      footageOrigin: deriveFootageOrigin(entry, uploaderPostCounts),
     },
   };
 }
@@ -273,8 +415,9 @@ function cmdPropose(args) {
 
   const entries = readVideos(); // read-only — videos.json is never written by this command
   const vocabulary = collectTagVocabulary(entries);
+  const uploaderPostCounts = collectUploaderPostCounts(entries);
 
-  const proposals = entries.map((entry) => buildProposal(entry, vocabulary));
+  const proposals = entries.map((entry) => buildProposal(entry, vocabulary, uploaderPostCounts));
 
   const needingWork = proposals.filter((p) =>
     Object.values(p.proposed).some((f) => f.status !== "skipped"),
@@ -306,6 +449,8 @@ function cmdPropose(args) {
   const tagsBlocked = proposals.filter((p) => p.proposed.tags.status === "blocked").length;
   const locBlocked = proposals.filter((p) => p.proposed.location.status === "blocked").length;
   const needsSecondPass = proposals.filter((p) => p.proposed.description.needsSecondPass).length;
+  const originProposed = proposals.filter((p) => p.proposed.footageOrigin.status === "proposed").length;
+  const originBlocked = proposals.filter((p) => p.proposed.footageOrigin.status === "blocked").length;
 
   console.log(`Read ${total} entr${total === 1 ? "y" : "ies"} from ${path.relative(ROOT, VIDEOS_JSON)} (read-only).`);
   console.log(`${withTodo} entr${withTodo === 1 ? "y" : "ies"} have at least one TODO field.`);
@@ -314,6 +459,7 @@ function cmdPropose(args) {
   console.log(`description: ${descProposed} proposed (needs human edit), ${descBlocked} blocked`);
   console.log(`tags:        ${tagsProposed} proposed (needs human confirm), ${tagsBlocked} blocked`);
   console.log(`location:    ${locBlocked} blocked (never guessed)`);
+  console.log(`footageOrigin: ${originProposed} proposed (needs human confirm), ${originBlocked} blocked`);
   console.log("");
   if (needsSecondPass > 0) {
     console.log(
@@ -355,7 +501,7 @@ function cmdApply(args) {
       continue;
     }
     let touchedThisEntry = false;
-    for (const field of ["date", "description", "location"]) {
+    for (const field of ["date", "description", "location", "footageOrigin"]) {
       const proposal = proposalEntry.proposed?.[field];
       if (!proposal) continue;
       if (proposal.status === "accepted") {

@@ -22,7 +22,7 @@ Pipeline stages, in order:
 6. **Probe** — `ffprobe -v quiet -print_format json -show_format -show_streams` → duration (s, rounded), width, height.
 7. **Append entry** — build the entry (schema in `design-spec.md` §5) with:
    - `verificationStatus: "unverified"` — always; upgrades are manual (see `verification-policy.md`). Recorded regardless of whether anything currently displays it — as of 2026-07-21 nothing in the UI renders this field (see `verification-policy.md` "Display rules"), but it is still required and still validated.
-   - `title`/`uploader`/`publishedAt` prefilled from yt-dlp metadata; `description`, `date`, `location`, `tags` left as `"TODO"` placeholders for human editing
+   - `title`/`uploader`/`publishedAt` prefilled from yt-dlp metadata; `description`, `date`, `location`, `tags`, `footageOrigin` left as `"TODO"` placeholders for human editing. `footageOrigin` (`"participant"` or `"media"`) drives feed ordering — see "Editorial rules" below and `src/pages/feed.astro`/`src/scripts/feed.ts`.
    - `archivedAt`: today (ISO)
    - no `sample` field
    Validate against the schema, then write `videos.json` (pretty-printed, 2-space).
@@ -86,7 +86,7 @@ All `media.video` / `media.thumbnail` paths in JSON are relative; components joi
 - Descriptions state what is visible in the footage, not conclusions ("crowd moves down MG Road" not "police brutalize protesters").
 - Respect platform terms of service; only archive publicly available material.
 - Fill every `TODO` field before deploying — the build validation must reject entries containing `"TODO"`.
-- Prioritize participant footage over media-house coverage when a choice exists — this is a record of what people who were there filmed and posted, not a rebroadcast of news coverage of them.
+- Classify every entry's `footageOrigin` as `"participant"` (raw footage filmed and posted by someone who was there) or `"media"` (media outlets, political parties, influencer/channel accounts, edited compilations, commentary/reaction content) — this is no longer just curation guidance, it's an enforced, validated field that determines feed order (participant footage surfaces first; see `src/pages/feed.astro`, `src/scripts/feed.ts`). Use `scripts/enrich.mjs`'s `deriveFootageOrigin` heuristics as a starting point, never as a final answer — every value needs a human look. The same `derive<Field>()` recipe in `enrich.mjs` is the template for adding future editorial-judgment fields (e.g. a content-warning flag) without inventing new tooling.
 - If a correction or takedown request comes in, it now arrives through `/takedown/` → D1, not email (see `docs/design-spec.md` §12). Read pending requests with:
   ```sh
   npx wrangler d1 execute blackdays-takedowns --remote --command "SELECT * FROM takedown_requests ORDER BY created_at DESC"

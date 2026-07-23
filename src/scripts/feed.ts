@@ -327,21 +327,27 @@ function activate(card: HTMLElement, cards: HTMLElement[], index: number) {
   });
 }
 
-// Randomizes discovery order on every visit. The feed is a static build (no
-// per-request server), so this has to happen client-side, and it has to run
-// before .feed-card is queried below: everything downstream — next/prev via
-// cards[index ± 1], the IntersectionObserver, attach/detach of `src` — keys
-// off DOM order, so reordering later would desync it from what's on screen.
-// Reassigns each card via appendChild, which *moves* an already-attached
-// node rather than cloning it, so listeners bound afterward in this same
-// pass are unaffected.
+// Randomizes discovery order on every visit, within two priority tiers:
+// participant (raw) footage first, then everything else — each tier shuffled
+// independently, then concatenated tier-first. The feed is a static build
+// (no per-request server), so this has to happen client-side, and it has to
+// run before .feed-card is queried below: everything downstream — next/prev
+// via cards[index ± 1], the IntersectionObserver, attach/detach of `src` —
+// keys off DOM order, so reordering later would desync it from what's on
+// screen. Reassigns each card via appendChild, which *moves* an
+// already-attached node rather than cloning it, so listeners bound
+// afterward in this same pass are unaffected.
 function shuffleFeedOrder(container: HTMLElement) {
   const cards = Array.from(container.children) as HTMLElement[];
-  for (let i = cards.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [cards[i], cards[j]] = [cards[j], cards[i]];
+  const participant = cards.filter((c) => c.dataset.footageOrigin === "participant");
+  const rest = cards.filter((c) => c.dataset.footageOrigin !== "participant");
+  for (const group of [participant, rest]) {
+    for (let i = group.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [group[i], group[j]] = [group[j], group[i]];
+    }
   }
-  for (const card of cards) container.appendChild(card);
+  for (const card of [...participant, ...rest]) container.appendChild(card);
 }
 
 function initFeed() {
