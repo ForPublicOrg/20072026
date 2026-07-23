@@ -2297,5 +2297,229 @@
     },
     "archivedAt": "2026-07-22",
     "footageOrigin": "media"
+  },
+  {
+    "id": "video-105",
+    "title": "Video by boomlive_in",
+    "description": "A BOOM fact-check explainer responding to a Delhi Police tweet that called a viral clip of \"batons fitted with nails\" fake and unrelated to the protest. BOOM says a forensic metadata check on the original file placed the recording at Gate No. 3, Janpath Metro Station with a timestamp of 20 July, and that its source (kept anonymous) confirmed attending that day's protest.",
+    "date": "2026-07-22",
+    "location": "Janpath Metro Station, New Delhi, India",
+    "tags": [
+      "media-piece",
+      "contested-framing",
+      "delhi-police",
+      "reportage"
+    ],
+    "verificationStatus": "unverified",
+    "footageOrigin": "media",
+    "source": {
+      "platform": "Instagram",
+      "url": "https://www.instagram.com/reel/DbF43o6jx3P/",
+      "uploader": "BOOM",
+      "publishedAt": "2026-07-22"
+    },
+    "media": {
+      "video": "videos/video-105.mp4",
+      "thumbnail": "thumbnails/video-105.jpg",
+      "duration": 66,
+      "width": 540,
+      "height": 960
+    },
+    "archivedAt": "2026-07-23"
+  },
+  {
+    "id": "video-106",
+    "title": "Video by cockroachjantaparty",
+    "description": "A TV news clip, credited on-screen to Lokmat, showing a police officer inside a vehicle telling two young men \"I will put 50-50gm powder in pocket if I see you again,\" captioned by the broadcaster as a cop threatening young protesters. The on-screen Marathi headline frames it as Mumbai police accused of behaving \"like the British.\"",
+    "date": "2026-07-23T12:05",
+    "location": "Mumbai, Maharashtra, India",
+    "tags": [
+      "police",
+      "confrontation"
+    ],
+    "verificationStatus": "unverified",
+    "footageOrigin": "media",
+    "source": {
+      "platform": "Instagram",
+      "url": "https://www.instagram.com/reel/DbH58syMPE4/",
+      "uploader": "Cockroach Janta Party",
+      "publishedAt": "2026-07-23"
+    },
+    "media": {
+      "video": "videos/video-106.mp4",
+      "thumbnail": "thumbnails/video-106.jpg",
+      "duration": 29,
+      "width": 540,
+      "height": 960
+    },
+    "archivedAt": "2026-07-23"
+  },
+  {
+    "id": "video-107",
+    "title": "Video by disha_ramteke05",
+    "description": "Night-time footage overlaid with the caption \"Nagpur Police\" showing a woman in a red outfit pinned face-down on the pavement while an officer's leg presses against her back; a second clip shows a crowd pressed against a metal shutter. Posted with the hashtags #nagpur and #savidhanchowknagpur.",
+    "date": "2026-07-22T19:30",
+    "location": "Samvidhan Chowk, Nagpur, Maharashtra, India",
+    "tags": [
+      "detention",
+      "force",
+      "night"
+    ],
+    "verificationStatus": "unverified",
+    "footageOrigin": "participant",
+    "source": {
+      "platform": "Instagram",
+      "url": "https://www.instagram.com/reel/DbG6IrlReJT/",
+      "uploader": "Disha Ramteke",
+      "publishedAt": "2026-07-22"
+    },
+    "media": {
+      "video": "videos/video-107.mp4",
+      "thumbnail": "thumbnails/video-107.jpg",
+      "duration": 33,
+      "width": 540,
+      "height": 960
+    },
+    "archivedAt": "2026-07-23"
+  },
+  {
+    "id": "video-108",
+    "title": "Video by aanu_06_05",
+    "description": "Footage filmed from behind a wall and tree line, overlaid with the text \"Gundagardi At its Peak,\" showing riot police standing by parked buses amid haze on the road, with a large crowd visible further down the street. Posted with the hashtags #cockroachjantaparty #sonamwangchuk #jantarmantarprotest.",
+    "date": "2026-07-20T12:35",
+    "location": "Jantar Mantar, New Delhi, India",
+    "tags": [
+      "police",
+      "haze",
+      "jantar-mantar"
+    ],
+    "verificationStatus": "unverified",
+    "footageOrigin": "participant",
+    "source": {
+      "platform": "Instagram",
+      "url": "https://www.instagram.com/reel/DbBz8TgzUPD/",
+      "uploader": "ANAND KUMAR",
+      "publishedAt": "2026-07-20"
+    },
+    "media": {
+      "video": "videos/video-108.mp4",
+      "thumbnail": "thumbnails/video-108.jpg",
+      "duration": 21,
+      "width": 540,
+      "height": 960
+    },
+    "archivedAt": "2026-07-23"
+  },
+  {
+    "id": "video-109",
+    "title": "Baton charge and tear gas as protesters try to reach Parliament",
+    "description": "Police brutality on protesters trying to reach sansad.",
+    "date": "2026-07-20T12:30",
+    "location": "New Delhi, India",
+    "tags": [
+      "barricade",
+      "tear-gas",
+      "crowd-control",
+      "police"
+    ],
+    "verificationStatus": "unverified",
+    "footageOrigin": "participant",
+    "source": {
+      "platform": "Direct upload",
+      "url": "",
+      "uploader": "Submission #2",
+      "publishedAt": "2026-07-20T12:30"
+    },
+    "media": {
+      "video": "videos/video-109.mp4",
+      "thumbnail": "thumbnails/video-109.jpg",
+      "duration": 25,
+      "width": 720,
+      "height": 1280
+    },
+    "archivedAt": "2026-07-23"
+  },
+  {
+    "id": "video-110",
+    "title": "Delhi Police stand over injured protester as crowd shouts \"They killed him\"",
+    "description": "This video shows delhi police beating a student protestor  during the peaceful protest demanding Dharmendra Pradhan's resignation due to paper leaks",
+    "date": "2026-07-20T07:16",
+    "location": "Jantar Mantar, New Delhi, India",
+    "tags": [
+      "lathi",
+      "injury",
+      "police"
+    ],
+    "verificationStatus": "unverified",
+    "footageOrigin": "participant",
+    "source": {
+      "platform": "Direct upload",
+      "url": "",
+      "uploader": "Submission #3",
+      "publishedAt": "2026-07-20T07:16"
+    },
+    "media": {
+      "video": "videos/video-110.mp4",
+      "thumbnail": "thumbnails/video-110.jpg",
+      "duration": 21,
+      "width": 720,
+      "height": 1280
+    },
+    "archivedAt": "2026-07-23"
+  },
+  {
+    "id": "video-111",
+    "title": "\"Who is the stone-thrower?\" — street clash filmed from a distance",
+    "description": "This video shows a clip from the 20th July protest where police started throwing stones at the peaceful student protestors",
+    "date": "2026-07-20T07:28",
+    "location": "New Delhi, India",
+    "tags": [
+      "street",
+      "contested-framing",
+      "police"
+    ],
+    "verificationStatus": "unverified",
+    "footageOrigin": "participant",
+    "source": {
+      "platform": "Direct upload",
+      "url": "",
+      "uploader": "Submission #4",
+      "publishedAt": "2026-07-20T07:28"
+    },
+    "media": {
+      "video": "videos/video-111.mp4",
+      "thumbnail": "thumbnails/video-111.jpg",
+      "duration": 38,
+      "width": 720,
+      "height": 1280
+    },
+    "archivedAt": "2026-07-23"
+  },
+  {
+    "id": "video-112",
+    "title": "Witness account of police action at the 20 July protest",
+    "description": "This video shows a media person telling the exact situation of what happened at the protest on 20th July 2026 and how the police became violent",
+    "date": "2026-07-20",
+    "location": "New Delhi, India",
+    "tags": [
+      "testimony",
+      "crowd"
+    ],
+    "verificationStatus": "unverified",
+    "footageOrigin": "participant",
+    "source": {
+      "platform": "Direct upload",
+      "url": "",
+      "uploader": "Submission #6",
+      "publishedAt": "2026-07-20"
+    },
+    "media": {
+      "video": "videos/video-112.mp4",
+      "thumbnail": "thumbnails/video-112.jpg",
+      "duration": 177,
+      "width": 720,
+      "height": 1280
+    },
+    "archivedAt": "2026-07-23"
   }
 ]
