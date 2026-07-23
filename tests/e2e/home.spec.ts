@@ -9,6 +9,11 @@ test("homepage renders the hero and primary nav", async ({ page }) => {
   await expect(page.getByLabel("About")).toBeVisible();
 });
 
+test("never mentions sample/placeholder entries to visitors", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByText(/sample placeholder/i)).toHaveCount(0);
+});
+
 test("submit-video form is present and toggles between url and upload mode", async ({ page }) => {
   await page.goto("/");
   const form = page.locator("#submit-video-form");

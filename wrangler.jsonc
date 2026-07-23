@@ -43,8 +43,14 @@
   ],
   // Served from an existing zone in the account, so no workers.dev subdomain is
   // needed. Cloudflare creates and manages the DNS record for a custom_domain
-  // route automatically. 20072026.com is the permanent domain.
-  "routes": [{ "pattern": "20072026.com", "custom_domain": true }],
+  // route automatically. 20072026.com is the permanent domain; www has no DNS
+  // record of its own otherwise (it 404'd until this was added), and only
+  // exists to be 301-redirected to the apex — see the hostname check at the
+  // top of src/worker.ts's fetch handler.
+  "routes": [
+    { "pattern": "20072026.com", "custom_domain": true },
+    { "pattern": "www.20072026.com", "custom_domain": true }
+  ],
 
   // Staging environment used by CI on every pull request (see
   // .github/workflows/deploy.yml and .claude/skills/deploy/SKILL.md).

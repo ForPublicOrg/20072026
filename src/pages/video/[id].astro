@@ -1,11 +1,13 @@
 ---
 import Base from "../../layouts/Base.astro";
-import { loadVideos } from "../../lib/schema";
+import { loadVideos, publicVideos } from "../../lib/schema";
 import { MEDIA_BASE, SITE_URL } from "../../config";
 import type { VideoEntry } from "../../lib/schema";
 
 export function getStaticPaths() {
-  const videos = loadVideos();
+  // Sample/placeholder entries get no page at all — the id 404s via
+  // Cloudflare's not_found_handling, same as any other unknown video id.
+  const videos = publicVideos(loadVideos());
   return videos.map((video) => ({
     params: { id: video.id },
     props: { video },
@@ -17,7 +19,7 @@ interface Props {
 }
 
 const { video } = Astro.props;
-const allVideos = loadVideos();
+const allVideos = publicVideos(loadVideos());
 
 function relatedScore(other: VideoEntry): number {
   if (other.id === video.id) return -1;
@@ -74,14 +76,6 @@ const truncatedDescription =
   ogType="video.other"
 >
   <div class="content-col py-8">
-    {
-      video.sample && (
-        <div class="mb-4 inline-block rounded-full bg-accent px-3 py-1 text-xs font-semibold uppercase tracking-wide text-bg">
-          Sample — placeholder entry
-        </div>
-      )
-    }
-
     <div
       class="video-player-wrap mx-auto mb-6 flex w-full items-center justify-center bg-letterbox"
       style={`aspect-ratio: ${video.media.width} / ${video.media.height};`}

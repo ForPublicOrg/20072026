@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { loadTimeline, loadVideos } from "../../src/lib/schema";
+import { loadTimeline, loadVideos, publicVideos } from "../../src/lib/schema";
 
 // The real committed data files must always pass validation — this is a
 // regression test against bad hand-edits or a bad collect.mjs/CSV run
@@ -158,6 +158,15 @@ describe("loadVideos() validation", () => {
   it("throws when sample is present but not a boolean", async () => {
     const { loadVideos } = await loadWithFixtures([minimalVideo({ sample: "true" })]);
     expect(() => loadVideos()).toThrow(/"sample" must be a boolean/);
+  });
+
+  it("publicVideos() excludes sample:true entries", async () => {
+    const { loadVideos, publicVideos } = await loadWithFixtures([
+      minimalVideo({ id: "video-001", sample: true }),
+      minimalVideo({ id: "video-002" }),
+    ]);
+    const result = publicVideos(loadVideos());
+    expect(result.map((v) => v.id)).toEqual(["video-002"]);
   });
 
   it("throws when tags is present but not an array of strings", async () => {

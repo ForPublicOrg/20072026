@@ -6,13 +6,11 @@
 // of this route (it has flipped between "feed-as-landing" and "banner +
 // context page" more than once on 2026-07-21; this is the latest state).
 import Base from "../layouts/Base.astro";
-import { loadVideos, loadTimeline } from "../lib/schema";
+import { loadVideos, loadTimeline, publicVideos } from "../lib/schema";
 import { SITE_URL } from "../config";
 
-const videos = loadVideos();
+const videos = publicVideos(loadVideos());
 const timeline = loadTimeline();
-const realVideos = videos.filter((v) => !v.sample);
-const sampleVideos = videos.filter((v) => v.sample);
 
 const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
 ---
@@ -138,14 +136,10 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
         verified.
       </p>
       <p class="counts">
-        {realVideos.length} video{realVideos.length === 1 ? "" : "s"} archived
+        {videos.length} video{videos.length === 1 ? "" : "s"} archived
         &middot; {timeline.length} timeline event{
           timeline.length === 1 ? "" : "s"
         }
-        <span class="counts-note">
-          + {sampleVideos.length} sample placeholders in the archive, clearly
-          marked, not counted above
-        </span>
       </p>
     </section>
 
@@ -521,13 +515,6 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
     margin-top: 1rem;
     font-size: 0.8125rem;
     color: var(--color-muted);
-  }
-
-  .counts-note {
-    display: block;
-    margin-top: 0.3rem;
-    font-size: 0.75rem;
-    color: var(--color-tertiary);
   }
 
   /* --- "Submit a video" form ------------------------------------------- */

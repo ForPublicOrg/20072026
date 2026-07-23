@@ -253,3 +253,13 @@ describe("static asset fallback", () => {
     expect(res.headers.get("content-type")).toContain("text/html");
   });
 });
+
+describe("www redirect", () => {
+  it("301s www.20072026.com to the bare domain, preserving path and query", async () => {
+    const res = await SELF.fetch("https://www.20072026.com/feed?x=1", {
+      redirect: "manual",
+    });
+    expect(res.status).toBe(301);
+    expect(res.headers.get("location")).toBe("https://20072026.com/feed?x=1");
+  });
+});
