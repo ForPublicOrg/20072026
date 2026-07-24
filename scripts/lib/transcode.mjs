@@ -121,6 +121,34 @@ export function generateThumbnail(videoFile, thumbFile) {
   ]);
 }
 
+// N evenly-spaced stills across the clip's duration, for a human (or an
+// LLM agent) to look at when drafting editorial fields for an entry that
+// arrived with no title/description of its own (unlike collect.mjs's
+// yt-dlp metadata) — see scripts/ingest-drive-batch.mjs.
+export function generateFrames(videoFile, outDir, count, duration) {
+  const framePaths = [];
+  for (let i = 1; i <= count; i++) {
+    const t = Math.max(0, Math.round((duration * i) / (count + 1)));
+    const framePath = `${outDir}/frame-${String(i).padStart(2, "0")}.jpg`;
+    run("ffmpeg", [
+      "-y",
+      "-ss",
+      String(t),
+      "-i",
+      videoFile,
+      "-frames:v",
+      "1",
+      "-vf",
+      "scale=720:-2",
+      "-map_metadata",
+      "-1",
+      framePath,
+    ]);
+    framePaths.push(framePath);
+  }
+  return framePaths;
+}
+
 // Social platforms (Instagram, X) already serve hard-compressed H.264 sized
 // for mobile. Re-encoding those at crf 26 targets *higher* quality than the
 // source, which inflates the file without adding information — one 1.92MiB
