@@ -17,20 +17,16 @@ Pipeline stages, in order:
 1. **Duplicate check** — if `source.url` already exists in `src/data/videos.json`, abort with a message naming the existing entry id.
 2. **Download** — `yt-dlp -f "bv*[height<=1080]+ba/b[height<=1080]" --no-playlist -o <tmp>/raw.%(ext)s <url>`. Also captures metadata via `yt-dlp --dump-json`: uploader, title, upload date, platform (from extractor key).
 3. **Normalize id** — next sequential id: `video-NNN` (zero-padded, max existing + 1).
-4. **Compress for web** — `ffmpeg -i raw -c:v libx264 -preset slow -crf 26 -vf "scale='min(720,iw)':-2" -c:a aac -b:a 96k -movflags +faststart media/videos/video-NNN.mp4`.
-5. **Thumbnail** — `ffmpeg -ss 1 -i video-NNN.mp4 -frames:v 1 -vf "scale=720:-2" media/thumbnails/video-NNN.jpg`.
+4. **Compress for web** — `ffmpeg -i raw -c:v libx264 -preset slow -crf 26 -vf "scale='min(720,iw)':-2" -c:a aac -b:a 96k -movflags +faststart <tmp>/video-NNN.mp4`.
+5. **Thumbnail** — `ffmpeg -ss 1 -i video-NNN.mp4 -frames:v 1 -vf "scale=720:-2" <tmp>/video-NNN.jpg`.
 6. **Probe** — `ffprobe -v quiet -print_format json -show_format -show_streams` → duration (s, rounded), width, height.
-7. **Append entry** — build the entry (schema in `design-spec.md` §4) with `verificationStatus: "unverified"` always (upgrades are manual, see `verification-policy.md`); `title`/`uploader`/`publishedAt` prefilled from yt-dlp metadata; `description`, `date`, `location`, `tags`, `footageOrigin` left as `"TODO"` placeholders for human editing (`footageOrigin` — `"participant"` or `"media"` — drives feed ordering, see "Editorial rules" below); `archivedAt` set to today (ISO); no `sample` field. Validated against the schema, then written to `videos.json` (pretty-printed, 2-space).
-8. **Print summary** — id, file sizes, duration, and a reminder to fill in the `TODO` fields before deploying.
+7. **Push to R2** — both files go straight to the public `blackdays-media` bucket (`wrangler r2 object put`, via `scripts/lib/admin-resources.mjs`'s `r2Put`) before the entry is ever written, so a failed push aborts the whole run rather than leaving `videos.json` pointing at media that doesn't exist yet.
+8. **Append entry** — build the entry (schema in `design-spec.md` §4) with `verificationStatus: "unverified"` always (upgrades are manual, see `verification-policy.md`); `title`/`uploader`/`publishedAt` prefilled from yt-dlp metadata; `description`, `date`, `location`, `tags`, `footageOrigin` left as `"TODO"` placeholders for human editing (`footageOrigin` — `"participant"` or `"media"` — drives feed ordering, see "Editorial rules" below); `archivedAt` set to today (ISO); no `sample` field. Validated against the schema, then written to `videos.json` (pretty-printed, 2-space).
+9. **Print summary** — id, file sizes, duration, and a reminder to fill in the `TODO` fields before deploying.
 
 The raw download is kept in `archive-originals/` (git-ignored) as the archival copy; only the compressed version is served.
 
-**Media-base caveat:** `collect.mjs` still writes to `public/media/videos|thumbnails/`, which predates the R2 cutover and is no longer served. Files that land there need to be moved to R2 by hand:
-```sh
-wrangler r2 object put blackdays-media/videos/video-NNN.mp4 --file media/videos/video-NNN.mp4 --remote
-wrangler r2 object put blackdays-media/thumbnails/video-NNN.jpg --file media/thumbnails/video-NNN.jpg --remote
-```
-This is a known gap in `collect.mjs`, not a design choice — see the hard rules at the top of `collect-batch.mjs` for why it isn't patched there instead.
+**Fixed 2026-07-24:** `collect.mjs` used to write its compressed output to `public/media/videos|thumbnails/`, a pre-R2-cutover path that was never actually served — it required a manual `wrangler r2 object put` step afterward, which got missed for a batch of 4 videos (`video-105`–`108`), producing a silent black-screen/404 on the live site until caught. The compressed video and thumbnail now write into the same per-run temp directory as the raw download and get pushed to R2 directly inside `collect.mjs` itself — there is no manual step left to forget.
 
 ## Adding many videos at once: `node scripts/collect-batch.mjs <csv-path>`
 
@@ -44,7 +40,7 @@ Wraps `collect.mjs`, one child process per URL, strictly serial (never concurren
 
 The script rewrites the CSV in place after every attempt, so an interrupted run leaves accurate state for the next one. It has a safety valve (aborts after 3 consecutive failures — likely an IP-level soft wall) and deliberately slow pacing (20–40s between requests, 60–90s before retrying rows still `failed`) — a third of requests to some platforms get silently soft-walled otherwise, so don't tighten these. It also normalizes Instagram URLs (strips tracking params) before the duplicate check.
 
-New videos this script collects still land in `public/media/` per the caveat above and need the same manual R2 upload step before they're live.
+Each URL it collects goes through the same `collect.mjs` pipeline, including the direct R2 push — no separate upload step needed here either.
 
 ## Timeline data
 

@@ -39,4 +39,4 @@ Test files live under `tests/unit/`, `tests/integration/`, `tests/e2e/`. Only `t
 ## Content-authoring gotchas (detail in `docs/content-pipeline.md`)
 
 - Build validation rejects any `videos.json`/`timeline.json` entry still containing a literal `TODO` field — fill every field before merging.
-- `scripts/collect.mjs` still writes new media to `public/media/`, which is stale/unserved since the R2 cutover. New media must be pushed to R2 by hand: `wrangler r2 object put blackdays-media/... --file ... --remote`.
+- `scripts/collect.mjs` pushes compressed video/thumbnail straight to the `blackdays-media` R2 bucket itself (no manual `wrangler r2 object put` step) — fixed 2026-07-24 after a batch of collected videos (video-105–108) silently 404'd because the old manual push step was missed. If you ever see a video show a black screen / 404 on staging or prod, check `media.20072026.com/videos/<id>.mp4` directly first — that's almost always a missing R2 object, not a player bug.

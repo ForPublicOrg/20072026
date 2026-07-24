@@ -26,13 +26,12 @@ import {
   run,
   transcodeForWeb,
 } from "./lib/transcode.mjs";
+import { MEDIA_BUCKET, r2Put } from "./lib/admin-resources.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 
 const ARCHIVE_DIR = path.join(ROOT, "archive-originals");
-const VIDEOS_DIR = path.join(ROOT, "public/media/videos");
-const THUMBS_DIR = path.join(ROOT, "public/media/thumbnails");
 const VIDEOS_JSON = path.join(ROOT, "src/data/videos.json");
 
 const BREW_HINT = "brew install yt-dlp ffmpeg";
@@ -169,14 +168,12 @@ function main() {
   run("cp", [rawFile, archiveFile]);
 
   // -------------------------------------------------------------------------
-  // 4. Compress for web
+  // 4. Compress for web (into the same tmpDir as the raw download — pushed
+  // straight to R2 below, never written under public/ or committed)
   // -------------------------------------------------------------------------
 
-  mkdirSync(VIDEOS_DIR, { recursive: true });
-  mkdirSync(THUMBS_DIR, { recursive: true });
-
-  const videoFile = path.join(VIDEOS_DIR, `${id}.mp4`);
-  const thumbFile = path.join(THUMBS_DIR, `${id}.jpg`);
+  const videoFile = path.join(tmpDir, `${id}.mp4`);
+  const thumbFile = path.join(tmpDir, `${id}.jpg`);
 
   const transcodeResult = transcodeForWeb(rawFile, videoFile);
   if (transcodeResult.method === "remux") {
@@ -206,6 +203,20 @@ function main() {
   // -------------------------------------------------------------------------
 
   const { duration, width, height } = probe(videoFile);
+
+  // -------------------------------------------------------------------------
+  // 6b. Push to R2 — before the entry is recorded, so a failed push here
+  // aborts (via run()'s throw) rather than leaving videos.json pointing at
+  // media that was never actually uploaded.
+  // -------------------------------------------------------------------------
+
+  const videoSize = statSync(videoFile).size;
+  const thumbSize = statSync(thumbFile).size;
+  const archiveSize = statSync(archiveFile).size;
+
+  console.log(`Pushing to R2 (${MEDIA_BUCKET})...`);
+  r2Put(MEDIA_BUCKET, `videos/${id}.mp4`, videoFile);
+  r2Put(MEDIA_BUCKET, `thumbnails/${id}.jpg`, thumbFile);
 
   // -------------------------------------------------------------------------
   // 7. Append entry
@@ -241,21 +252,18 @@ function main() {
   const mergedVideos = [...existingVideos, entry];
   writeFileSync(VIDEOS_JSON, JSON.stringify(mergedVideos, null, 2) + "\n");
 
-  // Clean up tmp download dir (archive copy already made).
+  // Clean up tmp download dir (archive copy already made, media already
+  // pushed to R2 above).
   rmSync(tmpDir, { recursive: true, force: true });
 
   // -------------------------------------------------------------------------
   // 8. Summary
   // -------------------------------------------------------------------------
 
-  const videoSize = statSync(videoFile).size;
-  const thumbSize = statSync(thumbFile).size;
-  const archiveSize = statSync(archiveFile).size;
-
   console.log(`\nCollected ${id}: "${title}"`);
   console.log(`  archive original: ${path.relative(ROOT, archiveFile)} (${humanSize(archiveSize)})`);
-  console.log(`  web video:        ${path.relative(ROOT, videoFile)} (${humanSize(videoSize)})`);
-  console.log(`  thumbnail:        ${path.relative(ROOT, thumbFile)} (${humanSize(thumbSize)})`);
+  console.log(`  web video:        ${MEDIA_BUCKET}/videos/${id}.mp4 (${humanSize(videoSize)})`);
+  console.log(`  thumbnail:        ${MEDIA_BUCKET}/thumbnails/${id}.jpg (${humanSize(thumbSize)})`);
   console.log(`  duration:         ${duration}s, ${width}x${height}`);
   console.log(`  verificationStatus: unverified`);
   console.log(
