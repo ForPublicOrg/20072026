@@ -1057,5 +1057,123 @@
         }
       }
     ]
+  },
+  {
+    "time": "2026-07-23",
+    "title": "Talks offered, venue rejected",
+    "description": "Union Minister Jitendra Singh said the government was ready to hold talks with the CJP wherever it wanted. Chief spokesperson Saurav Das said the movement had already answered that: meet at Jantar Mantar, or at a neutral venue such as the Constitution Club of India - not at Health Minister J.P. Nadda's residence or office, where the government had proposed the meeting. Das called the overture no more than an attempt \"to mislead people\" and said the CJP would not negotiate with anyone below the level of Pradhan's resignation.",
+    "relatedVideoIds": [],
+    "image": {
+      "src": "/timeline/2026-07-23-jantar-mantar-bhagat-singh.jpg",
+      "alt": "Protesters at Jantar Mantar holding posters of Bhagat Singh, one reading a quote about the deaf needing to hear a loud sound",
+      "caption": "Protesters at Jantar Mantar, the site the CJP insisted any talks be held at - not a minister's residence.",
+      "credit": "Photo: Pelph Hoters, CC0 1.0, via Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:CJP_Protestors_holding_Bhagat_Singh_posters.jpg",
+      "width": 1200,
+      "height": 800
+    },
+    "sources": [
+      {
+        "title": "Free Press Journal - 'Come To Jantar Mantar': CJP Rejects Govt Venue, Invites Ministers To Protest Site Or Constitution Club For Talks",
+        "url": "https://www.freepressjournal.in/india/come-to-jantar-mantar-cjp-rejects-govt-venue-invites-ministers-to-protest-site-or-constitution-club-for-talks"
+      }
+    ],
+    "statements": [
+      {
+        "speaker": "Saurav Das",
+        "role": "CJP chief spokesperson",
+        "kind": "press",
+        "date": "2026-07-23",
+        "quote": "Union Minister Jitendra Singh said that we can hold talks anywhere; then we have already made our suggestion. Come to Jantar Mantar or to a neutral venue like the Constitution Club of India.",
+        "source": {
+          "title": "Free Press Journal - CJP Rejects Govt Venue, Invites Ministers To Protest Site Or Constitution Club For Talks",
+          "url": "https://www.freepressjournal.in/india/come-to-jantar-mantar-cjp-rejects-govt-venue-invites-ministers-to-protest-site-or-constitution-club-for-talks"
+        }
+      },
+      {
+        "speaker": "Saurav Das",
+        "role": "CJP chief spokesperson",
+        "kind": "press",
+        "date": "2026-07-23",
+        "quote": "We will not discuss this matter with anyone below the level of the resignation of Union Minister Dharmendra Pradhan.",
+        "source": {
+          "title": "Free Press Journal - CJP Rejects Govt Venue, Invites Ministers To Protest Site Or Constitution Club For Talks",
+          "url": "https://www.freepressjournal.in/india/come-to-jantar-mantar-cjp-rejects-govt-venue-invites-ministers-to-protest-site-or-constitution-club-for-talks"
+        }
+      }
+    ]
+  },
+  {
+    "time": "2026-07-23",
+    "title": "The protest spreads beyond Delhi",
+    "description": "Two clips archived this week showed the confrontation with police was no longer confined to Delhi. In Mumbai, a TV crew's footage - credited on-screen to Lokmat - showed a police officer inside a vehicle telling two young men he would \"put 50-50gm powder in pocket\" if he saw them again. In Nagpur, at Samvidhan Chowk, footage posted by a participant showed a woman in a red outfit pinned face-down on the pavement, an officer's leg pressed against her back, during a night-time detention.",
+    "relatedVideoIds": [
+      "video-106",
+      "video-107"
+    ]
+  },
+  {
+    "time": "2026-07-23",
+    "title": "Modi posts on the leaks; CJP shifts its aim toward him",
+    "description": "The Prime Minister posted that nothing was \"more important than the welfare and future of our youth\" and announced fast-track courts for paper-leak cases. CJP founder Abhijeet Dipke replied with an image of Pradhan captioned \"Hi, my name is nothing.\" Spokesperson Ashutosh Ranka told reporters the protest would not end until Pradhan resigns, but that the issue was \"no longer confined to Dharmendra Pradhan\" - the focus, he said, was \"now shifting towards the prime minister.\"",
+    "relatedVideoIds": [],
+    "sources": [
+      {
+        "title": "The Tribune - Dipke drops sarcasm in reply to Modi's post; 'issue no longer confined to Pradhan,' says CJP",
+        "url": "https://www.tribuneindia.com/news/india/dipke-drops-sarcasm-in-reply-to-modis-post-issue-no-longer-confined-to-pradhan-says-cjp/"
+      }
+    ],
+    "statements": [
+      {
+        "speaker": "Narendra Modi",
+        "role": "Prime Minister",
+        "kind": "tweet",
+        "date": "2026-07-23",
+        "quote": "Nothing is more important than the welfare and future of our youth.",
+        "context": "Posted alongside an announcement of fast-track courts for paper-leak cases.",
+        "source": {
+          "title": "The Tribune - Dipke drops sarcasm in reply to Modi's post",
+          "url": "https://www.tribuneindia.com/news/india/dipke-drops-sarcasm-in-reply-to-modis-post-issue-no-longer-confined-to-pradhan-says-cjp/"
+        }
+      },
+      {
+        "speaker": "Ashutosh Ranka",
+        "role": "CJP spokesperson",
+        "kind": "press",
+        "date": "2026-07-23",
+        "quote": "The real question is why paper leaks are happening in the first place.",
+        "context": "Responding to the Prime Minister's post and the fast-track courts announcement.",
+        "source": {
+          "title": "The Tribune - Dipke drops sarcasm in reply to Modi's post",
+          "url": "https://www.tribuneindia.com/news/india/dipke-drops-sarcasm-in-reply-to-modis-post-issue-no-longer-confined-to-pradhan-says-cjp/"
+        }
+      }
+    ]
+  },
+  {
+    "time": "2026-07-24",
+    "title": "CJP calls the country out",
+    "description": "The CJP called for coordinated demonstrations in every district of the country under the banner \"Every District. One Day. One Demand.\", urging students and civil-society groups elsewhere to march in solidarity with those it says faced police brutality in Delhi. Spokesperson Ashutosh Ranka said meaningful dialogue with the government would require an atmosphere of equality and transparency.",
+    "relatedVideoIds": [],
+    "sources": [
+      {
+        "title": "The Logical Indian - 'Every District, One Day, One Demand': CJP Announces Nationwide Protest on July 24",
+        "url": "https://thelogicalindian.com/cjp-calls-nationwide-protest-tomorrow/"
+      }
+    ],
+    "statements": [
+      {
+        "speaker": "Jitendra Singh",
+        "role": "Union Minister",
+        "kind": "press",
+        "date": "2026-07-23",
+        "quote": "We are ready to hold talks wherever you want",
+        "context": "The government's standing offer, cited as context alongside the nationwide protest call.",
+        "source": {
+          "title": "The Logical Indian - CJP Announces Nationwide Protest on July 24",
+          "url": "https://thelogicalindian.com/cjp-calls-nationwide-protest-tomorrow/"
+        }
+      }
+    ]
   }
 ]

@@ -145,22 +145,30 @@ const KIND_LABELS: Record<string, string> = {
     videos.length > 0 && (
       <div class="mt-3 flex flex-wrap gap-3">
         {videos.map((video) => (
-          <a
-            href={`/video/${video.id}/`}
-            class="group flex w-28 flex-col gap-1.5 no-underline"
-          >
-            <img
-              src={`${MEDIA_BASE}${video.media.thumbnail}`}
-              alt={video.title}
-              width="112"
-              height="199"
-              loading="lazy"
-              class="aspect-[9/16] w-full rounded-md border border-border bg-surface object-cover"
-            />
-            <span class="line-clamp-2 text-xs text-muted group-hover:text-text">
+          <div class="flex w-40 flex-col gap-1.5 sm:w-48">
+            <div
+              class="flex items-center justify-center overflow-hidden rounded-md border border-border bg-letterbox"
+              style={`aspect-ratio: ${video.media.width} / ${video.media.height};`}
+            >
+              <video
+                controls
+                preload="none"
+                poster={`${MEDIA_BASE}${video.media.thumbnail}`}
+                src={`${MEDIA_BASE}${video.media.video}`}
+                width={video.media.width}
+                height={video.media.height}
+                class="h-full w-full object-contain"
+              >
+                <track kind="captions" />
+              </video>
+            </div>
+            <a
+              href={`/video/${video.id}/`}
+              class="line-clamp-2 text-xs text-muted no-underline hover:text-text hover:underline"
+            >
               {video.title}
-            </span>
-          </a>
+            </a>
+          </div>
         ))}
       </div>
     )
