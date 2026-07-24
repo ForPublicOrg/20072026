@@ -12,6 +12,7 @@
     "deploy:staging": "astro build && wrangler deploy --env staging",
     "samples": "node scripts/generate-samples.mjs",
     "collect": "node scripts/collect.mjs",
+    "ingest-drive-batch": "node scripts/ingest-drive-batch.mjs",
     "admin-requests": "node scripts/admin-requests.mjs",
     "admin-tui": "node scripts/admin-tui.mjs",
     "preview": "astro preview",
