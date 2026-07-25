@@ -32,6 +32,7 @@ export default defineConfig({
       "npm run build && " +
       "npx wrangler d1 migrations apply blackdays-takedowns --local && " +
       "npx wrangler d1 migrations apply blackdays-video-submissions --local && " +
+      "npx wrangler d1 migrations apply blackdays-likes --local && " +
       `npx wrangler dev --port ${PORT}`,
     url: BASE_URL,
     reuseExistingServer: !process.env.CI,
