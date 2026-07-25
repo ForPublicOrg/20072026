@@ -18,6 +18,45 @@
 const ACTIVATE_THRESHOLD = 0.6;
 const MUTE_IDLE_MS = 2000;
 
+// Stable per-browser id sent as x-client-id on like/unlike so the server can
+// enforce one like per client without accounts. Persisted in localStorage
+// (not cookies/sessionStorage) so it survives reloads and tab close/reopen.
+const CLIENT_ID_KEY = "bd_client_id";
+
+function getClientId(): string {
+  let id = localStorage.getItem(CLIENT_ID_KEY);
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem(CLIENT_ID_KEY, id);
+  }
+  return id;
+}
+
+// GET /api/likes/batch returns counts only (edge-cached, no per-client data)
+// after a Cloudflare architecture review — so "have I liked this video" is
+// tracked entirely client-side in this set, never round-tripped from the
+// server. It lives in the same localStorage as bd_client_id and is allowed
+// to live and die with it: if localStorage is cleared, the old client id's
+// server-side likes become unreachable anyway, so losing the local liked-set
+// at the same time isn't a new inconsistency.
+const LIKED_SET_KEY = "bd_liked_videos";
+
+function getLikedSet(): Set<string> {
+  try {
+    const raw = localStorage.getItem(LIKED_SET_KEY);
+    return new Set(raw ? (JSON.parse(raw) as string[]) : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function setLiked(videoId: string, liked: boolean) {
+  const set = getLikedSet();
+  if (liked) set.add(videoId);
+  else set.delete(videoId);
+  localStorage.setItem(LIKED_SET_KEY, JSON.stringify([...set]));
+}
+
 // Persisted across cards: once a user unmutes, the next video they scroll
 // to should also be audible.
 let globalMuted = true;
@@ -224,6 +263,72 @@ function setupMoreButton(card: HTMLElement) {
   });
 }
 
+// Shared by hydration, the optimistic update on tap/click, and reconciling
+// with whatever the server actually persisted — a single place that keeps
+// the button's data-liked/aria-pressed and its count text in sync.
+// `hydrated` gates the CSS that hides .like-count until a real count is
+// known (see VideoCard.astro), so it must stay false for the synchronous,
+// pre-fetch pass in hydrateLikes and true everywhere else.
+function applyLikeState(card: HTMLElement, liked: boolean, count: number, hydrated: boolean) {
+  const btn = card.querySelector<HTMLButtonElement>(".like-btn");
+  if (!btn) return;
+  btn.dataset.liked = String(liked);
+  btn.setAttribute("aria-pressed", String(liked));
+  if (hydrated) btn.dataset.hydrated = "true";
+  const countEl = btn.querySelector<HTMLElement>(".like-count");
+  if (countEl) countEl.textContent = String(count);
+}
+
+function showLikeBurst(card: HTMLElement) {
+  const burst = card.querySelector<HTMLElement>(".like-burst");
+  if (!burst) return;
+  burst.classList.remove("show");
+  // Force reflow so re-adding "show" restarts the fade animation even on a
+  // repeat double-tap of an already-liked video (see the "already liked"
+  // early-return below — the burst still has to replay every time).
+  void burst.offsetWidth;
+  burst.classList.add("show");
+}
+
+// Double-tap path: always ends in liked=true. Idempotent by design — a
+// repeat double-tap on an already-liked video replays the burst (visual
+// confirmation the tap registered) but never calls the network or bumps the
+// count again. Only the .like-btn handler below can unlike.
+async function likeVideo(card: HTMLElement) {
+  const btn = card.querySelector<HTMLButtonElement>(".like-btn");
+  const videoId = card.dataset.videoId;
+  if (!btn || !videoId || btn.dataset.pending === "true") return;
+
+  showLikeBurst(card);
+
+  if (btn.dataset.liked === "true") return; // already liked: burst only, no network call, no re-count
+
+  btn.dataset.pending = "true";
+  const countEl = btn.querySelector<HTMLElement>(".like-count");
+  const prevCount = Number(countEl?.textContent ?? "0");
+  applyLikeState(card, true, prevCount + 1, true);
+
+  try {
+    const res = await fetch(`/api/likes/${encodeURIComponent(videoId)}`, {
+      method: "POST",
+      headers: { "x-client-id": getClientId() },
+    });
+    if (!res.ok) throw new Error(`like failed: ${res.status}`);
+    const data = (await res.json()) as { ok: boolean; liked: boolean; count: number };
+    if (data.ok) {
+      applyLikeState(card, data.liked, data.count, true);
+      setLiked(videoId, data.liked);
+    } else {
+      applyLikeState(card, false, prevCount, true);
+    }
+  } catch (error) {
+    console.error("like failed", error);
+    applyLikeState(card, false, prevCount, true);
+  } finally {
+    delete btn.dataset.pending;
+  }
+}
+
 function setupCardInteractions(
   card: HTMLElement,
   cards: HTMLElement[],
@@ -238,9 +343,36 @@ function setupCardInteractions(
   video.muted = globalMuted;
   updateMuteUI(card, globalMuted);
 
+  // Double-tap-to-like is layered on top of play/pause as a pure tap
+  // counter, never a "wait to see if a second tap comes" gate — the latter
+  // would delay every single ordinary play/pause click by
+  // DOUBLE_TAP_WINDOW_MS, which is not acceptable for the site's core
+  // interaction. togglePlayPause/wakeMuteButton below fire synchronously and
+  // unconditionally on every click, exactly as before; the counter only
+  // decides, after the fact, whether *this* click was the second of a pair.
+  let tapCount = 0;
+  let tapTimer: ReturnType<typeof setTimeout> | null = null;
+  const DOUBLE_TAP_WINDOW_MS = 300;
+
   video.addEventListener("click", () => {
     togglePlayPause(video, card);
     wakeMuteButton(card);
+
+    // Reduced-motion users get no double-tap gesture at all (it exists only
+    // to drive the burst animation), not just a skipped animation — so skip
+    // registering the counter entirely rather than running it silently.
+    if (prefersReducedMotion) return;
+
+    tapCount++;
+    if (tapCount === 1) {
+      tapTimer = setTimeout(() => {
+        tapCount = 0;
+      }, DOUBLE_TAP_WINDOW_MS);
+    } else if (tapCount === 2) {
+      if (tapTimer) clearTimeout(tapTimer);
+      tapCount = 0;
+      likeVideo(card);
+    }
   });
 
   const muteBtn = card.querySelector<HTMLButtonElement>(".mute-btn");
@@ -256,6 +388,45 @@ function setupCardInteractions(
 
   setupProgressBar(card, video);
   setupMoreButton(card);
+
+  // Real toggle (unlike double-tap, this is the only path that can unlike):
+  // POST when currently unliked, DELETE when currently liked, both against
+  // the same idempotent /api/likes/:id route the double-tap path uses.
+  const likeBtn = card.querySelector<HTMLButtonElement>(".like-btn");
+  likeBtn?.addEventListener("click", async (event) => {
+    event.stopPropagation();
+    if (!likeBtn || likeBtn.dataset.pending === "true") return;
+    const videoId = card.dataset.videoId;
+    if (!videoId) return;
+
+    const wasLiked = likeBtn.dataset.liked === "true";
+    const countEl = likeBtn.querySelector<HTMLElement>(".like-count");
+    const prevCount = Number(countEl?.textContent ?? "0");
+
+    likeBtn.dataset.pending = "true";
+    applyLikeState(card, !wasLiked, wasLiked ? prevCount - 1 : prevCount + 1, true);
+    if (!wasLiked) showLikeBurst(card);
+
+    try {
+      const res = await fetch(`/api/likes/${encodeURIComponent(videoId)}`, {
+        method: wasLiked ? "DELETE" : "POST",
+        headers: { "x-client-id": getClientId() },
+      });
+      if (!res.ok) throw new Error(`like toggle failed: ${res.status}`);
+      const data = (await res.json()) as { ok: boolean; liked: boolean; count: number };
+      if (data.ok) {
+        applyLikeState(card, data.liked, data.count, true);
+        setLiked(videoId, data.liked);
+      } else {
+        applyLikeState(card, wasLiked, prevCount, true);
+      }
+    } catch (error) {
+      console.error("like toggle failed", error);
+      applyLikeState(card, wasLiked, prevCount, true);
+    } finally {
+      delete likeBtn.dataset.pending;
+    }
+  });
 
   // The source link opens the original post in a new tab; it must not also
   // toggle play/pause on the card underneath it (same reasoning as the mute
@@ -366,6 +537,32 @@ function shuffleFeedOrder(container: HTMLElement) {
   });
 }
 
+// Two-phase: liked/unliked state is applied synchronously from the local
+// set (no network wait needed for it), then counts are filled in once the
+// batch fetch resolves. Counts start hidden via data-hydrated="false" (see
+// VideoCard.astro's .like-btn[data-hydrated="false"] .like-count rule) so
+// the page never flashes a wrong or zeroed count before the real numbers
+// arrive.
+async function hydrateLikes(cards: HTMLElement[]) {
+  const likedSet = getLikedSet();
+  for (const card of cards) {
+    applyLikeState(card, likedSet.has(card.dataset.videoId ?? ""), 0, false);
+  }
+  try {
+    const res = await fetch("/api/likes/batch");
+    if (!res.ok) throw new Error(`batch fetch failed: ${res.status}`);
+    const data = (await res.json()) as { ok: boolean; likes: Record<string, number> };
+    if (!data.ok) return;
+    for (const card of cards) {
+      const id = card.dataset.videoId;
+      if (!id) continue;
+      applyLikeState(card, likedSet.has(id), data.likes[id] ?? 0, true);
+    }
+  } catch (error) {
+    console.error("like hydration failed", error);
+  }
+}
+
 function initFeed() {
   const feedEl = document.getElementById("feed");
   if (feedEl) shuffleFeedOrder(feedEl);
@@ -382,6 +579,11 @@ function initFeed() {
   cards.forEach((card, index) =>
     setupCardInteractions(card, cards, index, prefersReducedMotion),
   );
+
+  // Fire-and-forget: hydration is async and independent of interaction
+  // setup below, so it must not block the rest of initFeed (autoplay
+  // observer, reduced-motion fallback) behind a network round-trip.
+  void hydrateLikes(cards);
 
   if (prefersReducedMotion) {
     setupReducedMotion(cards);
