@@ -99,6 +99,10 @@ const MAX_PER_MINUTE = 20;
  *  — each one is a real file landing in R2, not just a DB row. */
 const MAX_UPLOADS_PER_MINUTE = 5;
 
+/** Like/unlike is much higher-frequency and lower-stakes than a takedown or
+ *  submission — same global-not-per-IP tradeoff as MAX_PER_MINUTE above. */
+const MAX_LIKES_PER_MINUTE = 60;
+
 /** Per-file cap for raw footage uploads (see docs/design-spec.md for how this
  *  number was picked — sanity-check against the account's actual Cloudflare
  *  plan request-body limits before relying on it). */
@@ -585,6 +589,160 @@ async function handleVideoUpload(request: Request, env: Env, id: number): Promis
   return json({ ok: true }, 200);
 }
 
+/**
+ * Handles both POST (like) and DELETE (unlike) /api/likes/:id. Idempotent by
+ * construction: video_likes has a composite (video_id, client_id) primary
+ * key, so `INSERT OR IGNORE` on a repeat like from the same device is a
+ * silent no-op rather than a second row — a double-tap never double-counts.
+ * client_id is an anonymous id the browser generates and persists in
+ * localStorage; there is no account system, so it must be supplied by the
+ * caller, never generated here (see docs/design-spec.md).
+ */
+async function handleLikeMutation(request: Request, env: Env, videoId: string): Promise<Response> {
+  if (request.method !== "POST" && request.method !== "DELETE") {
+    return json({ ok: false, error: "Method not allowed." }, 405);
+  }
+
+  const origin = request.headers.get("origin");
+  if (origin) {
+    const allowed = new URL(request.url).origin;
+    if (origin !== allowed) {
+      return json({ ok: false, error: "Cross-origin requests are not accepted." }, 403);
+    }
+  }
+
+  if (!/^[a-z0-9-]{1,64}$/.test(videoId)) {
+    return json({ ok: false, error: "Unknown video." }, 400);
+  }
+
+  const clientId = request.headers.get("x-client-id") ?? "";
+  if (!/^[a-z0-9-]{8,64}$/.test(clientId)) {
+    return json({ ok: false, error: "Missing client id." }, 400);
+  }
+
+  try {
+    if (request.method === "POST") {
+      const recent = await env.LIKES.prepare(
+        "SELECT COUNT(*) AS n FROM video_likes WHERE created_at > datetime('now', '-1 minute')",
+      ).all<{ n: number }>();
+      if ((recent.results[0]?.n ?? 0) >= MAX_LIKES_PER_MINUTE) {
+        return json(
+          { ok: false, error: "Too many requests right now. Please try again shortly." },
+          429,
+        );
+      }
+
+      await env.LIKES.prepare(
+        "INSERT OR IGNORE INTO video_likes (video_id, client_id) VALUES (?, ?)",
+      )
+        .bind(videoId, clientId)
+        .run();
+
+      const count = await env.LIKES.prepare(
+        "SELECT COUNT(*) AS n FROM video_likes WHERE video_id = ?",
+      )
+        .bind(videoId)
+        .all<{ n: number }>();
+
+      return json({ ok: true, liked: true, count: count.results[0]?.n ?? 0 }, 200);
+    }
+
+    await env.LIKES.prepare("DELETE FROM video_likes WHERE video_id = ? AND client_id = ?")
+      .bind(videoId, clientId)
+      .run();
+
+    const count = await env.LIKES.prepare(
+      "SELECT COUNT(*) AS n FROM video_likes WHERE video_id = ?",
+    )
+      .bind(videoId)
+      .all<{ n: number }>();
+
+    return json({ ok: true, liked: false, count: count.results[0]?.n ?? 0 }, 200);
+  } catch (error) {
+    console.error("like mutation failed", error);
+    return json({ ok: false, error: "Something went wrong. Please try again." }, 500);
+  }
+}
+
+/**
+ * Batch hydration for the feed: given a list of video ids, returns each
+ * one's like count and whether the calling client has liked it. A missing or
+ * malformed client id is not an error here — unlike handleLikeMutation, this
+ * route is a read and must still succeed for a first-time visitor with no
+ * client id yet; it just reports liked: false for everything.
+ */
+async function handleLikesBatch(request: Request, env: Env): Promise<Response> {
+  if (request.method !== "POST") {
+    return json({ ok: false, error: "Method not allowed." }, 405);
+  }
+
+  const origin = request.headers.get("origin");
+  if (origin) {
+    const allowed = new URL(request.url).origin;
+    if (origin !== allowed) {
+      return json({ ok: false, error: "Cross-origin requests are not accepted." }, 403);
+    }
+  }
+
+  let payload: Record<string, unknown>;
+  try {
+    payload = (await request.json()) as Record<string, unknown>;
+  } catch {
+    return json({ ok: false, error: "Could not read the request." }, 400);
+  }
+
+  if (!Array.isArray(payload.ids)) {
+    return json({ ok: false, error: "Could not read the request." }, 400);
+  }
+  if (payload.ids.length > 2000) {
+    return json({ ok: false, error: "Too many ids." }, 400);
+  }
+
+  const ids = payload.ids.filter(
+    (id): id is string => typeof id === "string" && /^[a-z0-9-]{1,64}$/.test(id),
+  );
+
+  if (ids.length === 0) {
+    return json({ ok: true, likes: {} }, 200);
+  }
+
+  const clientIdHeader = request.headers.get("x-client-id") ?? "";
+  const clientId = /^[a-z0-9-]{8,64}$/.test(clientIdHeader) ? clientIdHeader : null;
+
+  try {
+    const placeholders = ids.map(() => "?").join(",");
+
+    const counts = await env.LIKES.prepare(
+      `SELECT video_id, COUNT(*) AS n FROM video_likes WHERE video_id IN (${placeholders}) GROUP BY video_id`,
+    )
+      .bind(...ids)
+      .all<{ video_id: string; n: number }>();
+
+    const liked = clientId
+      ? await env.LIKES.prepare(
+          `SELECT video_id FROM video_likes WHERE client_id = ? AND video_id IN (${placeholders})`,
+        )
+          .bind(clientId, ...ids)
+          .all<{ video_id: string }>()
+      : null;
+
+    const likedIds = new Set((liked?.results ?? []).map((row) => row.video_id));
+
+    const likes: Record<string, { count: number; liked: boolean }> = {};
+    for (const id of ids) {
+      likes[id] = { count: 0, liked: false };
+    }
+    for (const row of counts.results) {
+      likes[row.video_id] = { count: row.n, liked: likedIds.has(row.video_id) };
+    }
+
+    return json({ ok: true, likes }, 200);
+  } catch (error) {
+    console.error("likes batch failed", error);
+    return json({ ok: false, error: "Something went wrong. Please try again." }, 500);
+  }
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
@@ -615,6 +773,17 @@ export default {
     const uploadMatch = /^\/api\/upload\/(\d+)$/.exec(pathname);
     if (uploadMatch) {
       return handleVideoUpload(request, env, Number(uploadMatch[1]));
+    }
+
+    // Check batch before the single-id route below, or "batch" itself would
+    // match the [a-z0-9-]+ capture group and be routed as a video id.
+    if (pathname === "/api/likes/batch") {
+      return handleLikesBatch(request, env);
+    }
+
+    const likeMatch = /^\/api\/likes\/([a-z0-9-]+)$/.exec(pathname);
+    if (likeMatch) {
+      return handleLikeMutation(request, env, likeMatch[1]);
     }
 
     return env.ASSETS.fetch(request);
