@@ -66,6 +66,13 @@ declare class FixedLengthStream {
   readonly writable: WritableStream<Uint8Array>;
 }
 
+/** Minimal hand-rolled type — same rationale as the other Workers-runtime
+ *  globals above. Only the one method handleLikesBatch needs, to schedule
+ *  the edge-cache write without blocking the response on it. */
+interface ExecutionContext {
+  waitUntil(promise: Promise<unknown>): void;
+}
+
 interface Env {
   ASSETS: AssetsBinding;
   TAKEDOWNS: D1Database;
@@ -665,78 +672,56 @@ async function handleLikeMutation(request: Request, env: Env, videoId: string): 
 }
 
 /**
- * Batch hydration for the feed: given a list of video ids, returns each
- * one's like count and whether the calling client has liked it. A missing or
- * malformed client id is not an error here — unlike handleLikeMutation, this
- * route is a read and must still succeed for a first-time visitor with no
- * client id yet; it just reports liked: false for everything.
+ * Batch hydration for the feed: returns like counts for the whole catalog in
+ * one shot. Redesigned after a Cloudflare architecture review of the
+ * original per-id `IN (...)` design, which bound one parameter per requested
+ * video id and hit D1's hard 100-bound-parameter-per-query limit at this
+ * catalog's actual size (178 videos). The fix removes per-id parameters
+ * entirely rather than chunking around the limit: this route always returns
+ * counts for every video, identically for every caller, so the query has
+ * zero bound parameters and can never hit that ceiling regardless of catalog
+ * size. "Have I liked this" is dropped from the response and answered
+ * entirely client-side (see Task 5) — the client already knows what it
+ * liked, since it's the one that issued the POST/DELETE; round-tripping to
+ * D1 to ask would need a scan anyway, since client_id is the second column
+ * of the (video_id, client_id) composite key, not a usable leading prefix.
+ *
+ * Also edge-cached via the Workers Cache API: this route fires on every
+ * /feed page view, and Free-plan D1 has a 5,000,000-rows-read/day cap that
+ * pageview traffic could realistically approach over time. A 20s
+ * Cache-Control window is explicitly acceptable for a vanity-metric-style
+ * count, and collapses "one D1 query per pageview" down to roughly one D1
+ * query per cache window per edge colo — the actual fix for read-volume
+ * cost, not just the parameter-count crash.
  */
-async function handleLikesBatch(request: Request, env: Env): Promise<Response> {
-  if (request.method !== "POST") {
+async function handleLikesBatch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+  if (request.method !== "GET") {
     return json({ ok: false, error: "Method not allowed." }, 405);
   }
 
-  const origin = request.headers.get("origin");
-  if (origin) {
-    const allowed = new URL(request.url).origin;
-    if (origin !== allowed) {
-      return json({ ok: false, error: "Cross-origin requests are not accepted." }, 403);
-    }
-  }
+  // No same-origin check: this is a public, cacheable GET with no side
+  // effects and an identical response for every caller — nothing to forge.
 
-  let payload: Record<string, unknown>;
-  try {
-    payload = (await request.json()) as Record<string, unknown>;
-  } catch {
-    return json({ ok: false, error: "Could not read the request." }, 400);
+  const cache = caches.default;
+  const cached = await cache.match(request);
+  if (cached) {
+    return cached;
   }
-
-  if (!Array.isArray(payload.ids)) {
-    return json({ ok: false, error: "Could not read the request." }, 400);
-  }
-  if (payload.ids.length > 2000) {
-    return json({ ok: false, error: "Too many ids." }, 400);
-  }
-
-  const ids = payload.ids.filter(
-    (id): id is string => typeof id === "string" && /^[a-z0-9-]{1,64}$/.test(id),
-  );
-
-  if (ids.length === 0) {
-    return json({ ok: true, likes: {} }, 200);
-  }
-
-  const clientIdHeader = request.headers.get("x-client-id") ?? "";
-  const clientId = /^[a-z0-9-]{8,64}$/.test(clientIdHeader) ? clientIdHeader : null;
 
   try {
-    const placeholders = ids.map(() => "?").join(",");
-
     const counts = await env.LIKES.prepare(
-      `SELECT video_id, COUNT(*) AS n FROM video_likes WHERE video_id IN (${placeholders}) GROUP BY video_id`,
-    )
-      .bind(...ids)
-      .all<{ video_id: string; n: number }>();
+      "SELECT video_id, COUNT(*) AS n FROM video_likes GROUP BY video_id",
+    ).all<{ video_id: string; n: number }>();
 
-    const liked = clientId
-      ? await env.LIKES.prepare(
-          `SELECT video_id FROM video_likes WHERE client_id = ? AND video_id IN (${placeholders})`,
-        )
-          .bind(clientId, ...ids)
-          .all<{ video_id: string }>()
-      : null;
-
-    const likedIds = new Set((liked?.results ?? []).map((row) => row.video_id));
-
-    const likes: Record<string, { count: number; liked: boolean }> = {};
-    for (const id of ids) {
-      likes[id] = { count: 0, liked: false };
-    }
+    const likes: Record<string, number> = {};
     for (const row of counts.results) {
-      likes[row.video_id] = { count: row.n, liked: likedIds.has(row.video_id) };
+      likes[row.video_id] = row.n;
     }
 
-    return json({ ok: true, likes }, 200);
+    const response = json({ ok: true, likes }, 200);
+    response.headers.set("cache-control", "public, max-age=20");
+    ctx.waitUntil(cache.put(request, response.clone()));
+    return response;
   } catch (error) {
     console.error("likes batch failed", error);
     return json({ ok: false, error: "Something went wrong. Please try again." }, 500);
@@ -744,7 +729,7 @@ async function handleLikesBatch(request: Request, env: Env): Promise<Response> {
 }
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
     const { pathname } = url;
 
@@ -778,7 +763,7 @@ export default {
     // Check batch before the single-id route below, or "batch" itself would
     // match the [a-z0-9-]+ capture group and be routed as a video id.
     if (pathname === "/api/likes/batch") {
-      return handleLikesBatch(request, env);
+      return handleLikesBatch(request, env, ctx);
     }
 
     const likeMatch = /^\/api\/likes\/([a-z0-9-]+)$/.exec(pathname);

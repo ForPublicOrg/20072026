@@ -17,6 +17,10 @@ async function clearTables() {
   await env.TAKEDOWNS.exec("DELETE FROM takedown_requests");
   await env.SUBMISSIONS.exec("DELETE FROM video_submissions");
   await env.LIKES.exec("DELETE FROM video_likes");
+  // GET /api/likes/batch is edge-cached (Cache API); without clearing this
+  // between tests, a response cached by an earlier test (e.g. the empty
+  // `{}` case) would be served to a later test hitting the same URL.
+  await caches.default.delete(`${ORIGIN}/api/likes/batch`);
 }
 
 beforeEach(async () => {
@@ -149,120 +153,65 @@ describe("POST /api/likes/:id", () => {
   });
 });
 
-describe("POST /api/likes/batch", () => {
-  it("returns counts and per-client liked status for each requested id", async () => {
-    // video-001: 2 likes total, one of them from the calling client (A).
-    await SELF.fetch(`${ORIGIN}/api/likes/video-001`, {
-      method: "POST",
-      headers: { origin: ORIGIN, "x-client-id": CLIENT_A },
-    });
-    await SELF.fetch(`${ORIGIN}/api/likes/video-001`, {
-      method: "POST",
-      headers: { origin: ORIGIN, "x-client-id": CLIENT_B },
-    });
-    // video-002: 1 like, not from the calling client.
-    await SELF.fetch(`${ORIGIN}/api/likes/video-002`, {
-      method: "POST",
-      headers: { origin: ORIGIN, "x-client-id": CLIENT_B },
-    });
+describe("GET /api/likes/batch", () => {
+  // Redesigned after a Cloudflare architecture review: the original POST
+  // design bound one parameter per requested video id into an IN (...)
+  // clause, which hits D1's hard 100-bound-parameter limit at this
+  // catalog's actual size (178 videos). The route now always returns counts
+  // for the whole catalog, identically for every caller, via a
+  // zero-bound-parameter query — and is edge-cached (Cache-Control:
+  // max-age=20) since it now fires on every /feed page view. "Have I liked
+  // this" is no longer answered server-side; the client tracks that itself.
 
+  it("returns an empty likes object when nothing has been liked", async () => {
     const res = await SELF.fetch(`${ORIGIN}/api/likes/batch`, {
-      method: "POST",
-      headers: { origin: ORIGIN, "content-type": "application/json", "x-client-id": CLIENT_A },
-      body: JSON.stringify({ ids: ["video-001", "video-002", "video-999"] }),
-    });
-    expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({
-      ok: true,
-      likes: {
-        "video-001": { count: 2, liked: true },
-        "video-002": { count: 1, liked: false },
-        "video-999": { count: 0, liked: false },
-      },
-    });
-  });
-
-  it("succeeds with liked: false for every entry when x-client-id is missing", async () => {
-    await SELF.fetch(`${ORIGIN}/api/likes/video-001`, {
-      method: "POST",
-      headers: { origin: ORIGIN, "x-client-id": CLIENT_A },
-    });
-
-    const res = await SELF.fetch(`${ORIGIN}/api/likes/batch`, {
-      method: "POST",
-      headers: { origin: ORIGIN, "content-type": "application/json" },
-      body: JSON.stringify({ ids: ["video-001"] }),
-    });
-    expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({
-      ok: true,
-      likes: { "video-001": { count: 1, liked: false } },
-    });
-  });
-
-  it("rejects cross-origin requests", async () => {
-    const res = await SELF.fetch(`${ORIGIN}/api/likes/batch`, {
-      method: "POST",
-      headers: { origin: "https://evil.example", "content-type": "application/json" },
-      body: JSON.stringify({ ids: ["video-001"] }),
-    });
-    expect(res.status).toBe(403);
-  });
-
-  it("rejects malformed JSON", async () => {
-    const res = await SELF.fetch(`${ORIGIN}/api/likes/batch`, {
-      method: "POST",
-      headers: { origin: ORIGIN, "content-type": "application/json" },
-      body: "not json",
-    });
-    expect(res.status).toBe(400);
-  });
-
-  it("rejects a body where ids is not an array", async () => {
-    const res = await SELF.fetch(`${ORIGIN}/api/likes/batch`, {
-      method: "POST",
-      headers: { origin: ORIGIN, "content-type": "application/json" },
-      body: JSON.stringify({ ids: "video-001" }),
-    });
-    expect(res.status).toBe(400);
-  });
-
-  it("rejects more than 2000 ids", async () => {
-    const ids = Array.from({ length: 2001 }, (_, i) => `video-${i}`);
-    const res = await SELF.fetch(`${ORIGIN}/api/likes/batch`, {
-      method: "POST",
-      headers: { origin: ORIGIN, "content-type": "application/json" },
-      body: JSON.stringify({ ids }),
-    });
-    expect(res.status).toBe(400);
-  });
-
-  it("silently drops malformed ids rather than erroring the whole batch", async () => {
-    const res = await SELF.fetch(`${ORIGIN}/api/likes/batch`, {
-      method: "POST",
-      headers: { origin: ORIGIN, "content-type": "application/json" },
-      body: JSON.stringify({ ids: ["video-001", "UPPERCASE", "has spaces", 42] }),
-    });
-    expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({
-      ok: true,
-      likes: { "video-001": { count: 0, liked: false } },
-    });
-  });
-
-  it("returns an empty likes object immediately when ids is empty", async () => {
-    const res = await SELF.fetch(`${ORIGIN}/api/likes/batch`, {
-      method: "POST",
-      headers: { origin: ORIGIN, "content-type": "application/json" },
-      body: JSON.stringify({ ids: [] }),
+      method: "GET",
+      headers: { origin: ORIGIN },
     });
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true, likes: {} });
   });
 
-  it("rejects non-POST methods", async () => {
+  it("returns per-video counts for the whole catalog, omitting zero-like videos", async () => {
+    // video-001: 2 likes.
+    await SELF.fetch(`${ORIGIN}/api/likes/video-001`, {
+      method: "POST",
+      headers: { origin: ORIGIN, "x-client-id": CLIENT_A },
+    });
+    await SELF.fetch(`${ORIGIN}/api/likes/video-001`, {
+      method: "POST",
+      headers: { origin: ORIGIN, "x-client-id": CLIENT_B },
+    });
+    // video-002: 1 like.
+    await SELF.fetch(`${ORIGIN}/api/likes/video-002`, {
+      method: "POST",
+      headers: { origin: ORIGIN, "x-client-id": CLIENT_B },
+    });
+    // video-003 is never liked, and must not appear in the response at all.
+
     const res = await SELF.fetch(`${ORIGIN}/api/likes/batch`, {
       method: "GET",
+      headers: { origin: ORIGIN },
+    });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({
+      ok: true,
+      likes: { "video-001": 2, "video-002": 1 },
+    });
+  });
+
+  it("sets a cache-control header with a max-age", async () => {
+    const res = await SELF.fetch(`${ORIGIN}/api/likes/batch`, {
+      method: "GET",
+      headers: { origin: ORIGIN },
+    });
+    expect(res.status).toBe(200);
+    expect(res.headers.get("cache-control")).toContain("max-age");
+  });
+
+  it("rejects non-GET methods", async () => {
+    const res = await SELF.fetch(`${ORIGIN}/api/likes/batch`, {
+      method: "POST",
       headers: { origin: ORIGIN },
     });
     expect(res.status).toBe(405);
