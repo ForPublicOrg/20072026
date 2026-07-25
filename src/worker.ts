@@ -70,6 +70,7 @@ interface Env {
   ASSETS: AssetsBinding;
   TAKEDOWNS: D1Database;
   SUBMISSIONS: D1Database;
+  LIKES: D1Database;
   UPLOADS: R2Bucket;
 }
 
