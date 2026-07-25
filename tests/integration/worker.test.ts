@@ -262,4 +262,20 @@ describe("www redirect", () => {
     expect(res.status).toBe(301);
     expect(res.headers.get("location")).toBe("https://20072026.com/feed?x=1");
   });
+
+  it("301s motherofdemocracy.in to the bare domain, preserving path and query", async () => {
+    const res = await SELF.fetch("https://motherofdemocracy.in/feed?x=1", {
+      redirect: "manual",
+    });
+    expect(res.status).toBe(301);
+    expect(res.headers.get("location")).toBe("https://20072026.com/feed?x=1");
+  });
+
+  it("301s www.motherofdemocracy.in to the bare domain, preserving path and query", async () => {
+    const res = await SELF.fetch("https://www.motherofdemocracy.in/feed?x=1", {
+      redirect: "manual",
+    });
+    expect(res.status).toBe(301);
+    expect(res.headers.get("location")).toBe("https://20072026.com/feed?x=1");
+  });
 });
