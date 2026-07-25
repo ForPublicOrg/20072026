@@ -553,10 +553,24 @@ async function hydrateLikes(cards: HTMLElement[]) {
     if (!res.ok) throw new Error(`batch fetch failed: ${res.status}`);
     const data = (await res.json()) as { ok: boolean; likes: Record<string, number> };
     if (!data.ok) return;
+    // Re-read the liked set here rather than reusing the pre-fetch snapshot
+    // above: a double-tap or .like-btn click can complete (and call
+    // setLiked()) while this fetch is still in flight, since both listeners
+    // are attached before the fetch resolves. Reusing the stale snapshot
+    // would silently revert that just-made optimistic change back to
+    // whatever it was before the user acted.
+    const freshLikedSet = getLikedSet();
     for (const card of cards) {
       const id = card.dataset.videoId;
       if (!id) continue;
-      applyLikeState(card, likedSet.has(id), data.likes[id] ?? 0, true);
+      // If a like/unlike is still in flight for this card right now, leave
+      // it alone -- that request's own .then/finally is the thing that
+      // settles its final state, and reconciling here too could still race
+      // it even with the fresh read above (the fetch could resolve between
+      // the read and this loop reaching the card).
+      const btn = card.querySelector<HTMLButtonElement>(".like-btn");
+      if (btn?.dataset.pending === "true") continue;
+      applyLikeState(card, freshLikedSet.has(id), data.likes[id] ?? 0, true);
     }
   } catch (error) {
     console.error("like hydration failed", error);
