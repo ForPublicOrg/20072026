@@ -40,6 +40,7 @@ const avatarInitial = video.source.uploader.replace(/^@/, "").trim().charAt(0).t
 
 <article
   class="feed-card"
+  data-video-id={video.id}
   data-video-src={videoSrc}
   data-footage-origin={video.footageOrigin}
   tabindex="0"
@@ -74,6 +75,18 @@ const avatarInitial = video.source.uploader.replace(/^@/, "").trim().charAt(0).t
       <div class="play-glyph" aria-hidden="true" data-icon="play">
         <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
         <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"></path></svg>
+      </div>
+
+      <div class="like-burst" aria-hidden="true">
+        <svg class="icon-fist" viewBox="0 0 24 24" fill="currentColor">
+          <rect x="9" y="16" width="6" height="6" rx="1.2"/>
+          <rect x="5.5" y="10.5" width="13" height="7" rx="3.2"/>
+          <circle cx="5.3" cy="12.6" r="2.3"/>
+          <rect x="6.3" y="4" width="3" height="7.5" rx="1.5"/>
+          <rect x="9.7" y="3.2" width="3" height="8.3" rx="1.5"/>
+          <rect x="13.1" y="3.2" width="3" height="8.3" rx="1.5"/>
+          <rect x="16.5" y="4.4" width="3" height="7.1" rx="1.5"/>
+        </svg>
       </div>
 
       <button
@@ -144,6 +157,26 @@ const avatarInitial = video.source.uploader.replace(/^@/, "").trim().charAt(0).t
         <span aria-hidden="true">&middot;</span>
         <time datetime={video.date}>{eventDate}</time>
       </span>
+
+      <button
+        type="button"
+        class="like-btn"
+        data-liked="false"
+        data-hydrated="false"
+        aria-pressed="false"
+        aria-label="Like this video"
+      >
+        <svg class="icon-fist" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <rect x="9" y="16" width="6" height="6" rx="1.2"/>
+          <rect x="5.5" y="10.5" width="13" height="7" rx="3.2"/>
+          <circle cx="5.3" cy="12.6" r="2.3"/>
+          <rect x="6.3" y="4" width="3" height="7.5" rx="1.5"/>
+          <rect x="9.7" y="3.2" width="3" height="8.3" rx="1.5"/>
+          <rect x="13.1" y="3.2" width="3" height="8.3" rx="1.5"/>
+          <rect x="16.5" y="4.4" width="3" height="7.1" rx="1.5"/>
+        </svg>
+        <span class="like-count"></span>
+      </button>
     </div>
 
     <div class="caption-block">
@@ -464,6 +497,62 @@ const avatarInitial = video.source.uploader.replace(/^@/, "").trim().charAt(0).t
     text-decoration: underline;
   }
 
+  .like-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    min-height: 24px;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: var(--color-muted);
+  }
+
+  .like-btn .icon-fist {
+    width: 1.05rem;
+    height: 1.05rem;
+    color: var(--color-text);
+    opacity: 0.6;
+    transition: opacity 150ms ease, transform 150ms ease;
+  }
+
+  .like-btn[data-liked="true"] .icon-fist {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+
+  .like-count {
+    font-size: 0.75rem;
+    min-width: 0.6em;
+  }
+
+  .like-btn[data-hydrated="false"] .like-count {
+    visibility: hidden;
+  }
+
+  .like-burst {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 21;
+    opacity: 0;
+  }
+
+  .like-burst.show {
+    animation: glyph-fade 650ms ease forwards;
+  }
+
+  .like-burst .icon-fist {
+    width: 6rem;
+    height: 6rem;
+    color: #fff;
+    filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.5));
+  }
+
   /* --- Caption block --- */
 
   .caption-block {
@@ -538,7 +627,8 @@ const avatarInitial = video.source.uploader.replace(/^@/, "").trim().charAt(0).t
      way rather than presenting duplicate, non-functional controls. */
   .feed-card.is-native-controls .mute-btn,
   .feed-card.is-native-controls .play-glyph,
-  .feed-card.is-native-controls .progress-hit {
+  .feed-card.is-native-controls .progress-hit,
+  .feed-card.is-native-controls .like-burst {
     display: none;
   }
 </style>
