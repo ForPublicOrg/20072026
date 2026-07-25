@@ -26,7 +26,7 @@ Deploys are CI-driven, not run by hand from this quickstart — see `CLAUDE.md` 
 
 ## Stack
 
-Astro (static) · TypeScript · Tailwind CSS · Cloudflare Workers (static assets + a narrow API for takedowns/submissions) · Cloudflare D1 (private request inboxes) · Cloudflare R2 (media + pending uploads) · yt-dlp + ffmpeg (local collection pipeline)
+Astro (static) · TypeScript · Tailwind CSS · Cloudflare Workers (static assets + a narrow API for takedowns/submissions/likes) · Cloudflare D1 (private request inboxes for takedowns/submissions; a public-aggregate likes table, counts only, served via `GET /api/likes/batch`) · Cloudflare R2 (media + pending uploads) · yt-dlp + ffmpeg (local collection pipeline)
 
 ## Principles
 

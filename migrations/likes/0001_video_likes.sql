@@ -11,7 +11,7 @@
 -- Lives in its own D1 database (blackdays-likes / blackdays-likes-staging),
 -- separate from blackdays-takedowns and blackdays-video-submissions —
 -- unlike those two, this table's aggregate counts ARE rendered on the
--- public site (via POST /api/likes/batch), even though individual rows
+-- public site (via GET /api/likes/batch), even though individual rows
 -- are still never exposed directly. Inspect directly with:
 --   npx wrangler d1 execute blackdays-likes --remote \
 --     --command "SELECT video_id, COUNT(*) FROM video_likes GROUP BY video_id"

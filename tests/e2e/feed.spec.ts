@@ -15,7 +15,16 @@ test("feed page renders video cards", async ({ page }) => {
   await expect(firstHandle).not.toBeEmpty();
 });
 
-test.describe("like feature", () => {
+// .serial: e2e tests run against one shared local D1 (via wrangler dev) with
+// nothing clearing video_likes between tests (unlike the integration suite's
+// beforeEach), and playwright.config.ts runs fullyParallel across two
+// projects. Combined with shuffleFeedOrder() below randomizing which video
+// lands as "the first card" on every load, two parallel workers could land
+// on the same video id and corrupt each other's count assertions — the
+// settled count always comes from the server's real aggregate, not just
+// client-side math. Serial execution removes that concurrency window
+// entirely, without needing per-test DB isolation.
+test.describe.serial("like feature", () => {
   // shuffleFeedOrder() (feed.ts) randomizes card order on every load, so
   // there's no stable "first video" across tests/loads — but within a single
   // test, .first() always resolves to the same DOM node, which is all these
@@ -156,5 +165,75 @@ test.describe("like feature", () => {
     await likeBtn.click();
     await expect(likeBtn).toHaveAttribute("data-liked", "true");
     await expect(count).toHaveText(String(before + 1));
+  });
+
+  // Forces the like/unlike request to fail, to exercise the rollback path in
+  // feed.ts: both likeVideo() and the .like-btn click handler apply the
+  // optimistic update synchronously, then revert data-liked/.like-count back
+  // to their pre-action values in the catch (or the `!data.ok` branch). The
+  // route is registered only after openFirstCard() has resolved, since it
+  // also matches GET /api/likes/batch (the hydration fetch) via the same
+  // "**/api/likes/**" glob — forcing that to fail too would leave
+  // data-hydrated stuck at "false" and openFirstCard's own wait would hang.
+  test("a failed like request rolls back the optimistic update (double-tap)", async ({ page }) => {
+    const { likeBtn, video, count } = await openFirstCard(page);
+    const before = await readCount(count);
+    const likedBefore = (await likeBtn.getAttribute("data-liked")) ?? "false";
+
+    await page.route("**/api/likes/**", async (route) => {
+      // Delay the forced failure slightly so the optimistic update below is
+      // observably in place before it reverts — without this, a same-tick
+      // response could resolve before the "instant update" assertion gets a
+      // chance to see the pre-revert state.
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      await route.fulfill({
+        status: 500,
+        contentType: "application/json",
+        body: JSON.stringify({ ok: false, error: "test-forced failure" }),
+      });
+    });
+
+    await video.click();
+    await video.click();
+
+    // Optimistic update applies instantly, well ahead of the delayed
+    // failure response above.
+    await expect(likeBtn).toHaveAttribute("data-liked", "true");
+    await expect(count).toHaveText(String(before + 1));
+
+    // Once the forced-failure response resolves, likeVideo()'s catch path
+    // must revert both data-liked and .like-count back to their pre-action
+    // values — not just avoid crashing.
+    await expect(likeBtn).toHaveAttribute("data-liked", likedBefore);
+    await expect(count).toHaveText(String(before));
+  });
+
+  test("a failed like request rolls back the optimistic update (like button click)", async ({
+    page,
+  }) => {
+    const { likeBtn, count } = await openFirstCard(page);
+    const before = await readCount(count);
+    await expect(likeBtn).toHaveAttribute("data-liked", "false");
+
+    await page.route("**/api/likes/**", async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      await route.fulfill({
+        status: 500,
+        contentType: "application/json",
+        body: JSON.stringify({ ok: false, error: "test-forced failure" }),
+      });
+    });
+
+    await likeBtn.click();
+
+    // Optimistic update from the .like-btn click handler, applied instantly
+    // ahead of the delayed failure response.
+    await expect(likeBtn).toHaveAttribute("data-liked", "true");
+    await expect(count).toHaveText(String(before + 1));
+
+    // Once the forced failure resolves, the click handler's catch path must
+    // revert both data-liked and .like-count back to their pre-click values.
+    await expect(likeBtn).toHaveAttribute("data-liked", "false");
+    await expect(count).toHaveText(String(before));
   });
 });
