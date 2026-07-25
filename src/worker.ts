@@ -592,8 +592,13 @@ export default {
     // 20072026.com is the canonical host (see CLAUDE.md) — www has no DNS
     // record of its own on the zone, so this only fires once www is added
     // as a second custom_domain route in wrangler.jsonc, which points it at
-    // this same Worker.
-    if (url.hostname === "www.20072026.com") {
+    // this same Worker. motherofdemocracy.in is a second zone added purely
+    // to redirect here too — same reasoning, no content of its own.
+    if (
+      url.hostname === "www.20072026.com" ||
+      url.hostname === "motherofdemocracy.in" ||
+      url.hostname === "www.motherofdemocracy.in"
+    ) {
       url.hostname = "20072026.com";
       return Response.redirect(url.toString(), 301);
     }

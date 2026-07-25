@@ -59,9 +59,18 @@
   // record of its own otherwise (it 404'd until this was added), and only
   // exists to be 301-redirected to the apex — see the hostname check at the
   // top of src/worker.ts's fetch handler.
+  //
+  // motherofdemocracy.in / www.motherofdemocracy.in: a second zone, added
+  // 2026-07-25 purely so that domain also resolves — both hosts exist only to
+  // be 301-redirected to the apex, same pattern and same reasoning as www
+  // above. The zone's nameservers were pointed at Cloudflare (graham/mckenzie)
+  // specifically so this custom_domain route could exist; there is no other
+  // content or DNS record on that zone.
   "routes": [
     { "pattern": "20072026.com", "custom_domain": true },
-    { "pattern": "www.20072026.com", "custom_domain": true }
+    { "pattern": "www.20072026.com", "custom_domain": true },
+    { "pattern": "motherofdemocracy.in", "custom_domain": true },
+    { "pattern": "www.motherofdemocracy.in", "custom_domain": true }
   ],
 
   // Staging environment used by CI on every pull request (see
