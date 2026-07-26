@@ -383,35 +383,37 @@ function setupCardInteractions(
   video.muted = globalMuted;
   updateMuteUI(card, globalMuted);
 
-  // Double-tap-to-like is layered on top of play/pause as a pure tap
-  // counter, never a "wait to see if a second tap comes" gate — the latter
-  // would delay every single ordinary play/pause click by
-  // DOUBLE_TAP_WINDOW_MS, which is not acceptable for the site's core
-  // interaction. togglePlayPause/wakeMuteButton below fire synchronously and
-  // unconditionally on every click, exactly as before; the counter only
-  // decides, after the fact, whether *this* click was the second of a pair.
+  // Double-tap-to-like defers the single-tap play/pause decision until we
+  // know a second tap isn't coming (Instagram-shaped), rather than firing
+  // togglePlayPause unconditionally on every click. That's a deliberate
+  // trade-off, confirmed with the user: single-tap play/pause becomes
+  // ~250-300ms slower, always, in exchange for double-tap never touching
+  // playback at all — the previous "fire immediately, count after the fact"
+  // approach always toggled playback on both taps of a double-tap, which is
+  // the bug this replaces.
+  const TAP_WINDOW_MS = 280; // Instagram-like window; single-tap play/pause is now deferred by up to this long
+
   let tapCount = 0;
   let tapTimer: ReturnType<typeof setTimeout> | null = null;
-  const DOUBLE_TAP_WINDOW_MS = 300;
 
   video.addEventListener("click", () => {
-    togglePlayPause(video, card);
-    wakeMuteButton(card);
+    wakeMuteButton(card); // harmless UI nicety, stays immediate/unconditional on every tap
 
-    // Reduced-motion users get no double-tap gesture at all (it exists only
-    // to drive the burst animation), not just a skipped animation — so skip
-    // registering the counter entirely rather than running it silently.
-    if (prefersReducedMotion) return;
+    if (prefersReducedMotion) {
+      togglePlayPause(video, card); // no double-tap gesture in this mode, so no need to defer
+      return;
+    }
 
     tapCount++;
     if (tapCount === 1) {
       tapTimer = setTimeout(() => {
         tapCount = 0;
-      }, DOUBLE_TAP_WINDOW_MS);
+        togglePlayPause(video, card); // confirmed single tap: commit the deferred play/pause now
+      }, TAP_WINDOW_MS);
     } else if (tapCount === 2) {
       if (tapTimer) clearTimeout(tapTimer);
       tapCount = 0;
-      likeVideo(card);
+      likeVideo(card); // confirmed double tap: like only — playback state is never touched
     }
   });
 
