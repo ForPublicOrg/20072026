@@ -1293,5 +1293,55 @@
         }
       }
     ]
+  },
+  {
+    "time": "2026-07-25",
+    "title": "Pralhad Joshi takes charge; CJP puts him on notice",
+    "description": "President Murmu accepted Pradhan's resignation on the Prime Minister's recommendation, and Union Minister Pralhad Joshi was given additional charge of the Education Ministry alongside his existing Consumer Affairs, Food and Public Distribution portfolio. Within hours, CJP chief spokesperson Saurav Das said the movement's core demands had been met but warned the new minister that the group would keep watching for delivery on its five-point education-reform charter, which the government had agreed to keep discussing.",
+    "relatedVideoIds": [],
+    "sources": [
+      {
+        "title": "India TV News - Pralhad Joshi named interim Education Minister after Dharmendra Pradhan's resignation accepted",
+        "url": "https://www.indiatvnews.com/news/india/pralhad-joshi-named-interim-education-minister-dharmendra-pradhan-s-resignation-accepted-2026-07-25-1049412"
+      },
+      {
+        "title": "DNA India - Pralhad Joshi's first challenge: CJP asks new minister to deliver on reform promises",
+        "url": "https://www.dnaindia.com/india/report-pralhad-joshi-first-challenge-cjp-asks-new-minister-to-deliver-on-reform-promises-3217119"
+      }
+    ],
+    "statements": [
+      {
+        "speaker": "Saurav Das",
+        "role": "CJP chief spokesperson",
+        "kind": "press",
+        "date": "2026-07-25",
+        "quote": "Whoever becomes the Education Minister should know that the youth are watching. They will demand accountability. So, when the time comes, work in the interest of the youth. Stop paper leaks and implement our five-point recommendations outlined in the demand charter.",
+        "context": "Responding to Pralhad Joshi being given additional charge of the Education Ministry, hours after Pradhan's resignation.",
+        "source": {
+          "title": "DNA India - Pralhad Joshi's first challenge: CJP asks new minister to deliver on reform promises",
+          "url": "https://www.dnaindia.com/india/report-pralhad-joshi-first-challenge-cjp-asks-new-minister-to-deliver-on-reform-promises-3217119"
+        }
+      }
+    ]
+  },
+  {
+    "time": "2026-07-26",
+    "title": "Jantar Mantar is cleared",
+    "description": "With protesters gone, the New Delhi Municipal Council deployed more than 500 sanitation workers in shifts, along with trucks, auto-tippers and mechanised cleaning equipment, to clear tens of tonnes of waste, debris, banners and tents left behind over the roughly month-long sit-in. The operation covered Jantar Mantar Road, Tolstoy Marg, Jai Singh Road, Sansad Marg and parts of Connaught Place. Congress's Seva Dal also sent volunteers to help clean the site, saying the \"real mess that needs to be cleaned is within the government.\"",
+    "relatedVideoIds": [],
+    "sources": [
+      {
+        "title": "India TV News - Jantar Mantar protest site cleaned as NDMC deploys 500+ workers after CJP agitation ends",
+        "url": "https://www.indiatvnews.com/news/india/jantar-mantar-protest-site-cleaned-as-ndmc-deploys-500-workers-after-cjp-agitation-ends-2026-07-26-1049429"
+      },
+      {
+        "title": "ANI (via webindia123) - NDMC carried out cleanliness drive after CJP calls off Jantar Mantar protest",
+        "url": "https://news.webindia123.com/news/Articles/India/20260726/4479291.html"
+      },
+      {
+        "title": "webindia123 - Congress Seva Dal workers clean Jantar Mantar after CJP protest ends",
+        "url": "https://news.webindia123.com/news/Articles/India/20260726/4479310.html"
+      }
+    ]
   }
 ]
