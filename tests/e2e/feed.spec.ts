@@ -124,6 +124,42 @@ test.describe.serial("like feature", () => {
     await expect(count).toHaveText(String(before));
   });
 
+  // This directly encodes the bug report that triggered Task 11: before that
+  // fix, both taps of a double-tap independently toggled playback (so a
+  // double-tap on a playing video paused it, then the like burst played on
+  // top of a now-paused video). Task 11 made single-tap play/pause deferred
+  // and cancellable, so a confirmed double-tap must never touch `paused` at
+  // all -- not "ends up right eventually", but literally unchanged start to
+  // finish.
+  test("double-tapping does not change the video's playing state at all", async ({ page }) => {
+    const { likeBtn, video } = await openFirstCard(page);
+
+    // Wait for autoplay to settle into a definite state before capturing the
+    // "before" snapshot -- otherwise a still-resolving initial play()
+    // promise could flip `paused` on its own between the snapshot and the
+    // final assertion, which would look identical to a real regression.
+    await expect
+      .poll(() => video.evaluate((el) => (el as HTMLVideoElement).paused))
+      .toBe(false);
+    const pausedBefore = await video.evaluate((el) => (el as HTMLVideoElement).paused);
+
+    await video.click();
+    await video.click();
+
+    // Confirms the burst/like path actually ran (i.e. this was registered as
+    // a real double-tap), not two independent single taps that happened to
+    // land far apart.
+    await expect(likeBtn).toHaveAttribute("data-liked", "true");
+
+    // feed.ts's TAP_WINDOW_MS is 280ms -- wait comfortably past it so a
+    // wrongly-still-pending single-tap timer would have had every chance to
+    // fire and flip playback before this reads the final state.
+    await page.waitForTimeout(500);
+
+    const pausedAfter = await video.evaluate((el) => (el as HTMLVideoElement).paused);
+    expect(pausedAfter).toBe(pausedBefore);
+  });
+
   test("clicking the like button toggles data-liked and moves the count by exactly one", async ({
     page,
   }) => {
@@ -235,5 +271,38 @@ test.describe.serial("like feature", () => {
     // revert both data-liked and .like-count back to their pre-click values.
     await expect(likeBtn).toHaveAttribute("data-liked", "false");
     await expect(count).toHaveText(String(before));
+  });
+
+  // Task 10: feed.ts's positionLikeButton() relocates the single .like-btn
+  // DOM node between two slots based on viewport width, rather than
+  // rendering two buttons and hiding one. Viewport must be set before
+  // navigation, since positionLikeButton() reads DESKTOP_MQL.matches
+  // synchronously during initFeed() on page load.
+  test("at a mobile viewport, the like button overlays the video (.like-slot-overlay)", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    const { card, likeBtn } = await openFirstCard(page);
+
+    // Unambiguous placement check: the button must resolve as a descendant
+    // of the overlay slot (itself inside .video-wrap) and NOT be present in
+    // the row slot at all -- not just "exists somewhere on the page".
+    await expect(card.locator(".video-wrap .like-slot-overlay .like-btn")).toHaveCount(1);
+    await expect(card.locator(".like-slot-row .like-btn")).toHaveCount(0);
+    await expect(likeBtn).toHaveClass(/is-overlay/);
+  });
+
+  test("at a desktop viewport, the like button stays in its own row (.like-slot-row)", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    const { card, likeBtn } = await openFirstCard(page);
+
+    // Mirror image of the mobile check above: row slot holds it, overlay
+    // slot (inside .video-wrap) is empty, and it never carries the
+    // mobile-only overlay styling class.
+    await expect(card.locator(".like-slot-row .like-btn")).toHaveCount(1);
+    await expect(card.locator(".video-wrap .like-slot-overlay .like-btn")).toHaveCount(0);
+    await expect(likeBtn).not.toHaveClass(/is-overlay/);
   });
 });
