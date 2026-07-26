@@ -4440,5 +4440,419 @@
     },
     "archivedAt": "2026-07-23",
     "location": "New Delhi, India"
+  },
+  {
+    "id": "video-184",
+    "title": "Commentary questions a \"temple stone-pelting\" narrative blamed on protesters",
+    "description": "A commentary video reacting to a widely shared clip (credited on-screen to On Record India) alleging that the Prachin Hanuman Mandir near Connaught Place was targeted in stone-pelting during the 20 July march; the presenter argues the incident is being used to shift blame onto the protesters.",
+    "date": "2026-07-20",
+    "location": "Connaught Place, New Delhi, India",
+    "tags": [
+      "contested-framing",
+      "commentary",
+      "stone-pelting"
+    ],
+    "verificationStatus": "unverified",
+    "footageOrigin": "media",
+    "source": {
+      "platform": "Direct upload",
+      "url": "",
+      "uploader": "Submission #10",
+      "publishedAt": "2026-07-20"
+    },
+    "media": {
+      "video": "videos/video-184.mp4",
+      "thumbnail": "thumbnails/video-184.jpg",
+      "duration": 179,
+      "width": 720,
+      "height": 1280
+    },
+    "archivedAt": "2026-07-26"
+  },
+  {
+    "id": "video-185",
+    "title": "Bystander films a Delhi Police facial-recognition van at night",
+    "description": "Nighttime footage near a Delhi Police vehicle marked for the force's facial-recognition system, with an inset screen recording of an interface matching photographed faces to identifying details in real time; captioned as a warning to viewers before the clip could be taken down.",
+    "date": "2026-07-20",
+    "location": "Jantar Mantar, New Delhi, India",
+    "tags": [
+      "surveillance",
+      "facial-recognition",
+      "police"
+    ],
+    "verificationStatus": "unverified",
+    "footageOrigin": "participant",
+    "source": {
+      "platform": "Direct upload",
+      "url": "",
+      "uploader": "Submission #14",
+      "publishedAt": "2026-07-20"
+    },
+    "media": {
+      "video": "videos/video-185.mp4",
+      "thumbnail": "thumbnails/video-185.jpg",
+      "duration": 40,
+      "width": 720,
+      "height": 1280
+    },
+    "archivedAt": "2026-07-26"
+  },
+  {
+    "id": "video-186",
+    "title": "\"Students, not goons\": on-camera at the 23 July barricades",
+    "description": "A protester speaks to camera near police barricades, rejecting the framing of demonstrators as \"goons\"; an on-screen caption dates the clip to 23 July at Jantar Mantar.",
+    "date": "2026-07-23",
+    "location": "Jantar Mantar, New Delhi, India",
+    "tags": [
+      "barricade",
+      "first-person",
+      "police"
+    ],
+    "verificationStatus": "unverified",
+    "footageOrigin": "participant",
+    "source": {
+      "platform": "Direct upload",
+      "url": "",
+      "uploader": "Submission #15",
+      "publishedAt": "2026-07-23"
+    },
+    "media": {
+      "video": "videos/video-186.mp4",
+      "thumbnail": "thumbnails/video-186.jpg",
+      "duration": 61,
+      "width": 720,
+      "height": 1280
+    },
+    "archivedAt": "2026-07-26"
+  },
+  {
+    "id": "video-187",
+    "title": "CCTV footage shows a vehicle overturned on 20 July",
+    "description": "Multi-camera CCTV footage, timestamped 20 July, shows a marked vehicle flipped onto its roof on a debris-strewn street during the protest.",
+    "date": "2026-07-20",
+    "tags": [
+      "cctv",
+      "vehicle",
+      "vandalism"
+    ],
+    "verificationStatus": "unverified",
+    "footageOrigin": "media",
+    "source": {
+      "platform": "Direct upload",
+      "url": "",
+      "uploader": "Submission #17",
+      "publishedAt": "2026-07-20"
+    },
+    "media": {
+      "video": "videos/video-187.mp4",
+      "thumbnail": "thumbnails/video-187.jpg",
+      "duration": 74,
+      "width": 720,
+      "height": 1280
+    },
+    "archivedAt": "2026-07-26"
+  },
+  {
+    "id": "video-189",
+    "title": "\"Who said no bullets were fired?\": footage from the Palika subway",
+    "description": "Footage captioned as being from the Palika underground subway area on 20 July, showing a clash between protesters and helmeted police with projectiles visible overhead; the caption disputes official denials that live rounds were used.",
+    "date": "2026-07-20",
+    "location": "Palika Bazaar subway, Connaught Place, New Delhi, India",
+    "tags": [
+      "palika",
+      "clash",
+      "police"
+    ],
+    "verificationStatus": "unverified",
+    "footageOrigin": "participant",
+    "source": {
+      "platform": "Direct upload",
+      "url": "",
+      "uploader": "Submission #20",
+      "publishedAt": "2026-07-20"
+    },
+    "media": {
+      "video": "videos/video-189.mp4",
+      "thumbnail": "thumbnails/video-189.jpg",
+      "duration": 47,
+      "width": 720,
+      "height": 1280
+    },
+    "archivedAt": "2026-07-26"
+  },
+  {
+    "id": "video-190",
+    "title": "Scuffle at a barricaded gate, 22 July",
+    "description": "A scuffle between police and demonstrators at a barricaded gate, with one person restrained on the ground; captioned \"22 July\" and urging viewers to share the clip.",
+    "date": "2026-07-22",
+    "tags": [
+      "detention",
+      "barricade",
+      "police"
+    ],
+    "verificationStatus": "unverified",
+    "footageOrigin": "participant",
+    "source": {
+      "platform": "Direct upload",
+      "url": "",
+      "uploader": "Submission #21",
+      "publishedAt": "2026-07-22"
+    },
+    "media": {
+      "video": "videos/video-190.mp4",
+      "thumbnail": "thumbnails/video-190.jpg",
+      "duration": 12,
+      "width": 720,
+      "height": 1280
+    },
+    "archivedAt": "2026-07-26"
+  },
+  {
+    "id": "video-191",
+    "title": "Nagpur crackdown: dozens of students detained, broadcast says",
+    "description": "A branded news clip (\"India Now\") reports on police action against a solidarity protest in Nagpur, saying more than 45 students were detained; shows a person restrained face-down and a police van with detainees inside.",
+    "date": "2026-07-23",
+    "location": "Nagpur, Maharashtra, India",
+    "tags": [
+      "nagpur",
+      "detention",
+      "media"
+    ],
+    "verificationStatus": "unverified",
+    "footageOrigin": "media",
+    "source": {
+      "platform": "Direct upload",
+      "url": "",
+      "uploader": "Submission #22",
+      "publishedAt": "2026-07-23"
+    },
+    "media": {
+      "video": "videos/video-191.mp4",
+      "thumbnail": "thumbnails/video-191.jpg",
+      "duration": 33,
+      "width": 720,
+      "height": 1280
+    },
+    "archivedAt": "2026-07-26"
+  },
+  {
+    "id": "video-192",
+    "title": "Commentary on a woman's assault allegation against Jantar Mantar police",
+    "description": "A branded commentary video (\"FeedfusionHQ\") discussing a woman's allegation of assault and misconduct by male police personnel at the Jantar Mantar protest, with an inset clip of a scuffle.",
+    "date": "2026-07-20",
+    "location": "Jantar Mantar, New Delhi, India",
+    "tags": [
+      "allegation",
+      "commentary",
+      "police"
+    ],
+    "verificationStatus": "unverified",
+    "footageOrigin": "media",
+    "source": {
+      "platform": "Direct upload",
+      "url": "",
+      "uploader": "Submission #25",
+      "publishedAt": "2026-07-20"
+    },
+    "media": {
+      "video": "videos/video-192.mp4",
+      "thumbnail": "thumbnails/video-192.jpg",
+      "duration": 48,
+      "width": 720,
+      "height": 1280
+    },
+    "archivedAt": "2026-07-26"
+  },
+  {
+    "id": "video-193",
+    "title": "Video by bas.vivek_",
+    "description": "Footage carrying an on-screen time/location/date stamp — Firozshah Road, about 500m from Jantar Mantar, 12:30pm on 24 July — questioning why trucks loaded with stones were accompanying police and RAF vehicles.",
+    "date": "2026-07-24",
+    "location": "Firozshah Road, near Jantar Mantar, New Delhi, India",
+    "tags": [
+      "convoy",
+      "raf",
+      "police"
+    ],
+    "verificationStatus": "unverified",
+    "footageOrigin": "participant",
+    "source": {
+      "platform": "Instagram",
+      "url": "https://www.instagram.com/reel/DbJYrR0T26g/",
+      "uploader": "Vivek",
+      "publishedAt": "2026-07-23"
+    },
+    "media": {
+      "video": "videos/video-193.mp4",
+      "thumbnail": "thumbnails/video-193.jpg",
+      "duration": 53,
+      "width": 540,
+      "height": 960
+    },
+    "archivedAt": "2026-07-26"
+  },
+  {
+    "id": "video-194",
+    "title": "Video by atalindianews24",
+    "description": "A nighttime clash between police and protesters, followed by an ANI-branded interview with a visibly injured man describing what happened to him.",
+    "date": "2026-07-23",
+    "tags": [
+      "injury",
+      "interview",
+      "media"
+    ],
+    "verificationStatus": "unverified",
+    "footageOrigin": "media",
+    "source": {
+      "platform": "Instagram",
+      "url": "https://www.instagram.com/reel/DbJNMDQsrAs/",
+      "uploader": "atal india news 24",
+      "publishedAt": "2026-07-23"
+    },
+    "media": {
+      "video": "videos/video-194.mp4",
+      "thumbnail": "thumbnails/video-194.jpg",
+      "duration": 46,
+      "width": 540,
+      "height": 960
+    },
+    "archivedAt": "2026-07-26"
+  },
+  {
+    "id": "video-195",
+    "title": "Video by utkarshchauhan_05",
+    "description": "A young man recounts sustaining bruises and scrapes to his back and arm during the protest, showing injury photos and a hospital imaging scan.",
+    "date": "2026-07-22",
+    "tags": [
+      "injury",
+      "testimony"
+    ],
+    "verificationStatus": "unverified",
+    "footageOrigin": "participant",
+    "source": {
+      "platform": "Instagram",
+      "url": "https://www.instagram.com/reel/DbFiV_6vBuI/",
+      "uploader": "Utkarsh Chauhan",
+      "publishedAt": "2026-07-22"
+    },
+    "media": {
+      "video": "videos/video-195.mp4",
+      "thumbnail": "thumbnails/video-195.jpg",
+      "duration": 89,
+      "width": 720,
+      "height": 1280
+    },
+    "archivedAt": "2026-07-26"
+  },
+  {
+    "id": "video-196",
+    "title": "Video by ayuahmishra.official",
+    "description": "News-crew footage (microphone branded Lokmat) of a scuffle on a Mumbai street, with a Mumbai Police officer and a man grabbed by the collar outside a Starbucks storefront.",
+    "date": "2026-07-20",
+    "location": "Mumbai, Maharashtra, India",
+    "tags": [
+      "mumbai",
+      "lokmat",
+      "police"
+    ],
+    "verificationStatus": "unverified",
+    "footageOrigin": "media",
+    "source": {
+      "platform": "Instagram",
+      "url": "https://www.instagram.com/reel/DbBb5v-tIKa/",
+      "uploader": "its_AYUSH",
+      "publishedAt": "2026-07-20"
+    },
+    "media": {
+      "video": "videos/video-196.mp4",
+      "thumbnail": "thumbnails/video-196.jpg",
+      "duration": 40,
+      "width": 540,
+      "height": 960
+    },
+    "archivedAt": "2026-07-26"
+  },
+  {
+    "id": "video-197",
+    "title": "Video by praanaav_._",
+    "description": "A participant's account of the 20 July crackdown — lathi charge, tear gas, and water cannons — intercut with a screenshot of a Delhi Police social post denying that any violence or detentions had taken place.",
+    "date": "2026-07-20",
+    "location": "Jantar Mantar, New Delhi, India",
+    "tags": [
+      "lathi",
+      "tear-gas",
+      "denial"
+    ],
+    "verificationStatus": "unverified",
+    "footageOrigin": "participant",
+    "source": {
+      "platform": "Instagram",
+      "url": "https://www.instagram.com/reel/DbA_X9oCvVt/",
+      "uploader": "Pranav",
+      "publishedAt": "2026-07-20"
+    },
+    "media": {
+      "video": "videos/video-197.mp4",
+      "thumbnail": "thumbnails/video-197.jpg",
+      "duration": 51,
+      "width": 540,
+      "height": 960
+    },
+    "archivedAt": "2026-07-26"
+  },
+  {
+    "id": "video-198",
+    "title": "Video by theredmike",
+    "description": "A reporter (branded The Red Mike) interviews protesters at Jantar Mantar, including a young man recounting being beaten during the protest.",
+    "date": "2026-07-20",
+    "location": "Jantar Mantar, New Delhi, India",
+    "tags": [
+      "interview",
+      "media"
+    ],
+    "verificationStatus": "unverified",
+    "footageOrigin": "media",
+    "source": {
+      "platform": "Instagram",
+      "url": "https://www.instagram.com/reel/DbBLKYqzJiR/",
+      "uploader": "The Red Mike",
+      "publishedAt": "2026-07-20"
+    },
+    "media": {
+      "video": "videos/video-198.mp4",
+      "thumbnail": "thumbnails/video-198.jpg",
+      "duration": 145,
+      "width": 720,
+      "height": 1280
+    },
+    "archivedAt": "2026-07-26"
+  },
+  {
+    "id": "video-199",
+    "title": "Video by ground0news",
+    "description": "A branded news clip (iPost News) shows police pulling a man by the collar over yellow barricades, captioned in Hindi accusing the government's police of dictatorial conduct.",
+    "date": "2026-07-20",
+    "location": "Jantar Mantar, New Delhi, India",
+    "tags": [
+      "barricade",
+      "police",
+      "media"
+    ],
+    "verificationStatus": "unverified",
+    "footageOrigin": "media",
+    "source": {
+      "platform": "Instagram",
+      "url": "https://www.instagram.com/reel/DbB4VIzyoqI/",
+      "uploader": "Ground 0 News",
+      "publishedAt": "2026-07-20"
+    },
+    "media": {
+      "video": "videos/video-199.mp4",
+      "thumbnail": "thumbnails/video-199.jpg",
+      "duration": 38,
+      "width": 540,
+      "height": 960
+    },
+    "archivedAt": "2026-07-26"
   }
 ]
