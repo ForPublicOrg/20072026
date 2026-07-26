@@ -61,6 +61,46 @@ function setLiked(videoId: string, liked: boolean) {
 // to should also be audible.
 let globalMuted = true;
 
+// Mobile overlays .like-btn on the video's bottom-right corner (Reels-style,
+// above the mute button); desktop keeps it as its own row below the video —
+// the site's existing non-overlay principle, deliberately excepted for
+// mobile only (see VideoCard.astro's top comment). The threshold mirrors
+// .card-frame's own 768px breakpoint in VideoCard.astro. A single shared
+// MediaQueryList (not one per card) backs the live-resize listener below,
+// same pattern as globalMuted above being one piece of cross-card state
+// rather than per-card state.
+const DESKTOP_MQL = matchMedia("(min-width: 768px)");
+
+// Relocates the SAME .like-btn DOM node between its two possible slots
+// (never clones/duplicates it) based on the current breakpoint. Desktop:
+// moved into .like-slot-row, its server-rendered default position, own row
+// below the video. Mobile: moved into .like-slot-overlay, a descendant of
+// .video-wrap positioned exactly like .mute-btn, so it renders as a real
+// overlay over the footage rather than being pushed around by flex sizing.
+function positionLikeButton(card: HTMLElement) {
+  const likeBtn = card.querySelector<HTMLButtonElement>(".like-btn");
+  const overlaySlot = card.querySelector<HTMLElement>(".like-slot-overlay");
+  const rowSlot = card.querySelector<HTMLElement>(".like-slot-row");
+  if (!likeBtn || !overlaySlot || !rowSlot) return;
+
+  if (DESKTOP_MQL.matches) {
+    rowSlot.appendChild(likeBtn);
+    likeBtn.classList.remove("is-overlay");
+  } else {
+    overlaySlot.appendChild(likeBtn);
+    likeBtn.classList.add("is-overlay");
+  }
+}
+
+// initFeed() re-runs on every astro:page-load (view-transition nav included,
+// see the listener at the bottom of this file), each time against a fresh
+// `cards` array. DESKTOP_MQL itself is module-level and outlives any single
+// page-load, so without this the "one shared listener" would actually become
+// one-shared-listener-per-navigation, each closing over an increasingly
+// stale `cards` array. Tracking + removing the previous listener here keeps
+// it to exactly one live listener, closed over the current cards, at a time.
+let removeDesktopMqlListener: (() => void) | null = null;
+
 const muteIdleTimers = new WeakMap<HTMLElement, ReturnType<typeof setTimeout>>();
 
 function updateMuteUI(card: HTMLElement, muted: boolean) {
@@ -590,9 +630,16 @@ function initFeed() {
     "(prefers-reduced-motion: reduce)",
   ).matches;
 
-  cards.forEach((card, index) =>
-    setupCardInteractions(card, cards, index, prefersReducedMotion),
-  );
+  cards.forEach((card, index) => {
+    setupCardInteractions(card, cards, index, prefersReducedMotion);
+    positionLikeButton(card);
+  });
+
+  removeDesktopMqlListener?.();
+  const onBreakpointChange = () => cards.forEach(positionLikeButton);
+  DESKTOP_MQL.addEventListener("change", onBreakpointChange);
+  removeDesktopMqlListener = () =>
+    DESKTOP_MQL.removeEventListener("change", onBreakpointChange);
 
   // Fire-and-forget: hydration is async and independent of interaction
   // setup below, so it must not block the rest of initFeed (autoplay

@@ -83,6 +83,8 @@ const avatarInitial = video.source.uploader.replace(/^@/, "").trim().charAt(0).t
         </svg>
       </div>
 
+      <div class="like-slot-overlay"></div>
+
       <button
         type="button"
         class="mute-btn"
@@ -127,6 +129,22 @@ const avatarInitial = video.source.uploader.replace(/^@/, "").trim().charAt(0).t
       </div>
     </div>
 
+    <div class="like-slot-row">
+      <button
+        type="button"
+        class="like-btn"
+        data-liked="false"
+        data-hydrated="false"
+        aria-pressed="false"
+        aria-label="Like this video"
+      >
+        <svg class="icon-fist" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true">
+          <path d="M192 0c17.7 0 32 14.3 32 32l0 112-64 0 0-112c0-17.7 14.3-32 32-32zM64 64c0-17.7 14.3-32 32-32s32 14.3 32 32l0 80-64 0 0-80zm192 0c0-17.7 14.3-32 32-32s32 14.3 32 32l0 96c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-96zm96 64c0-17.7 14.3-32 32-32s32 14.3 32 32l0 64c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-64zm-96 88l0-.6c9.4 5.4 20.3 8.6 32 8.6c13.2 0 25.4-4 35.6-10.8c8.7 24.9 32.5 42.8 60.4 42.8c11.7 0 22.6-3.1 32-8.6l0 8.6c0 52.3-25.1 98.8-64 128l0 96c0 17.7-14.3 32-32 32l-160 0c-17.7 0-32-14.3-32-32l0-78.4c-17.3-7.9-33.2-18.8-46.9-32.5L69.5 357.5C45.5 333.5 32 300.9 32 267l0-27c0-35.3 28.7-64 64-64l88 0c22.1 0 40 17.9 40 40s-17.9 40-40 40l-56 0c-8.8 0-16 7.2-16 16s7.2 16 16 16l56 0c39.8 0 72-32.2 72-72z"/>
+        </svg>
+        <span class="like-count"></span>
+      </button>
+    </div>
+
     <div class="meta-row">
       <span class="meta-left">
         {
@@ -151,20 +169,6 @@ const avatarInitial = video.source.uploader.replace(/^@/, "").trim().charAt(0).t
         <span aria-hidden="true">&middot;</span>
         <time datetime={video.date}>{eventDate}</time>
       </span>
-
-      <button
-        type="button"
-        class="like-btn"
-        data-liked="false"
-        data-hydrated="false"
-        aria-pressed="false"
-        aria-label="Like this video"
-      >
-        <svg class="icon-fist" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true">
-          <path d="M192 0c17.7 0 32 14.3 32 32l0 112-64 0 0-112c0-17.7 14.3-32 32-32zM64 64c0-17.7 14.3-32 32-32s32 14.3 32 32l0 80-64 0 0-80zm192 0c0-17.7 14.3-32 32-32s32 14.3 32 32l0 96c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-96zm96 64c0-17.7 14.3-32 32-32s32 14.3 32 32l0 64c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-64zm-96 88l0-.6c9.4 5.4 20.3 8.6 32 8.6c13.2 0 25.4-4 35.6-10.8c8.7 24.9 32.5 42.8 60.4 42.8c11.7 0 22.6-3.1 32-8.6l0 8.6c0 52.3-25.1 98.8-64 128l0 96c0 17.7-14.3 32-32 32l-160 0c-17.7 0-32-14.3-32-32l0-78.4c-17.3-7.9-33.2-18.8-46.9-32.5L69.5 357.5C45.5 333.5 32 300.9 32 267l0-27c0-35.3 28.7-64 64-64l88 0c22.1 0 40 17.9 40 40s-17.9 40-40 40l-56 0c-8.8 0-16 7.2-16 16s7.2 16 16 16l56 0c39.8 0 72-32.2 72-72z"/>
-        </svg>
-        <span class="like-count"></span>
-      </button>
     </div>
 
     <div class="caption-block">
@@ -392,6 +396,19 @@ const avatarInitial = video.source.uploader.replace(/^@/, "").trim().charAt(0).t
     opacity: 0;
   }
 
+  /* Empty positioning slot for the like button on mobile — feed.ts moves
+     the real .like-btn node in here at <768px so it overlays the video's
+     bottom-right corner, Reels-style. Sits above .mute-btn (z-index 25)
+     with a gap that clears its 2.25rem height. On >=768px this stays
+     empty; the button lives in .like-slot-row below instead (own row,
+     not burned over the footage — see the file's top comment). */
+  .like-slot-overlay {
+    position: absolute;
+    right: 0.6rem;
+    bottom: 3.4rem;
+    z-index: 26;
+  }
+
   /* The visible bar stays a thin 3px (Instagram-style), but the tappable
      area is padded out to >=20px tall so it's actually hittable on a phone
      — a 3px target fails any reasonable touch-target guideline. The padded
@@ -447,11 +464,13 @@ const avatarInitial = video.source.uploader.replace(/^@/, "").trim().charAt(0).t
 
   /* --- Action/meta row: platform · date, source link --- */
 
+  /* justify-content is a plain flex-start now — .like-btn used to live in
+     here too (hence the old space-between), but it's since moved to its
+     own .like-slot-row below so this row only ever holds .meta-left. */
   .meta-row {
     flex: 0 0 auto;
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 0.5rem;
     padding: 0.45rem 0.75rem;
     font-size: 0.75rem;
@@ -517,6 +536,54 @@ const avatarInitial = video.source.uploader.replace(/^@/, "").trim().charAt(0).t
 
   .like-btn[data-hydrated="false"] .like-count {
     visibility: hidden;
+  }
+
+  /* .like-btn's one and only server-rendered home: its own row below the
+     video, in normal flow, never overlapping the footage — the desktop
+     default and the no-JS fallback. feed.ts's positionLikeButton() moves
+     the same button node into .like-slot-overlay above instead at <768px;
+     it is never duplicated between the two slots. */
+  .like-slot-row {
+    flex: 0 0 auto;
+    display: flex;
+    justify-content: flex-end;
+    padding: 0.4rem 0.75rem;
+  }
+
+  /* Once JS has relocated .like-btn out to the mobile overlay slot, this
+     row is left empty — collapse it to zero height so it doesn't leave a
+     blank gap between the video and .meta-row. */
+  .like-slot-row:empty {
+    padding: 0;
+  }
+
+  /* Mobile overlay state (added by feed.ts alongside the move into
+     .like-slot-overlay): bigger, legible over arbitrary video content.
+     Can't reuse the row variant's opacity(.6/1) trick for liked state — a
+     dimmed icon can disappear entirely against a bright frame — so this
+     variant stays fully opaque with a drop-shadow and signals liked state
+     via scale alone. Deliberate divergence from the row variant, not an
+     inconsistency. */
+  .like-btn.is-overlay {
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .like-btn.is-overlay .icon-fist {
+    width: 2.15rem;
+    height: calc(2.15rem * 512 / 448);
+    opacity: 1;
+    filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.6));
+  }
+
+  .like-btn.is-overlay[data-liked="true"] .icon-fist {
+    transform: scale(1.1);
+  }
+
+  .like-btn.is-overlay .like-count {
+    color: #fff;
+    font-weight: 600;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
   }
 
   .like-burst {
