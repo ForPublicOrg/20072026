@@ -5,3 +5,4 @@ import { applyD1Migrations, env } from "cloudflare:test";
 // to this test run's local D1 instances, so tests exercise the real schema.
 await applyD1Migrations(env.TAKEDOWNS, env.TEST_TAKEDOWNS_MIGRATIONS);
 await applyD1Migrations(env.SUBMISSIONS, env.TEST_SUBMISSIONS_MIGRATIONS);
+await applyD1Migrations(env.LIKES, env.TEST_LIKES_MIGRATIONS);

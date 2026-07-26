@@ -66,10 +66,18 @@ declare class FixedLengthStream {
   readonly writable: WritableStream<Uint8Array>;
 }
 
+/** Minimal hand-rolled type — same rationale as the other Workers-runtime
+ *  globals above. Only the one method handleLikesBatch needs, to schedule
+ *  the edge-cache write without blocking the response on it. */
+interface ExecutionContext {
+  waitUntil(promise: Promise<unknown>): void;
+}
+
 interface Env {
   ASSETS: AssetsBinding;
   TAKEDOWNS: D1Database;
   SUBMISSIONS: D1Database;
+  LIKES: D1Database;
   UPLOADS: R2Bucket;
 }
 
@@ -97,6 +105,10 @@ const MAX_PER_MINUTE = 20;
 /** Raw uploads get a stricter per-minute cap than link submissions or takedowns
  *  — each one is a real file landing in R2, not just a DB row. */
 const MAX_UPLOADS_PER_MINUTE = 5;
+
+/** Like/unlike is much higher-frequency and lower-stakes than a takedown or
+ *  submission — same global-not-per-IP tradeoff as MAX_PER_MINUTE above. */
+const MAX_LIKES_PER_MINUTE = 60;
 
 /** Per-file cap for raw footage uploads (see docs/design-spec.md for how this
  *  number was picked — sanity-check against the account's actual Cloudflare
@@ -584,8 +596,140 @@ async function handleVideoUpload(request: Request, env: Env, id: number): Promis
   return json({ ok: true }, 200);
 }
 
+/**
+ * Handles both POST (like) and DELETE (unlike) /api/likes/:id. Idempotent by
+ * construction: video_likes has a composite (video_id, client_id) primary
+ * key, so `INSERT OR IGNORE` on a repeat like from the same device is a
+ * silent no-op rather than a second row — a double-tap never double-counts.
+ * client_id is an anonymous id the browser generates and persists in
+ * localStorage; there is no account system, so it must be supplied by the
+ * caller, never generated here (see docs/design-spec.md).
+ */
+async function handleLikeMutation(request: Request, env: Env, videoId: string): Promise<Response> {
+  if (request.method !== "POST" && request.method !== "DELETE") {
+    return json({ ok: false, error: "Method not allowed." }, 405);
+  }
+
+  const origin = request.headers.get("origin");
+  if (origin) {
+    const allowed = new URL(request.url).origin;
+    if (origin !== allowed) {
+      return json({ ok: false, error: "Cross-origin requests are not accepted." }, 403);
+    }
+  }
+
+  if (!/^[a-z0-9-]{1,64}$/.test(videoId)) {
+    return json({ ok: false, error: "Unknown video." }, 400);
+  }
+
+  const clientId = request.headers.get("x-client-id") ?? "";
+  if (!/^[a-z0-9-]{8,64}$/.test(clientId)) {
+    return json({ ok: false, error: "Missing client id." }, 400);
+  }
+
+  try {
+    if (request.method === "POST") {
+      const recent = await env.LIKES.prepare(
+        "SELECT COUNT(*) AS n FROM video_likes WHERE created_at > datetime('now', '-1 minute')",
+      ).all<{ n: number }>();
+      if ((recent.results[0]?.n ?? 0) >= MAX_LIKES_PER_MINUTE) {
+        return json(
+          { ok: false, error: "Too many requests right now. Please try again shortly." },
+          429,
+        );
+      }
+
+      await env.LIKES.prepare(
+        "INSERT OR IGNORE INTO video_likes (video_id, client_id) VALUES (?, ?)",
+      )
+        .bind(videoId, clientId)
+        .run();
+
+      const count = await env.LIKES.prepare(
+        "SELECT COUNT(*) AS n FROM video_likes WHERE video_id = ?",
+      )
+        .bind(videoId)
+        .all<{ n: number }>();
+
+      return json({ ok: true, liked: true, count: count.results[0]?.n ?? 0 }, 200);
+    }
+
+    await env.LIKES.prepare("DELETE FROM video_likes WHERE video_id = ? AND client_id = ?")
+      .bind(videoId, clientId)
+      .run();
+
+    const count = await env.LIKES.prepare(
+      "SELECT COUNT(*) AS n FROM video_likes WHERE video_id = ?",
+    )
+      .bind(videoId)
+      .all<{ n: number }>();
+
+    return json({ ok: true, liked: false, count: count.results[0]?.n ?? 0 }, 200);
+  } catch (error) {
+    console.error("like mutation failed", error);
+    return json({ ok: false, error: "Something went wrong. Please try again." }, 500);
+  }
+}
+
+/**
+ * Batch hydration for the feed: returns like counts for the whole catalog in
+ * one shot. Redesigned after a Cloudflare architecture review of the
+ * original per-id `IN (...)` design, which bound one parameter per requested
+ * video id and hit D1's hard 100-bound-parameter-per-query limit at this
+ * catalog's actual size (178 videos). The fix removes per-id parameters
+ * entirely rather than chunking around the limit: this route always returns
+ * counts for every video, identically for every caller, so the query has
+ * zero bound parameters and can never hit that ceiling regardless of catalog
+ * size. "Have I liked this" is dropped from the response and answered
+ * entirely client-side (see Task 5) — the client already knows what it
+ * liked, since it's the one that issued the POST/DELETE; round-tripping to
+ * D1 to ask would need a scan anyway, since client_id is the second column
+ * of the (video_id, client_id) composite key, not a usable leading prefix.
+ *
+ * Also edge-cached via the Workers Cache API: this route fires on every
+ * /feed page view, and Free-plan D1 has a 5,000,000-rows-read/day cap that
+ * pageview traffic could realistically approach over time. A 20s
+ * Cache-Control window is explicitly acceptable for a vanity-metric-style
+ * count, and collapses "one D1 query per pageview" down to roughly one D1
+ * query per cache window per edge colo — the actual fix for read-volume
+ * cost, not just the parameter-count crash.
+ */
+async function handleLikesBatch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+  if (request.method !== "GET") {
+    return json({ ok: false, error: "Method not allowed." }, 405);
+  }
+
+  // No same-origin check: this is a public, cacheable GET with no side
+  // effects and an identical response for every caller — nothing to forge.
+
+  const cache = caches.default;
+  const cached = await cache.match(request);
+  if (cached) {
+    return cached;
+  }
+
+  try {
+    const counts = await env.LIKES.prepare(
+      "SELECT video_id, COUNT(*) AS n FROM video_likes GROUP BY video_id",
+    ).all<{ video_id: string; n: number }>();
+
+    const likes: Record<string, number> = {};
+    for (const row of counts.results) {
+      likes[row.video_id] = row.n;
+    }
+
+    const response = json({ ok: true, likes }, 200);
+    response.headers.set("cache-control", "public, max-age=20");
+    ctx.waitUntil(cache.put(request, response.clone()));
+    return response;
+  } catch (error) {
+    console.error("likes batch failed", error);
+    return json({ ok: false, error: "Something went wrong. Please try again." }, 500);
+  }
+}
+
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
     const { pathname } = url;
 
@@ -614,6 +758,17 @@ export default {
     const uploadMatch = /^\/api\/upload\/(\d+)$/.exec(pathname);
     if (uploadMatch) {
       return handleVideoUpload(request, env, Number(uploadMatch[1]));
+    }
+
+    // Check batch before the single-id route below, or "batch" itself would
+    // match the [a-z0-9-]+ capture group and be routed as a video id.
+    if (pathname === "/api/likes/batch") {
+      return handleLikesBatch(request, env, ctx);
+    }
+
+    const likeMatch = /^\/api\/likes\/([a-z0-9-]+)$/.exec(pathname);
+    if (likeMatch) {
+      return handleLikeMutation(request, env, likeMatch[1]);
     }
 
     return env.ASSETS.fetch(request);

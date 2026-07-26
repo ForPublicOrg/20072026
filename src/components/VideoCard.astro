@@ -2,7 +2,10 @@
 // Instagram MAIN FEED layout (not the earlier Reels-style overlay): a post
 // header (avatar/handle/location), the video as its own letterboxed block,
 // an action/meta row, then a caption block — all on
-// plain black, never metadata burned over the footage. See
+// plain black, never metadata burned over the footage — except the like
+// button/count, which overlays the video on mobile only (Instagram
+// Reels-style, confirmed as a deliberate exception; desktop keeps it as its
+// own row below the video, unchanged from the rest of this principle). See
 // docs/design-spec.md §9 ("Why the feed card is changing shape, not just
 // colour") for the rationale.
 import type { VideoEntry } from "../lib/schema";
@@ -40,6 +43,7 @@ const avatarInitial = video.source.uploader.replace(/^@/, "").trim().charAt(0).t
 
 <article
   class="feed-card"
+  data-video-id={video.id}
   data-video-src={videoSrc}
   data-footage-origin={video.footageOrigin}
   tabindex="0"
@@ -57,6 +61,18 @@ const avatarInitial = video.source.uploader.replace(/^@/, "").trim().charAt(0).t
     </header>
 
     <div class="video-wrap">
+      {/* For footage whose native aspect ratio doesn't match this card
+          (mostly landscape clips — most of the catalog is native 9:16 and
+          barely shows this), object-fit: contain below leaves a tall band
+          of flat --color-letterbox above/below the frame, and the mute/like/
+          progress controls anchored to the wrap's true bottom edge end up
+          floating in it, disconnected from the visible footage. This layer
+          extends the same thumbnail behind the frame, blurred and darkened,
+          so that band still reads as "one continuous black field" (per
+          docs/design-spec.md's letterbox rationale) instead of dead space —
+          the actual footage above it is never cropped or altered. */}
+      <div class="video-backdrop" style={`--backdrop-image: url(${thumbSrc})`} aria-hidden="true"></div>
+
       <video
         playsinline
         muted
@@ -75,6 +91,16 @@ const avatarInitial = video.source.uploader.replace(/^@/, "").trim().charAt(0).t
         <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
         <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"></path></svg>
       </div>
+
+      {/* Always the filled weight — the burst only ever plays on a
+          confirmed like, same as the button's own filled state below. */}
+      <div class="like-burst" aria-hidden="true">
+        <svg class="icon-fist" viewBox="0 0 256 256" fill="currentColor">
+          <path d="M232,120v8A104,104,0,0,1,127.63,232c-54-.19-98-42.06-103.12-94.78a4,4,0,0,1,5.56-4A35.94,35.94,0,0,0,72,122.59a35.92,35.92,0,0,0,53.94,2.33,40.36,40.36,0,0,0,12.87,13A47.94,47.94,0,0,0,120,176a8,8,0,0,0,8.67,8,8.21,8.21,0,0,0,7.33-8.26A32,32,0,0,1,168,144a8,8,0,0,0,8-8.53,8.18,8.18,0,0,0-8.25-7.47H160a24,24,0,0,1-24-24V88h64A32,32,0,0,1,232,120ZM44.73,120C55.57,119.6,64,110.37,64,99.52v-23C64,65.63,55.57,56.4,44.73,56A20,20,0,0,0,24,76v24A20,20,0,0,0,44.73,120Zm56,0c10.84-.39,19.27-9.62,19.27-20.47v-47c0-10.85-8.43-20.08-19.27-20.47A20,20,0,0,0,80,52v48A20,20,0,0,0,100.73,120ZM176,52a20,20,0,0,0-20.73-20C144.43,32.4,136,41.63,136,52.48V72h36a4,4,0,0,0,4-4Z"/>
+        </svg>
+      </div>
+
+      <div class="like-slot-overlay"></div>
 
       <button
         type="button"
@@ -118,6 +144,33 @@ const avatarInitial = video.source.uploader.replace(/^@/, "").trim().charAt(0).t
           <div class="progress-fill"></div>
         </div>
       </div>
+    </div>
+
+    <div class="like-slot-row">
+      <button
+        type="button"
+        class="like-btn"
+        data-liked="false"
+        data-hydrated="false"
+        aria-pressed="false"
+        aria-label="Like this video"
+      >
+        {/* "hand-fist" from Phosphor Icons (phosphoricons.com), MIT licensed
+            — light weight (outline) + fill weight, toggled by data-liked,
+            same pattern as .play-glyph's icon-play/icon-pause pair above.
+            Not a single shape with opacity/scale: Instagram's own like icon
+            swaps hollow-outline for solid-filled on activation, and an
+            outline *derived* from a filled shape (stroke, or an SVG erode+
+            composite filter) reads as messy/uneven at this button's small
+            render size — confirmed by rendering both before choosing this. */}
+        <svg class="icon-fist icon-fist-outline" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+          <path d="M200,82H182V64a30,30,0,0,0-54-18A30,30,0,0,0,74,64v0A30,30,0,0,0,26,88v40a102,102,0,0,0,204,0V112A30,30,0,0,0,200,82ZM152,46a18,18,0,0,1,18,18V82H136a14.71,14.71,0,0,0-2,.16V64A18,18,0,0,1,152,46ZM86,64a18,18,0,0,1,36,0v40a18,18,0,0,1-36,0ZM38,88a18,18,0,0,1,36,0v16a18,18,0,0,1-36,0Zm180,40a90,90,0,0,1-180,0h0a30,30,0,0,0,42-6,30,30,0,0,0,45.12,3.3A30.18,30.18,0,0,0,140,139.51,45.92,45.92,0,0,0,122,176a6,6,0,0,0,12,0,34,34,0,0,1,34-34,6,6,0,0,0,0-12H152a18,18,0,0,1-18-18V96a2,2,0,0,1,2-2h64a18,18,0,0,1,18,18Z"/>
+        </svg>
+        <svg class="icon-fist icon-fist-filled" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+          <path d="M232,120v8A104,104,0,0,1,127.63,232c-54-.19-98-42.06-103.12-94.78a4,4,0,0,1,5.56-4A35.94,35.94,0,0,0,72,122.59a35.92,35.92,0,0,0,53.94,2.33,40.36,40.36,0,0,0,12.87,13A47.94,47.94,0,0,0,120,176a8,8,0,0,0,8.67,8,8.21,8.21,0,0,0,7.33-8.26A32,32,0,0,1,168,144a8,8,0,0,0,8-8.53,8.18,8.18,0,0,0-8.25-7.47H160a24,24,0,0,1-24-24V88h64A32,32,0,0,1,232,120ZM44.73,120C55.57,119.6,64,110.37,64,99.52v-23C64,65.63,55.57,56.4,44.73,56A20,20,0,0,0,24,76v24A20,20,0,0,0,44.73,120Zm56,0c10.84-.39,19.27-9.62,19.27-20.47v-47c0-10.85-8.43-20.08-19.27-20.47A20,20,0,0,0,80,52v48A20,20,0,0,0,100.73,120ZM176,52a20,20,0,0,0-20.73-20C144.43,32.4,136,41.63,136,52.48V72h36a4,4,0,0,0,4-4Z"/>
+        </svg>
+        <span class="like-count"></span>
+      </button>
     </div>
 
     <div class="meta-row">
@@ -267,13 +320,50 @@ const avatarInitial = video.source.uploader.replace(/^@/, "").trim().charAt(0).t
     background: var(--color-letterbox);
   }
 
+  /* Scaled up so the blur radius never pulls in its own transparent edge,
+     and z-index: 0 keeps it strictly behind the real frame — this is
+     decorative fill for the letterbox band, never the content itself.
+     Dark enough that it reads as depth, not a distinct lighter smear. */
+  .video-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-image: var(--backdrop-image);
+    background-size: cover;
+    background-position: center;
+    transform: scale(1.15);
+    filter: blur(28px) brightness(0.25);
+    pointer-events: none;
+  }
+
+  /* Sits just above .video-backdrop (still below .card-video, which
+     occludes it wherever real footage exists) so the immediate strip
+     behind the mute button and progress bar — visible only in the
+     letterbox band — is solid black instead of the blurred backdrop.
+     The bar needs a clean, unbroken black field directly under it; a
+     visible seam between "blurred content" and "flat black" right where
+     it sits is what read as a stray artifact. Anything further up in a
+     tall letterbox gap still gets the softer blurred fill. */
+  .video-wrap::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+    height: 3.4rem;
+    background: linear-gradient(to top, #000 65%, transparent 100%);
+    pointer-events: none;
+  }
+
   .card-video {
     position: absolute;
     inset: 0;
+    z-index: 1;
     width: 100%;
     height: 100%;
     object-fit: contain;
-    background: var(--color-letterbox);
+    background: transparent;
   }
 
   .play-glyph {
@@ -371,6 +461,19 @@ const avatarInitial = video.source.uploader.replace(/^@/, "").trim().charAt(0).t
     opacity: 0;
   }
 
+  /* Empty positioning slot for the like button on mobile — feed.ts moves
+     the real .like-btn node in here at <768px so it overlays the video's
+     bottom-right corner, Reels-style. Sits above .mute-btn (z-index 25)
+     with a gap that clears its 2.25rem height. On >=768px this stays
+     empty; the button lives in .like-slot-row below instead (own row,
+     not burned over the footage — see the file's top comment). */
+  .like-slot-overlay {
+    position: absolute;
+    right: 0.6rem;
+    bottom: 3.4rem;
+    z-index: 26;
+  }
+
   /* The visible bar stays a thin 3px (Instagram-style), but the tappable
      area is padded out to >=20px tall so it's actually hittable on a phone
      — a 3px target fails any reasonable touch-target guideline. The padded
@@ -426,11 +529,13 @@ const avatarInitial = video.source.uploader.replace(/^@/, "").trim().charAt(0).t
 
   /* --- Action/meta row: platform · date, source link --- */
 
+  /* justify-content is a plain flex-start now — .like-btn used to live in
+     here too (hence the old space-between), but it's since moved to its
+     own .like-slot-row below so this row only ever holds .meta-left. */
   .meta-row {
     flex: 0 0 auto;
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 0.5rem;
     padding: 0.45rem 0.75rem;
     font-size: 0.75rem;
@@ -462,6 +567,118 @@ const avatarInitial = video.source.uploader.replace(/^@/, "").trim().charAt(0).t
 
   .source-link:hover {
     text-decoration: underline;
+  }
+
+  .like-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    min-height: 24px;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: var(--color-muted);
+  }
+
+  .like-btn .icon-fist {
+    width: 1.6rem;
+    height: 1.6rem;
+    color: var(--color-text);
+    transition: transform 150ms ease;
+  }
+
+  /* Outline (unliked) shown by default; filled swaps in on data-liked, same
+     display-toggle pattern as .play-glyph's icon-play/icon-pause pair. */
+  .like-btn .icon-fist-filled {
+    display: none;
+  }
+
+  .like-btn[data-liked="true"] .icon-fist-outline {
+    display: none;
+  }
+
+  .like-btn[data-liked="true"] .icon-fist-filled {
+    display: block;
+  }
+
+  .like-btn[data-liked="true"] .icon-fist {
+    transform: scale(1.08);
+  }
+
+  .like-count {
+    font-size: 0.75rem;
+    min-width: 0.6em;
+  }
+
+  .like-btn[data-hydrated="false"] .like-count {
+    visibility: hidden;
+  }
+
+  /* .like-btn's one and only server-rendered home: its own row below the
+     video, in normal flow, never overlapping the footage — the desktop
+     default and the no-JS fallback. feed.ts's positionLikeButton() moves
+     the same button node into .like-slot-overlay above instead at <768px;
+     it is never duplicated between the two slots. */
+  .like-slot-row {
+    flex: 0 0 auto;
+    display: flex;
+    justify-content: flex-end;
+    padding: 0.4rem 0.75rem;
+  }
+
+  /* Once JS has relocated .like-btn out to the mobile overlay slot, this
+     row is left empty — collapse it to zero height so it doesn't leave a
+     blank gap between the video and .meta-row. */
+  .like-slot-row:empty {
+    padding: 0;
+  }
+
+  /* Mobile overlay state (added by feed.ts alongside the move into
+     .like-slot-overlay): bigger, and always carries a drop-shadow since it
+     sits over arbitrary video content — a plain white outline can vanish
+     against a bright frame without it. */
+  .like-btn.is-overlay {
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .like-btn.is-overlay .icon-fist {
+    width: 2.15rem;
+    height: 2.15rem;
+    filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.6));
+  }
+
+  .like-btn.is-overlay[data-liked="true"] .icon-fist {
+    transform: scale(1.1);
+  }
+
+  .like-btn.is-overlay .like-count {
+    color: #fff;
+    font-weight: 600;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  }
+
+  .like-burst {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 21;
+    opacity: 0;
+  }
+
+  .like-burst.show {
+    animation: glyph-fade 650ms ease forwards;
+  }
+
+  .like-burst .icon-fist {
+    width: 6rem;
+    height: 6rem;
+    color: #fff;
+    filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.5));
   }
 
   /* --- Caption block --- */
@@ -538,7 +755,8 @@ const avatarInitial = video.source.uploader.replace(/^@/, "").trim().charAt(0).t
      way rather than presenting duplicate, non-functional controls. */
   .feed-card.is-native-controls .mute-btn,
   .feed-card.is-native-controls .play-glyph,
-  .feed-card.is-native-controls .progress-hit {
+  .feed-card.is-native-controls .progress-hit,
+  .feed-card.is-native-controls .like-burst {
     display: none;
   }
 </style>

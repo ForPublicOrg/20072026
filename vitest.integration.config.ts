@@ -12,6 +12,9 @@ const takedownsMigrations = await readD1Migrations(path.join(import.meta.dirname
 const submissionsMigrations = await readD1Migrations(
   path.join(import.meta.dirname, "migrations/video-submissions"),
 );
+const likesMigrations = await readD1Migrations(
+  path.join(import.meta.dirname, "migrations/likes"),
+);
 
 export default defineConfig({
   plugins: [
@@ -21,6 +24,7 @@ export default defineConfig({
         bindings: {
           TEST_TAKEDOWNS_MIGRATIONS: takedownsMigrations,
           TEST_SUBMISSIONS_MIGRATIONS: submissionsMigrations,
+          TEST_LIKES_MIGRATIONS: likesMigrations,
         },
       },
     }),

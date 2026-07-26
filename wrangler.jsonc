@@ -41,6 +41,18 @@
       "database_name": "blackdays-video-submissions",
       "database_id": "e666f211-8490-4646-805a-4710ebff88d9",
       "migrations_dir": "migrations/video-submissions"
+    },
+    {
+      // Public like counts, one row per (video_id, client_id) pair. Separate
+      // database from TAKEDOWNS/SUBMISSIONS since likes are the only one of
+      // the three that IS rendered back onto the public site. migrations_dir
+      // MUST be set here — left at the wrangler default ("migrations/") it
+      // would collide with the TAKEDOWNS migration folder above and try to
+      // apply the wrong schema.
+      "binding": "LIKES",
+      "database_name": "blackdays-likes",
+      "database_id": "642ea319-2830-409b-b8fd-1300cd08938a",
+      "migrations_dir": "migrations/likes"
     }
   ],
   "r2_buckets": [
@@ -102,6 +114,15 @@
           "database_name": "blackdays-video-submissions-staging",
           "database_id": "8de76959-33bc-4f15-9b14-2df7bd2754f7",
           "migrations_dir": "migrations/video-submissions"
+        },
+        {
+          // Separate database from production, same reasoning as
+          // TAKEDOWNS/SUBMISSIONS above — test likes must never land in the
+          // production table.
+          "binding": "LIKES",
+          "database_name": "blackdays-likes-staging",
+          "database_id": "46d33c56-7c00-40b8-926c-820e2c2f9153",
+          "migrations_dir": "migrations/likes"
         }
       ],
       // Separate bucket from production, unlike blackdays-media — uploads are

@@ -25,15 +25,16 @@ Public "submit a video" form ──────────┼──► src/data
                                         │         Cloudflare Worker (src/worker.ts)
                                         │      static assets + POST /api/takedown
                                         │           POST /api/submit-video
-                                        └──────────►  PUT /api/upload/:id
+                                        │           PUT /api/upload/:id
+                                        └──────────►  POST/DELETE /api/likes/:id, GET /api/likes/batch
                                                               │
-                                            D1 (TAKEDOWNS, SUBMISSIONS)
+                                            D1 (TAKEDOWNS, SUBMISSIONS, LIKES)
                                             R2 (UPLOADS — pending, private)
                                             R2 (blackdays-media — public, reference footage)
 ```
 
 - **Fully static page output.** No server-rendered pages, no page-level database reads. `output: 'static'` in `astro.config.mjs`.
-- **A narrow Worker exists alongside the static build**, solely to give three POST/PUT endpoints somewhere to land (takedown requests, public video submissions, raw file uploads). Because `wrangler.jsonc` configures `assets` alongside `main`, Cloudflare serves matching static files without invoking the Worker at all — ordinary page loads cost nothing extra.
+- **A narrow Worker exists alongside the static build**, solely to give a handful of endpoints somewhere to land: takedown requests, public video submissions, raw file uploads, and (unlike the other three, which are private inboxes) public per-video like/unlike + batch count hydration. Because `wrangler.jsonc` configures `assets` alongside `main`, Cloudflare serves matching static files without invoking the Worker at all — ordinary page loads cost nothing extra.
 - **Build-time page generation.** Every video gets a pre-rendered `/video/:id` page with a unique `<title>`, description, and OG/Twitter meta pointing at its thumbnail — this is what makes shared links render rich previews on WhatsApp/X/Telegram.
 - **Build-time validation.** A malformed `videos.json`/`timeline.json` entry fails the build, never the live site (`src/lib/schema.ts`).
 - **Minimal client JavaScript.** Vanilla TS for feed playback/scrubbing (`src/scripts/feed.ts`), the landing page's scroll-reveal and submit-video form (inline in `index.astro`), and progressive enhancement of the takedown form. No framework runtime ships to the client.
@@ -42,7 +43,7 @@ Public "submit a video" form ──────────┼──► src/data
 
 - **Astro** (static output) + **TypeScript** (strict) + **Tailwind CSS 4** (via `@tailwindcss/vite`)
 - **Cloudflare Workers**: static assets (`ASSETS` binding) + `src/worker.ts` for `/api/*`, deployed via `wrangler deploy` (CI-driven — see `CLAUDE.md` "Deploy model")
-- **Cloudflare D1**: `TAKEDOWNS` (corrections/takedowns), `SUBMISSIONS` (public video submissions)
+- **Cloudflare D1**: `TAKEDOWNS` (corrections/takedowns), `SUBMISSIONS` (public video submissions), `LIKES` (public per-video like counts, keyed by an anonymous client id — see §10)
 - **Cloudflare R2**: `blackdays-media` (public reference footage, served at `media.20072026.com`, not a Worker binding) and `UPLOADS` (private, pending raw uploads from the submit-video form)
 - **@astrojs/sitemap** for sitemap generation
 - Collection tooling (local only, not part of the deploy): **yt-dlp**, **ffmpeg/ffprobe**
@@ -148,7 +149,7 @@ Navigation is a persistent app shell (`src/layouts/Base.astro`), not a page-by-p
 
 ## 7. Feed behavior (`/feed`)
 
-- Each card is an Instagram-main-feed-style post (`VideoCard.astro`): post header (avatar monogram from `source.uploader`'s first letter, uploader handle, location), the video as its own letterboxed block, a meta row, a caption block — never metadata burned over the footage.
+- Each card is an Instagram-main-feed-style post (`VideoCard.astro`): post header (avatar monogram from `source.uploader`'s first letter, uploader handle, location), the video as its own letterboxed block, a meta row, a caption block — never metadata burned over the footage, except the like button/count, which overlays the video's bottom-right corner on mobile only (Instagram Reels-style); on `≥768px` it stays in its own row below the video like everything else here (§10). Footage keeps its native aspect ratio (`object-fit: contain`, never cropped); when that leaves a letterbox gap, `.video-backdrop` fills it with the same thumbnail, blurred and darkened, so the gap still reads as one continuous black field instead of dead space the overlaid mute/like/progress controls would otherwise float in.
 - Meta row's CTA is the platform name itself — "View on {platform} ↗" — linking straight to `video.source.url` (`target="_blank" rel="noopener noreferrer"`), so credibility routes to the person who filmed it, not to this site's own page.
 - The "more" control is a `<button>`, not a link: expands the caption in place (`.is-expanded`, capped to ~30% of the card's own height with internal scroll), only shown once script measures the 2-line clamp is actually clipping.
 - The progress bar is a real scrubber: `role="slider"` with the `aria-value*` triad, click-to-seek, pointer-drag-to-scrub, arrow-key nudging (`ArrowLeft`/`ArrowRight`/`ArrowUp`/`ArrowDown` ±5s, `Home`/`End`). Visible bar stays a thin 3px; the hit area is padded to 20px tall.
@@ -156,6 +157,7 @@ Navigation is a persistent app shell (`src/layouts/Base.astro`), not a page-by-p
 - `preload="none"`, poster = thumbnail. Video `src` is attached only for the current and next card, detached beyond that — the archive can grow to thousands of entries without the feed degrading.
 - **Ordering**: two-tier priority by `footageOrigin` — `"participant"` entries first, then `"media"` entries, each tier independently shuffled and never interleaved. `feed.astro`'s build-time sort (participant tier first, each tier by date desc then id desc) is the deterministic no-JS baseline; `shuffleFeedOrder()` re-randomizes within each tier (Fisher-Yates per tier) on every load/navigation, reading each card's `data-footage-origin` attribute (set by `VideoCard.astro`). See `content-pipeline.md` "Editorial rules".
 - Tap/click toggles sound (persists across cards once unmuted). Keyboard: cards focusable, space/enter toggles play, arrow up/down moves focus and snap-scrolls to the adjacent card.
+- Like button + double-tap-to-like (Instagram-style), count hydrated from `GET /api/likes/batch` on load — see §10.
 - `prefers-reduced-motion: reduce` → never autoplay; native `controls` shown instead.
 
 ## 8. Submit-a-video
@@ -177,7 +179,17 @@ A public "submit a video" form lives embedded in `src/pages/index.astro` (not a 
 - Triage: `node scripts/admin-requests.mjs list --type takedown` (or the raw `wrangler d1 execute` shown in `CLAUDE.md`).
 - Spam defense is honeypot + length caps + the global rate cap above; Turnstile is the intended next step and is not yet implemented.
 
-## 10. Design language
+## 10. Likes
+
+Unlike the takedown/submission inboxes above, likes are public — counts are rendered back onto the site (the `VideoCard` like button, §7). No account system exists, so a like is attributed to an anonymous `client_id` the browser generates and persists in `localStorage`, sent as the `x-client-id` header — never generated by the Worker.
+
+- **Placement**: on `<768px` the like button/count overlays the video's bottom-right corner (Reels-style) — the one deliberate exception to §7's "never metadata burned over the footage" rule, scoped to this control only. At `≥768px` it renders in its own row below the video instead, in normal flow, not overlapping the footage. Same button node; `feed.ts` relocates it between the two slots at the breakpoint, never duplicating it.
+
+- **`POST /api/likes/:id`** (like) / **`DELETE /api/likes/:id`** (unlike) — same path, method distinguishes intent. `video_likes` has a composite `(video_id, client_id)` primary key, so a repeat `POST` from the same device is `INSERT OR IGNORE`d — idempotent by construction, a double-tap never double-counts. Both return `{ ok, liked, count }`. Same-origin check, honeypot-free (no form body to hide one in), a global per-minute rate cap higher than the other endpoints' (60/minute — likes are much higher-frequency and lower-stakes than a takedown or submission).
+- **`GET /api/likes/batch`** — hydrates like counts for the whole catalog in one request, feeding the feed page. Takes no params/body and returns counts for every video identically for every caller: an earlier per-id design (`IN (...)` over requested ids) was redesigned after a Cloudflare architecture review found it would bind one parameter per video id and exceed D1's hard 100-bound-parameter-per-query limit at this catalog's actual size. "Have I liked this" is answered entirely client-side instead — the client already knows what it liked, since it issued the `POST`/`DELETE` itself. Edge-cached via the Workers Cache API (`Cache-Control: public, max-age=20`) since this route fires on every `/feed` page view and Free-plan D1 has a daily rows-read cap.
+- **D1 database `blackdays-likes`** (binding `LIKES`), schema in `migrations/likes/0001_video_likes.sql` — table `video_likes`: `video_id`, `client_id`, `created_at`, composite primary key `(video_id, client_id)`. Separate database from `TAKEDOWNS`/`SUBMISSIONS` since likes are the only one of the three Worker-backed datasets that's rendered on the public site.
+
+## 11. Design language
 
 True-black, Instagram-evoking palette. Concrete tokens (`src/styles/global.css`, `@theme` block, source of truth):
 
@@ -195,11 +207,11 @@ True-black, Instagram-evoking palette. Concrete tokens (`src/styles/global.css`,
 
 System font stack (`-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`). Tight, app-like type scale applied to the app-shell chrome. No decorative animation beyond opacity/transform ≤200ms, wrapped in `prefers-reduced-motion: no-preference`; no autoplay audio; no clickbait patterns. Native-app details: `overscroll-behavior-y: contain`, `100svh`/`100dvh` instead of `100vh`, safe-area insets in the bottom nav, a web app manifest (`background_color`/`theme_color` `#000000`). Lighthouse targets: 100 across the board; LCP < 2s (a poster image, not video, is the LCP element on `/`).
 
-## 11. Accessibility
+## 12. Accessibility
 
 Keyboard-navigable feed and controls, alt text on all thumbnails, captions surfaced when available, visible focus states, `prefers-reduced-motion` respected (no autoplay when set), color contrast AA+ (see token table above).
 
-## 12. Credibility & safety surface
+## 13. Credibility & safety surface
 
 - Attribution (platform, uploader, original URL) is always visible — never stripped; the feed's primary CTA links straight to it (§7).
 - Sample entries, when present, carry a prominent "SAMPLE — placeholder entry" banner and `"sample": true`. None are live right now (§4), but the code path still works if one is reintroduced.
@@ -207,7 +219,7 @@ Keyboard-navigable feed and controls, alt text on all thumbnails, captions surfa
 - Descriptions state what is visible, not conclusions.
 - Nothing on the site claims verification status is distinguished for the reader — `/about` says plainly that nothing has been independently verified (§5, `verification-policy.md`).
 
-## 13. File tree (current)
+## 14. File tree (current)
 
 ```
 blackdays/
@@ -216,11 +228,14 @@ blackdays/
     0001_takedown_requests.sql          D1 schema for TAKEDOWNS
     video-submissions/
       0001_video_submissions.sql        D1 schema for SUBMISSIONS
+    likes/
+      0001_video_likes.sql              D1 schema for LIKES
   public/
     favicon.svg
   src/
     config.ts                SITE_NAME, SITE_URL, MEDIA_BASE
-    worker.ts                 Cloudflare Worker: /api/takedown, /api/submit-video, /api/upload/:id
+    worker.ts                 Cloudflare Worker: /api/takedown, /api/submit-video, /api/upload/:id,
+                               /api/likes/:id, /api/likes/batch
     data/videos.json
     data/timeline.json
     lib/schema.ts             types + loadVideos()/loadTimeline(); imported by pages at build time
@@ -245,13 +260,13 @@ blackdays/
     enrich.mjs
     admin-requests.mjs
   archive-originals/           raw downloads, git-ignored
-  wrangler.jsonc                main (src/worker.ts), assets, d1_databases (TAKEDOWNS, SUBMISSIONS),
+  wrangler.jsonc                main (src/worker.ts), assets, d1_databases (TAKEDOWNS, SUBMISSIONS, LIKES),
                                 r2_buckets (UPLOADS), env.staging mirror
   astro.config.mjs
   package.json
 ```
 
-## 14. Testing gotchas
+## 15. Testing gotchas
 
 Three traps that have each cost a previous session real debugging time:
 
@@ -259,6 +274,6 @@ Three traps that have each cost a previous session real debugging time:
 - **Never verify the feed with the Chrome extension.** Its automation tab runs with `visibility: hidden`, which suppresses `IntersectionObserver` callbacks and blocks autoplay outright — the feed will look completely non-functional even though it works for a real user. Use headless chromium (Playwright/Puppeteer) instead.
 - **Never test video seeking (the progress-bar scrubber) behind `python3 -m http.server`.** It doesn't implement HTTP Range requests, so `video.currentTime` silently refuses to move no matter what the scrubber does. Use a Range-capable server (`astro preview`, `npx serve`, or `wrangler dev`).
 
-## 15. Explicit non-goals
+## 16. Explicit non-goals
 
-User accounts, comments, likes, realtime updates, a general backend API. The Worker exists, but only for the three narrow endpoints in §8/§9 — the site is otherwise fully static.
+User accounts, comments, realtime updates, a general backend API. (Likes, §10, are the one exception carved out of this list — a narrow, anonymous, device-scoped counter, not an account system.) The Worker exists, but only for the narrow endpoints in §8/§9/§10 — the site is otherwise fully static.
