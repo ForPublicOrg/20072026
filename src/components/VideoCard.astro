@@ -2,7 +2,10 @@
 // Instagram MAIN FEED layout (not the earlier Reels-style overlay): a post
 // header (avatar/handle/location), the video as its own letterboxed block,
 // an action/meta row, then a caption block — all on
-// plain black, never metadata burned over the footage. See
+// plain black, never metadata burned over the footage — except the like
+// button/count, which overlays the video on mobile only (Instagram
+// Reels-style, confirmed as a deliberate exception; desktop keeps it as its
+// own row below the video, unchanged from the rest of this principle). See
 // docs/design-spec.md §9 ("Why the feed card is changing shape, not just
 // colour") for the rationale.
 import type { VideoEntry } from "../lib/schema";
@@ -517,8 +520,8 @@ const avatarInitial = video.source.uploader.replace(/^@/, "").trim().charAt(0).t
   }
 
   .like-btn .icon-fist {
-    width: 1.05rem;
-    height: calc(1.05rem * 512 / 448);
+    width: 1.6rem;
+    height: calc(1.6rem * 512 / 448);
     color: var(--color-text);
     opacity: 0.6;
     transition: opacity 150ms ease, transform 150ms ease;
