@@ -1175,5 +1175,123 @@
         }
       }
     ]
+  },
+  {
+    "time": "2026-07-24",
+    "title": "A fake resignation letter circulates, and is debunked",
+    "description": "A day before Pradhan actually resigned, an image purporting to be his signed resignation letter went viral on social media amid the nationwide \"Every District, One Day, One Demand\" protests. The Quint's fact-checking desk, WebQoof, compared it against authentic Pradhan correspondence and found the signature and letterhead did not match, concluding the document was fabricated. No credible reporting of an actual resignation existed at the time.",
+    "relatedVideoIds": [],
+    "sources": [
+      {
+        "title": "The Quint (WebQoof) - Image of Dharmendra Pradhan's Letter of Resignation Is Fabricated",
+        "url": "https://www.thequint.com/news/webqoof/image-of-dharmendra-pradhans-letter-of-resignation-is-fabricated-false-claim-fact-check"
+      }
+    ]
+  },
+  {
+    "time": "2026-07-25",
+    "title": "Pradhan resigns",
+    "description": "Union Education Minister Dharmendra Pradhan announced on X that he had sent his resignation letter to Prime Minister Narendra Modi, submitted around 2:51pm. In a two-page letter addressed to \"my young friends,\" he cited the situation at Jantar Mantar and across the country, said he wanted to prevent \"anti-national forces\" from exploiting it, and said he wanted no Indian student's future entangled in legal complications. President Droupadi Murmu accepted the resignation on Modi's recommendation. It was the first ministerial resignation of Modi's twelve-year tenure.",
+    "relatedVideoIds": [],
+    "sources": [
+      {
+        "title": "Al Jazeera - India's education minister resigns after weeks of 'Cockroach' protests",
+        "url": "https://www.aljazeera.com/news/2026/7/25/indias-education-minister-resigns-after-weeks-of-cockroach-protests"
+      },
+      {
+        "title": "The Week - What did Dharmendra Pradhan tell the youth in his resignation letter? Read in full here",
+        "url": "https://www.theweek.in/news/india/2026/07/25/what-did-dharmendra-pradhan-tell-the-youth-in-his-resignation-letter-read-in-full-here.html"
+      },
+      {
+        "title": "The Tribune - Timeline: from 'cockroach' remark to Pradhan's resignation",
+        "url": "https://www.tribuneindia.com/news/india/timeline-from-cockroach-remark-to-pradhans-resignation-how-the-cjp-protest-shook-government/"
+      }
+    ],
+    "statements": [
+      {
+        "speaker": "Dharmendra Pradhan",
+        "role": "Union Minister of Education (resigning)",
+        "kind": "tweet",
+        "date": "2026-07-25",
+        "quote": "Considering the situation that has arisen at Jantar Mantar and across the country, so that anti-national forces do not take advantage of this situation … I have sent my resignation letter to Prime Minister Narendra Modi. I deeply respect the aspirations, feelings, and legitimate expectations of the country's youth.",
+        "context": "Posted on X announcing his resignation.",
+        "source": {
+          "title": "Al Jazeera - India's education minister resigns after weeks of 'Cockroach' protests",
+          "url": "https://www.aljazeera.com/news/2026/7/25/indias-education-minister-resigns-after-weeks-of-cockroach-protests"
+        }
+      }
+    ]
+  },
+  {
+    "time": "2026-07-25",
+    "title": "\"We have done it\": CJP declares victory at Jantar Mantar",
+    "description": "Minutes after the resignation broke, CJP founder Abhijeet Dipke addressed thousands gathered at Jantar Mantar: \"We have done it, we have done it.\" He dedicated the moment to students who had died by suicide over exam failures, and credited the remark that started the movement two months earlier: \"I thank CJI Kant for calling us cockroaches. Had you not called us cockroaches, Pradhan would not have resigned.\"",
+    "relatedVideoIds": [],
+    "sources": [
+      {
+        "title": "Al Jazeera - 'We have done it': joy as 'Cockroach' protests push India minister out",
+        "url": "https://www.aljazeera.com/features/2026/7/25/we-have-done-it-joy-as-cockroach-protests-push-india-minister-out"
+      },
+      {
+        "title": "Outlook India - CJP protest ends as govt accepts all three demands",
+        "url": "https://www.outlookindia.com/national/education-minister-dharmendra-pradhan-resignation-news-live-updates-cjp-protests-july-25"
+      }
+    ],
+    "statements": [
+      {
+        "speaker": "Abhijeet Dipke",
+        "role": "CJP founder",
+        "kind": "address",
+        "date": "2026-07-25",
+        "quote": "We have done it, we have done it.",
+        "context": "Addressing the crowd at Jantar Mantar within minutes of Pradhan's resignation announcement.",
+        "source": {
+          "title": "Al Jazeera - 'We have done it': joy as 'Cockroach' protests push India minister out",
+          "url": "https://www.aljazeera.com/features/2026/7/25/we-have-done-it-joy-as-cockroach-protests-push-india-minister-out"
+        }
+      },
+      {
+        "speaker": "Abhijeet Dipke",
+        "role": "CJP founder",
+        "kind": "address",
+        "date": "2026-07-25",
+        "quote": "I thank CJI Kant for calling us cockroaches. Had you not called us cockroaches, Pradhan would not have resigned.",
+        "context": "Addressing the crowd at Jantar Mantar, crediting the May remark that gave the movement its name.",
+        "source": {
+          "title": "Outlook India - CJP protest ends as govt accepts all three demands",
+          "url": "https://www.outlookindia.com/national/education-minister-dharmendra-pradhan-resignation-news-live-updates-cjp-protests-july-25"
+        }
+      }
+    ]
+  },
+  {
+    "time": "2026-07-25",
+    "title": "Government accepts the remaining demands; the protest is called off",
+    "description": "Hours after the resignation, a third round of talks at the Constitution Club of India produced an agreement: the government would pay compensation to the families of students who died by suicide over exam failures, withdraw police cases filed against protesters in NDA-ruled states, and take no further action against those who took part in the 20 July march. Union Ministers J.P. Nadda and Jitendra Singh announced the agreement at a joint press conference with CJP representatives. CJP spokesperson Ashutosh Ranka told protesters at Jantar Mantar that all demands had been accepted and asked them to withdraw and go home peacefully, ending a protest that had run for roughly a month. Thousands who remained at the site marked the end of the agitation with songs and chants into the evening.",
+    "relatedVideoIds": [],
+    "sources": [
+      {
+        "title": "Outlook India - CJP protest ends as govt accepts all three demands",
+        "url": "https://www.outlookindia.com/national/education-minister-dharmendra-pradhan-resignation-news-live-updates-cjp-protests-july-25"
+      },
+      {
+        "title": "Al Jazeera - India's education minister resigns after weeks of 'Cockroach' protests",
+        "url": "https://www.aljazeera.com/news/2026/7/25/indias-education-minister-resigns-after-weeks-of-cockroach-protests"
+      }
+    ],
+    "statements": [
+      {
+        "speaker": "Ashutosh Ranka",
+        "role": "CJP spokesperson",
+        "kind": "press",
+        "date": "2026-07-25",
+        "quote": "All our demands have been accepted, so we request the protesters to withdraw immediately and return home peacefully.",
+        "context": "Announcing the end of the protest after the Constitution Club talks concluded.",
+        "source": {
+          "title": "Al Jazeera - India's education minister resigns after weeks of 'Cockroach' protests",
+          "url": "https://www.aljazeera.com/news/2026/7/25/indias-education-minister-resigns-after-weeks-of-cockroach-protests"
+        }
+      }
+    ]
   }
 ]
