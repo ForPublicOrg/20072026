@@ -61,6 +61,18 @@ const avatarInitial = video.source.uploader.replace(/^@/, "").trim().charAt(0).t
     </header>
 
     <div class="video-wrap">
+      {/* For footage whose native aspect ratio doesn't match this card
+          (mostly landscape clips — most of the catalog is native 9:16 and
+          barely shows this), object-fit: contain below leaves a tall band
+          of flat --color-letterbox above/below the frame, and the mute/like/
+          progress controls anchored to the wrap's true bottom edge end up
+          floating in it, disconnected from the visible footage. This layer
+          extends the same thumbnail behind the frame, blurred and darkened,
+          so that band still reads as "one continuous black field" (per
+          docs/design-spec.md's letterbox rationale) instead of dead space —
+          the actual footage above it is never cropped or altered. */}
+      <div class="video-backdrop" style={`--backdrop-image: url(${thumbSrc})`} aria-hidden="true"></div>
+
       <video
         playsinline
         muted
@@ -295,13 +307,29 @@ const avatarInitial = video.source.uploader.replace(/^@/, "").trim().charAt(0).t
     background: var(--color-letterbox);
   }
 
+  /* Scaled up so the blur radius never pulls in its own transparent edge,
+     and z-index: 0 keeps it strictly behind the real frame — this is
+     decorative fill for the letterbox band, never the content itself. */
+  .video-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-image: var(--backdrop-image);
+    background-size: cover;
+    background-position: center;
+    transform: scale(1.15);
+    filter: blur(28px) brightness(0.45);
+    pointer-events: none;
+  }
+
   .card-video {
     position: absolute;
     inset: 0;
+    z-index: 1;
     width: 100%;
     height: 100%;
     object-fit: contain;
-    background: var(--color-letterbox);
+    background: transparent;
   }
 
   .play-glyph {
