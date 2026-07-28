@@ -1,5 +1,6 @@
 import { env, SELF } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
+import { MAX_UPLOAD_BYTES, TOO_LARGE_MESSAGE } from "../../src/lib/upload-limits";
 
 // Integration tests for src/worker.ts, running against a real (local)
 // Workers runtime with real D1/R2 bindings (see vitest.integration.config.ts
@@ -234,6 +235,48 @@ describe("POST /api/submit-video", () => {
       }),
     });
     expect(res.status).toBe(400);
+  });
+
+  // Both halves of the size cap. See tests/unit/upload-limits.test.ts for why
+  // the number itself matters: anything the Worker lets through here that is
+  // over the Cloudflare plan's body limit gets killed at the edge instead,
+  // where it cannot be reported back to the submitter usefully.
+  it("rejects an oversized file at the metadata step, before a row is created", async () => {
+    const before = await env.SUBMISSIONS.prepare(
+      "SELECT COUNT(*) AS n FROM video_submissions",
+    ).first<{ n: number }>();
+
+    const res = await SELF.fetch(`${ORIGIN}/api/submit-video`, {
+      method: "POST",
+      headers: { origin: ORIGIN, "content-type": "application/json" },
+      body: JSON.stringify({
+        mode: "upload",
+        mimeType: "video/mp4",
+        filename: "huge.mp4",
+        fileSize: MAX_UPLOAD_BYTES + 1,
+      }),
+    });
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ ok: false, error: TOO_LARGE_MESSAGE });
+
+    const after = await env.SUBMISSIONS.prepare(
+      "SELECT COUNT(*) AS n FROM video_submissions",
+    ).first<{ n: number }>();
+    expect(after?.n).toBe(before?.n);
+  });
+
+  it("rejects an oversized PUT on its declared content-length", async () => {
+    const res = await SELF.fetch(`${ORIGIN}/api/upload/1`, {
+      method: "PUT",
+      headers: {
+        origin: ORIGIN,
+        "content-type": "video/mp4",
+        "content-length": String(MAX_UPLOAD_BYTES + 1),
+      },
+      body: new Uint8Array(10),
+    });
+    expect(res.status).toBe(413);
+    expect(await res.json()).toEqual({ ok: false, error: TOO_LARGE_MESSAGE });
   });
 
   it("rejects an upload PUT for an unknown submission id", async () => {

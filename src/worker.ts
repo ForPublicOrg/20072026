@@ -16,6 +16,8 @@
  * type overrides collide with Astro's strict DOM lib.
  */
 
+import { MAX_UPLOAD_BYTES, TOO_LARGE_MESSAGE } from "./lib/upload-limits";
+
 interface D1Result<T = unknown> {
   results: T[];
 }
@@ -110,10 +112,10 @@ const MAX_UPLOADS_PER_MINUTE = 5;
  *  submission — same global-not-per-IP tradeoff as MAX_PER_MINUTE above. */
 const MAX_LIKES_PER_MINUTE = 60;
 
-/** Per-file cap for raw footage uploads (see docs/design-spec.md for how this
- *  number was picked — sanity-check against the account's actual Cloudflare
- *  plan request-body limits before relying on it). */
-const MAX_UPLOAD_BYTES = 250 * 1024 * 1024;
+/** Per-file cap for raw footage uploads. Defined in src/lib/upload-limits.ts
+ *  so the Worker, the submit form, and its copy can't drift apart — read the
+ *  comment there before changing it, it is bounded by the Cloudflare plan's
+ *  edge-enforced request-body limit, not by anything in this file. */
 
 /** Total upload bytes accepted per rolling day, across all uploads — bounds
  *  storage-cost abuse even though (per the takedown design above) we don't
@@ -426,7 +428,7 @@ async function handleSubmitVideo(request: Request, env: Env): Promise<Response> 
       );
     }
     if (!Number.isFinite(fileSize) || fileSize <= 0 || fileSize > MAX_UPLOAD_BYTES) {
-      return json({ ok: false, error: "That file is too large. The limit is 250MB." }, 400);
+      return json({ ok: false, error: TOO_LARGE_MESSAGE }, 400);
     }
 
     try {
@@ -521,7 +523,7 @@ async function handleVideoUpload(request: Request, env: Env, id: number): Promis
     return json({ ok: false, error: "A file size (content-length) is required." }, 411);
   }
   if (contentLength > MAX_UPLOAD_BYTES) {
-    return json({ ok: false, error: "That file is too large. The limit is 250MB." }, 413);
+    return json({ ok: false, error: TOO_LARGE_MESSAGE }, 413);
   }
 
   const contentType = (request.headers.get("content-type") ?? "").toLowerCase();
