@@ -7,6 +7,7 @@
 // context page" more than once on 2026-07-21; this is the latest state).
 import Base from "../layouts/Base.astro";
 import { loadVideos, loadTimeline, publicVideos } from "../lib/schema";
+import { MAX_UPLOAD_LABEL } from "../lib/upload-limits";
 import { SITE_URL } from "../config";
 
 const videos = publicVideos(loadVideos());
@@ -190,7 +191,9 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
             accept="video/*"
             class="text-sm text-text file:mr-3 file:min-h-11 file:rounded-lg file:border-0 file:bg-accent file:px-4 file:text-sm file:font-semibold file:text-bg"
           />
-          <p class="text-xs leading-relaxed text-muted">Up to 250MB.</p>
+          <p class="text-xs leading-relaxed text-muted">
+            Up to {MAX_UPLOAD_LABEL}. For anything larger, upload it elsewhere and share the link instead.
+          </p>
           <div id="submit-video-progress-wrap" style="display:none">
             <div class="h-1.5 w-full overflow-hidden rounded-full bg-surface">
               <div id="submit-video-progress-bar" class="h-full w-0 bg-accent"></div>
@@ -561,7 +564,46 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
 <script src="../scripts/landing.ts"></script>
 
 <script>
-  const MAX_UPLOAD_BYTES = 250 * 1024 * 1024;
+  import { MAX_UPLOAD_BYTES, TOO_LARGE_MESSAGE } from "../lib/upload-limits";
+
+  const COULD_NOT_REACH =
+    "Could not reach the server. Please check your connection and try again.";
+
+  /**
+   * Carries a message that is safe to show the submitter. Exists so the submit
+   * handler can tell "the server answered and refused, here's why" apart from
+   * "we never got a reply". Until 2026-07-28 both rejected with the same opaque
+   * Error and everything was reported as a connection problem — including a
+   * clear 413, which meant the real cause never reached either the submitter or
+   * us.
+   */
+  class UploadError extends Error {
+    userMessage: string;
+    constructor(userMessage: string) {
+      super(userMessage);
+      this.name = "UploadError";
+      this.userMessage = userMessage;
+    }
+  }
+
+  /**
+   * The Worker answers failures with `{ ok: false, error }`. Cloudflare's own
+   * edge errors do not — the plan-level request-body 413 in particular is
+   * generated before the Worker runs and returns an HTML page — so fall back to
+   * the status code when the body isn't our JSON.
+   */
+  function uploadErrorMessage(xhr: XMLHttpRequest): string {
+    try {
+      const parsed = JSON.parse(xhr.responseText) as { error?: string };
+      if (typeof parsed.error === "string" && parsed.error) return parsed.error;
+    } catch {
+      // Not JSON — fall through to the status-based messages below.
+    }
+    if (xhr.status === 413) return TOO_LARGE_MESSAGE;
+    if (xhr.status === 429) return "Uploads are at capacity right now. Please try again later.";
+    if (xhr.status === 0) return COULD_NOT_REACH;
+    return `The upload failed (error ${xhr.status}). Please try again, or share a link instead.`;
+  }
 
   function initSubmitVideoForm() {
     const form = document.getElementById("submit-video-form");
@@ -624,9 +666,16 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
         });
         xhr.addEventListener("load", () => {
           if (xhr.status >= 200 && xhr.status < 300) resolve();
-          else reject(new Error("upload failed"));
+          else reject(new UploadError(uploadErrorMessage(xhr)));
         });
-        xhr.addEventListener("error", () => reject(new Error("upload failed")));
+        // Only fires when the request never completed at all (connection
+        // dropped, DNS, CORS). Anything the server or the edge actually
+        // answered — including a 4xx/5xx — arrives via `load` above.
+        xhr.addEventListener("error", () => reject(new UploadError(COULD_NOT_REACH)));
+        xhr.addEventListener("abort", () => reject(new UploadError("The upload was cancelled.")));
+        xhr.addEventListener("timeout", () =>
+          reject(new UploadError("The upload timed out. Please try again.")),
+        );
         xhr.send(file);
       });
     }
@@ -680,7 +729,7 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
           return;
         }
         if (file.size > MAX_UPLOAD_BYTES) {
-          setStatus("That file is too large. The limit is 250MB.");
+          setStatus(TOO_LARGE_MESSAGE);
           setBusy(false, "Submit video");
           return;
         }
@@ -716,9 +765,12 @@ const ogImage = `${SITE_URL}/banner/students-wide.jpg`;
         if (progressBar instanceof HTMLElement) progressBar.style.width = "0%";
         setStatus("Thank you — this will be reviewed.");
         setBusy(false, "Sent");
-      } catch {
+      } catch (error) {
         if (progressWrap instanceof HTMLElement) progressWrap.style.display = "none";
-        setStatus("Could not reach the server. Please check your connection and try again.");
+        // An UploadError already carries a message written for the submitter.
+        // Anything else here is a genuinely failed fetch() for the two
+        // /api/submit-video calls above, where "couldn't reach us" is accurate.
+        setStatus(error instanceof UploadError ? error.userMessage : COULD_NOT_REACH);
         setBusy(false, "Submit video");
       }
     });

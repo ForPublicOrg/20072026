@@ -23,6 +23,23 @@
     // homepage instead of a 301.
     "run_worker_first": true
   },
+  // Without this, Workers Logs retains NOTHING — console.error() in
+  // src/worker.ts goes nowhere unless someone happens to have `wrangler tail`
+  // attached at that moment. Added 2026-07-28 after a public upload failure had
+  // to be reconstructed from orphaned D1 rows and zone-level GraphQL analytics
+  // because there were no Worker logs at all. Inherited by the staging
+  // environment below (observability is an inheritable key).
+  //
+  // head_sampling_rate is 1 (log everything): this Worker only runs for /api/*
+  // plus one redirect, so the volume is nowhere near the free tier's daily
+  // allowance. Note that requests rejected at the edge — the plan-level
+  // request-body 413 that caused the incident above — never invoke the Worker
+  // and so will NOT appear here no matter what this is set to; those are only
+  // visible in the zone's HTTP analytics.
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
   "d1_databases": [
     {
       // Private inbox for correction/takedown requests. Nothing in this
